@@ -98,4 +98,20 @@ Output
 * Hierarchic protocol structure
 * Score (a measurement of how certain the analysis is)
     
+
+\section{Reading TCP streams}
+
+Read Protocol Data Units (PDUs) separately. If PDU spans over several TCP packets:
+Merge TCP-segments to entire PDU. Achievable by fetching TCP-data sent with no
+PSH-flag set, up to the point that a packet with PSH-flag is set, which indicates
+that the entire PDU has been transfered.
+
+
+Datastructure for storing PDUs:
+
+Source: The source address
+Destination: The destination address
+Timestamp: The pcap timestamp of the first packet in the PDU
+Data: The entire PDU data
+
 \end{document}
