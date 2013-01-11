@@ -15,8 +15,8 @@ ip_protocol = {
     'UDP': '\x11',
 }
 
-tcp_conn = dict()
-msgs = []
+tcp_conn    = {}
+msgs        = []
 
 def load_pcap(filename):
     p = pcap.pcapObject()
@@ -25,7 +25,7 @@ def load_pcap(filename):
     p.dispatch(-1, process_eth)
     # flush TCP connections
     for src in tcp_conn:
-        tcp_flush(src)
+        msgs.append(tcp_conn[src])
     return msgs
 
 def process_eth(length, data, ts):
@@ -60,26 +60,28 @@ def process_tcp(ts, src, dst, data):
     pld = data[4*offset:]
     if pld:
         if not src in tcp_conn:
-            tcp_conn[src] = (None, [])
-        (buf_mdata, buf_data) = tcp_conn[src]
-        if not buf_mdata:
-            buf_mdata = (ts, src, dst, seq, ack)
-        offset = seq - buf_mdata[3]
-        buf_data[offset:offset+len(pld)] = list(pld)
-        tcp_conn[src] = (buf_mdata, buf_data)
-    if src in tcp_conn and tcp_conn[src][0] and ack != tcp_conn[src][0][4]:
-        tcp_flush(src)
+            tcp_conn[src] = {
+                'timestamp':    ts,
+                'source':       src,
+                'destination':  dst,
+                'seq':          seq,
+                'ack':          ack,
+                'data':         [],
+            }
+        offset = seq - tcp_conn[src]['seq']
+        tcp_conn[src]['data'][offset:offset+len(pld)] = list(pld)
+    if src in tcp_conn and ack != tcp_conn[src]['ack']:
+        msgs.append(tcp_conn[src])
         del tcp_conn[src]
 
-def tcp_flush(src):
-    (mdata, dat) = tcp_conn[src]
-    (ts, src, dst, _, _) = mdata
-    mdata = (ts, src, dst)
-    msgs.append((mdata, dat))
-
 def process_udp(ts, src, dst, data):
-    mdata = (ts, src, dst)
-    msgs.append((mdata ,data[8:]))
+    msg = {
+        'timestamp':    ts,
+        'source':       src,
+        'destination':  dst,
+        'data':         data[8:],
+    }
+    msgs.append(msg)
 
 def decode_byte(data):
     return struct.unpack('!B', data)[0]
@@ -118,8 +120,6 @@ def bytes_to_address(bytes_):
 out = load_pcap(sys.argv[1])
 
 for m in out:
-    (mdata, data) = m
-    (ts, src, dst) = mdata
-    data = "".join(data)
-    print(time.ctime(ts), bytes_to_address(src), bytes_to_address(dst), data)
+    data = "".join(m['data'])
+    print(time.ctime(m['timestamp']), bytes_to_address(m['source']), bytes_to_address(m['destination']), data)
     print("=========================================================================")
