@@ -38,12 +38,6 @@ def extract_pcap_data(filename):
     p.open_offline(filename)
     # process all packets
     p.dispatch(-1, _process_eth)
-    
-    for prot in _msgs:
-        f = open(prot + '.out', 'w')
-        for packet_data in _msgs[prot]:
-            f.write(packet_data.encode('hex') + '\n')
-        f.close()
     return _msgs
 
 def _process_eth(length, data, ts):
@@ -57,7 +51,7 @@ def _process_eth(length, data, ts):
     if eth_type == _ether_type['IPv4']:
         _process_ipv4(ts, pld)
     else:
-        raise NotImplementedError
+        pass
 
 def _process_ipv4(ts, data):
     """Processes an IPv4 packet.
@@ -75,7 +69,7 @@ def _process_ipv4(ts, data):
     elif ip_type == _ip_protocol['UDP']:
         _msgs['UDP'].append(pld)
     else:
-        raise NotImplementedError
+        pass
 
 def _decode_byte(data):
     """Decodes one byte of network data into an unsigned char."""
