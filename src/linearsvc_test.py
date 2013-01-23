@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import ipv4_data
+import util.ipv4_data
 import sklearn
 import sklearn.svm
 import numpy as np
@@ -20,7 +20,7 @@ features = [
 ]
 
 # Extract messages
-packets = ipv4_data.extract_pcap_data('../../SkypeIRC.cap')['UDP']
+packets = util.ipv4_data.extract_pcap_data('../SkypeIRC.cap')['UDP']
 
 # Annotate training and test data
 (train_y, train_x) = annotate(packets[:500], classifier, features)
