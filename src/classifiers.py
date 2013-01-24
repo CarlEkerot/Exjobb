@@ -1,4 +1,4 @@
-__all__ = ['UDPClassifier']
+__all__ = ['UDPClassifier', 'TCPClassifier', 'DNSClassifier']
 
 class Classifier(object):
     def __init__(self, msg):
@@ -15,3 +15,15 @@ class Classifier(object):
 class UDPClassifier(Classifier):
     def _init_boundaries(self):
         self._boundaries = [1, 3, 5, 7, len(self._msg) - 1]
+
+class TCPClassifier(Classifier):
+    def _init_boundaries(self):
+        self._boundaries = [1, 3, 7, 11, 12, 13, 15, 17, 19]
+        offset = ord(self._msg[12]) >> 4
+        if offset > 5:
+            self._boundaries.append(4 * offset - 1)
+        self._boundaries.append(len(self._msg) - 1)
+
+class DNSClassifier(Classifier):
+    def _init_boundaries(self):
+        self._boundaries = [1, 3, 5, 7, 9, 11, len(self._msg) - 1]
