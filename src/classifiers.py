@@ -1,7 +1,7 @@
 __all__ = ['UDPClassifier']
 
 class Classifier(object):
-    def init(self, msg):
+    def __init__(self, msg):
         self._msg = msg
         self._init_boundaries()
 
