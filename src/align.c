@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "align.h"
@@ -17,13 +16,14 @@ a       - first sequence
 b       - second sequence
 d       - gap penalty
 S       - scoring function on the form S(char, char) -> int
-local   - True for local alignment, False otherwise
+local   - true for local alignment, false otherwise
 
 Returns
 -------
+s       - alignment score
+len     - length of the alignment
 a1      - alignment of the first sequence
 a2      - alignment of the second sequence
-s       - alignment score
 
 */
 align_t align(const char* a, const char* b, int d, int (*S)(char, char), bool local)
@@ -84,8 +84,8 @@ align_t align(const char* a, const char* b, int d, int (*S)(char, char), bool lo
     }
 
     // Backtrace through the matrix
-    a1 = malloc((len_a + len_b) * sizeof(char));
-    a2 = malloc((len_a + len_b) * sizeof(char));
+    a1 = malloc((len_a + len_b) * sizeof(short));
+    a2 = malloc((len_a + len_b) * sizeof(short));
     if (local) {
         i = max_i;
         j = max_j;
@@ -124,9 +124,10 @@ align_t align(const char* a, const char* b, int d, int (*S)(char, char), bool lo
         a2[len_al - (i + 1)] = tmp;
     }
 
+    ret.s = max_val;
+    ret.len = len_al;
     ret.a1 = a1;
     ret.a2 = a2;
-    ret.s = max_val;
     return ret;
 }
 
@@ -139,20 +140,17 @@ int S(char a, char b) {
 int main() {
     int i;
 
-    for (i = 0; i < 100000; i++) {
-        align_t al = align("ACACACTAATCGCGTACGATCGATCTCTAGCTAGC", "AGCACACATCGATCGATCTCTCGATCGATCGATCGATCGAT", -2, *S, true);
-    }
-    /*
     align_t al = align("ACACACTA", "AGCACACA", -2, *S, true);
-    for (i = 0; i < 9; i++) {
-        printf("%d ", al.a1[i]);
+
+    for (i = 0; i < al.len; i++) {
+        printf("%c", al.a1[i]);
     }
     printf("\n");
-    for (i = 0; i < 9; i++) {
-        printf("%d ", al.a2[i]);
+    for (i = 0; i < al.len; i++) {
+        printf("%c", al.a2[i]);
     }
     printf("\n");
     printf("%d\n", al.s);
-    */
+
     return 0;
 }
