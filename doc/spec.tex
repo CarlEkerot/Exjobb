@@ -114,4 +114,41 @@ Destination: The destination address
 Timestamp: The pcap timestamp of the first packet in the PDU
 Data: The entire PDU data
 
+\section{Experimenting with liblinear/libsvm}
+
+Validating SkypeIRC.cap on itself:
+train: 500 packets
+test: 500 packets
+results:
+0.994877175074
+[[103172    129]
+ [   413   2087]]
+ Field boundaries missed: 129 (5.82%)
+ False field boundaries: 413 (16.52%)
+
+Validating dns-30628-packets.pcap on itself:
+train: 500 packets
+test: 500 packets
+results:
+0.989144193726
+[[69857   323]
+ [  466  2034]]
+ Field boundaries missed: 323 (13.70%)
+ False field boundaries: 466 (18.64%)
+
+Mixed training set with UDP, TCP and DNS packets from the two above captures
+on a mixed test set from the same:
+UDP training: 3000
+TCP training: 1000
+DNS training: 3000
+UDP testing: 1000
+TCP testing: 500
+DNS testing: 1000
+Results:
+0.977658514638
+[[296751    903]
+ [  6049   7467]]
+ Field boundaries missed: 903 (10.79%)
+ False field boundaries: 6049 (44.75%)
+
 \end{document}

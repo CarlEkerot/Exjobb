@@ -3,45 +3,77 @@
 from __future__ import division
 
 import util.ipv4_data
+import pcap_reassembler
 import sklearn
 import sklearn.svm
+import sklearn.metrics
 import numpy as np
+import scipy.sparse as sp
+
+from sklearn.externals import joblib
+import os
 
 from annotator import Annotator
 
 from features import *
 from classifiers import *
 
-# Define classifier and features
-classifier = UDPClassifier
+import warnings
+
+warnings.simplefilter('ignore', DeprecationWarning)
+
+# Define features
 features = [
     PositionFeature(),
     DataFeature(),
     PredecessorFeature(),
     SuccessorFeature(),
+    ByteDifferenceFeature(),
+    ByteXORFeature(),
 ]
 
+# Define annotators
+dns_anot = Annotator(DNSClassifier, features)
+
 # Extract messages
-packets = util.ipv4_data.extract_pcap_data('../SkypeIRC.cap')['UDP']
+dns_packets = pcap_reassembler.load_pcap('../dns-30628-packets.pcap')
 
-# Annotate training and test data
-annotator = Annotator(classifier, features)
-(train_y, train_x) = annotator.annotate(packets[:500])
-(test_y, test_x) = annotator.annotate(packets[500:1000])
+if os.path.exists('model/model'):
+    # Load the model
+    print("loading model from file")
+    clf = joblib.load('model/model')
+else:
+    print("creating new model")
 
-# if we want use use class_weight we need to define it below
-svc = sklearn.svm.LinearSVC()
-params = {'C': range(1, 5)}
-clf = sklearn.grid_search.GridSearchCV(svc, params)
-# this had to be an ndarray to work
-clf.fit(train_x, np.asarray(train_y))
+    # Annotate training data
+    (train_y, train_x) = dns_anot.annotate(map(lambda x: x.data, dns_packets[0:6000]))
 
+    # Train the model
+    svc = sklearn.svm.LinearSVC(dual=False, class_weight='auto')
+    params = {'C': range(1,11)}
+    clf = sklearn.grid_search.GridSearchCV(svc, params)
+    clf.fit(train_x, np.asarray(train_y))
+    print('Best estimator:')
+    print(clf.best_estimator_)
+
+    # Save the model
+    joblib.dump(clf.best_estimator_, 'model/model')
+
+# Test the model
+dns_packets = pcap_reassembler.load_pcap('../dns-30628-packets.pcap')
+(test_y, test_x) = dns_anot.annotate(map(lambda x: x.data, dns_packets[6000:7000]))
 pred_y = clf.predict(test_x)
-conf = sklearn.metrics.confusion_matrix(test_y, pred_y)
-print(clf.best_estimator_)
-print(clf.score(test_x, test_y))
-print(conf)
-print('Field boundaries missed: %d (%.2f%%)' % (conf[0,1], 100 * conf[0,1] / (conf[0,1] + conf[1,1])))
-print('False field boundaries: %d (%.2f%%)' % (conf[1,0], 100 * conf[1,0] / (conf[1,0] + conf[1,1])))
+
+# Output prediction information
+score = sklearn.metrics.accuracy_score(test_y, pred_y)
+score_zeros = sklearn.metrics.accuracy_score(test_y, len(pred_y) * [0])
+C = sklearn.metrics.confusion_matrix(test_y, pred_y)
+print('Accuracy score: %.2f%%' % (100 * score))
+print('Zero-prediction comparison: %.2f%%' % (100 * score / score_zeros))
+print('Confusion matrix:')
+print(C)
+print('Field boundaries missed (false negatives): %d (%.2f%%)' % (C[1,0], 100 * C[1,0] / (C[1,0] + C[1,1])))
+print('False field boundaries (false positives): %d (%.2f%%)' % (C[0,1], 100 * C[0,1] / (C[0,1] + C[1,1])))
+print('Prediction:')
 print(pred_y)
 

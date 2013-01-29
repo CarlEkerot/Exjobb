@@ -1,4 +1,11 @@
-__all__ = ['PositionFeature', 'DataFeature', 'PredecessorFeature', 'SuccessorFeature']
+__all__ = [
+    'PositionFeature',
+    'DataFeature',
+    'PredecessorFeature',
+    'SuccessorFeature',
+    'ByteDifferenceFeature',
+    'ByteXORFeature',
+]
 
 class Feature(object):
     def __init__(self, type_, size):
@@ -43,4 +50,41 @@ class SuccessorFeature(Feature):
         else:
             succ = 256
         return succ
+
+class ByteDifferenceFeature(Feature):
+    def __init__(self):
+        super(ByteDifferenceFeature, self).__init__(type_='numeric', size=1)
+        self.prev_msg = None
+        self.curr_msg = None
+
+    def get_value(self, msg, pos):
+        if msg != self.curr_msg:
+            self.prev_msg = self.curr_msg
+            self.curr_msg = msg
+        if not self.prev_msg or pos >= len(self.prev_msg):
+            prev = 0
+        else:
+            prev = ord(self.prev_msg[pos])
+        diff = abs(ord(msg[pos]) - prev)
+        return diff
+
+class ByteXORFeature(Feature):
+    def __init__(self):
+        super(ByteXORFeature, self).__init__(type_='numeric', size=1)
+        self.prev_msg = None
+        self.curr_msg = None
+
+    def get_value(self, msg, pos):
+        if msg != self.curr_msg:
+            self.prev_msg = self.curr_msg
+            self.curr_msg = msg
+        if not self.prev_msg or pos >= len(self.prev_msg):
+            diff = 8
+        else:
+            diff = 0
+            xor = ord(msg[pos]) ^ ord(self.prev_msg[pos])
+            for i in range(8):
+                if xor >> i % 2:
+                    diff += 1
+        return diff
 
