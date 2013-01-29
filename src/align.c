@@ -1,4 +1,3 @@
-#include <string.h>
 #include <stdio.h>
 #include "align.h"
 
@@ -26,10 +25,8 @@ a1      - alignment of the first sequence
 a2      - alignment of the second sequence
 
 */
-align_t align(const char* a, const char* b, int d, int (*S)(char, char), bool local)
+align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, int (*S)(char, char), bool local)
 {
-    size_t len_a = strlen(a);
-    size_t len_b = strlen(b);
     size_t len_al;
     size_t i;
     size_t j;
@@ -140,7 +137,9 @@ int S(char a, char b) {
 int main() {
     int i;
 
-    align_t al = align("ACACACTA", "AGCACACA", -2, *S, true);
+    short a[8] = {'A', 'C', 'A', 'C', 'A', 'C', 'T', 'A'};
+    short b[8] = {'A', 'G', 'C', 'A', 'C', 'A', 'C', 'A'};
+    align_t al = align(8, a, 8, b, -2, *S, true);
 
     for (i = 0; i < al.len; i++) {
         printf("%c", al.a1[i]);

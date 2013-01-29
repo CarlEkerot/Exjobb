@@ -8,4 +8,4 @@ typedef struct align_t {
     short* a2;
 } align_t;
 
-align_t align(const char* a, const char* b, int d, int (*S)(char, char), bool local);
+align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, int (*S)(char, char), bool local);
