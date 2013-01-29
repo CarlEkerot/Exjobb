@@ -1,3 +1,4 @@
 *.pyc
 *.cap
 *.pcap
+src/model
