@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "align.h"
 
 #ifndef max
@@ -25,7 +24,7 @@ a1      - alignment of the first sequence
 a2      - alignment of the second sequence
 
 */
-align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, int (*S)(char, char), bool local)
+align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, PyObject* S, bool local)
 {
     size_t len_al;
     size_t i;
@@ -64,7 +63,8 @@ align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d,
     // Fill the matrix
     for (i = 1; i < len_b + 1; i++) {
         for (j = 1; j < len_a + 1; j++) {
-            match = F[i-1][j-1] + S(a[j-1], b[i-1]);
+            match = F[i-1][j-1] +
+                (int) PyInt_AsLong(PyObject_CallFunction(S, "cc", (char) a[j-1], (char) b[i-1]));
             delete = F[i-1][j] + d;
             insert = F[i][j-1] + d;
             F[i][j] = max(match, delete);
@@ -94,7 +94,8 @@ align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d,
         if (local && !F[i][j]) {
             break;
         }
-        if (i > 0 && j > 0 && F[i][j] == F[i-1][j-1] + S(a[j-1], b[i-1])) {
+        if (i > 0 && j > 0 && F[i][j] == F[i-1][j-1] +
+                (int) PyInt_AsLong(PyObject_CallFunction(S, "cc", (char) a[j-1], (char) b[i-1]))) {
             a1[cnt1++] = a[j-1];
             a2[cnt2++] = b[i-1];
             i--;
@@ -128,28 +129,3 @@ align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d,
     return ret;
 }
 
-int S(char a, char b) {
-    if (a == b)
-        return 2;
-    return -1;
-}
-
-int main() {
-    int i;
-
-    short a[8] = {'A', 'C', 'A', 'C', 'A', 'C', 'T', 'A'};
-    short b[8] = {'A', 'G', 'C', 'A', 'C', 'A', 'C', 'A'};
-    align_t al = align(8, a, 8, b, -2, *S, true);
-
-    for (i = 0; i < al.len; i++) {
-        printf("%c", al.a1[i]);
-    }
-    printf("\n");
-    for (i = 0; i < al.len; i++) {
-        printf("%c", al.a2[i]);
-    }
-    printf("\n");
-    printf("%d\n", al.s);
-
-    return 0;
-}
