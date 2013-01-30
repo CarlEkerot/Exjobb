@@ -10,18 +10,21 @@ Performs local or global sequence alignment.
 
 Parameters
 ----------
-a       - first sequence
-b       - second sequence
-d       - gap penalty
-S       - scoring function on the form S(char, char) -> int
-local   - true for local alignment, false otherwise
+ * len_a    - length of the first sequence
+ * a        - first sequence
+ * len_b    - length of the second sequence
+ * b        - second sequence
+ * d        - gap penalty
+ * len_S    - length of alphabet
+ * S        - scoring matrix
+ * local    - true for local alignment, false otherwise
 
 Returns
 -------
-s       - alignment score
-len     - length of the alignment
-a1      - alignment of the first sequence
-a2      - alignment of the second sequence
+ * s        - alignment score
+ * len      - length of the alignment
+ * a1       - alignment of the first sequence
+ * a2       - alignment of the second sequence
 
 */
 align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, size_t len_S, const int* S, bool local)

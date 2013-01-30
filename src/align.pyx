@@ -4,6 +4,24 @@ from calign cimport align as calign_
 from numpy cimport ndarray
 
 cpdef align(a, b, d, ndarray S, local=False):
+    """
+    Performs local or global sequence alignment.
+
+    Parameters
+    ----------
+     * a        - first sequence
+     * b        - second sequence
+     * d        - gap penalty
+     * S        - scoring matrix
+     * local    - true for local alignment, false otherwise
+
+    Returns
+    -------
+     * s        - alignment score
+     * a1       - alignment of the first sequence
+     * a2       - alignment of the second sequence
+
+    """
     cdef size_t len_a = len(a)
     cdef size_t len_b = len(b)
     cdef size_t len_S = len(S)
