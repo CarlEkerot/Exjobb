@@ -15,7 +15,7 @@ def test():
     packets = pcap_reassembler.load_pcap('../dns-30628-packets.pcap')
     msgs = map(lambda x: x.data, packets[:size])
 
-    S = numpy.ndarray((256, 256), dtype=numpy.int)
+    S = numpy.ndarray((256, 256), dtype=numpy.int32)
     for i in range(256):
         for j in range(256):
             S[i,j] = score(i, j)
