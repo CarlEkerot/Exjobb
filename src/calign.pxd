@@ -1,6 +1,6 @@
 from libcpp cimport bool
 
-cdef extern from 'align.h':
+cdef extern from 'calign.h':
     cdef struct align_t:
         int s
         size_t len
