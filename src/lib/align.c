@@ -24,7 +24,7 @@ a1      - alignment of the first sequence
 a2      - alignment of the second sequence
 
 */
-align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, PyObject* S, bool local)
+align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, size_t len_S, const int* S, bool local)
 {
     size_t len_al;
     size_t i;
@@ -63,8 +63,7 @@ align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d,
     // Fill the matrix
     for (i = 1; i < len_b + 1; i++) {
         for (j = 1; j < len_a + 1; j++) {
-            match = F[i-1][j-1] +
-                (int) PyInt_AsLong(PyObject_CallFunction(S, "cc", (char) a[j-1], (char) b[i-1]));
+            match = F[i-1][j-1] + S[len_S * a[j-1] + b[i-1]];
             delete = F[i-1][j] + d;
             insert = F[i][j-1] + d;
             F[i][j] = max(match, delete);
@@ -94,8 +93,7 @@ align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d,
         if (local && !F[i][j]) {
             break;
         }
-        if (i > 0 && j > 0 && F[i][j] == F[i-1][j-1] +
-                (int) PyInt_AsLong(PyObject_CallFunction(S, "cc", (char) a[j-1], (char) b[i-1]))) {
+        if (i > 0 && j > 0 && F[i][j] == F[i-1][j-1] + S[len_S * a[j-1] + b[i-1]]) {
             a1[cnt1++] = a[j-1];
             a2[cnt2++] = b[i-1];
             i--;

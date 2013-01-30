@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdbool.h>
-#include <Python.h>
 
 typedef struct align_t {
     int s;
@@ -9,4 +8,4 @@ typedef struct align_t {
     short* a2;
 } align_t;
 
-align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, PyObject* S, bool local);
+align_t align(size_t len_a, const short* a, size_t len_b, const short* b, int d, size_t len_S, const int* S, bool local);

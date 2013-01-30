@@ -7,5 +7,5 @@ cdef extern from 'align.h':
         short* a1
         short* a2
 
-    align_t align(size_t len_a, short* a, size_t len_b, short* b, int d, object S, bool local)
+    align_t align(size_t len_a, short* a, size_t len_b, short* b, int d, size_t len_S, int* S, bool local)
 

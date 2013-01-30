@@ -1,10 +1,12 @@
 from libc.stdlib cimport malloc
 from calign cimport align_t
 from calign cimport align as calign_
+from numpy cimport ndarray
 
-cpdef align(a, b, d, S, local=False):
+cpdef align(a, b, d, ndarray S, local=False):
     cdef size_t len_a = len(a)
     cdef size_t len_b = len(b)
+    cdef size_t len_S = len(S)
     cdef size_t i
     cdef short* ca = <short*> malloc(len_a * sizeof(short))
     cdef short* cb = <short*> malloc(len_b * sizeof(short))
@@ -14,7 +16,7 @@ cpdef align(a, b, d, S, local=False):
         ca[i] = ord(a[i])
     for i in range(len_b):
         cb[i] = ord(b[i])
-    al = calign_(len_a, ca, len_b, cb, d, S, local)
+    al = calign_(len_a, ca, len_b, cb, d, len_S, <int*> S.data, local)
 
     a1 = []
     a2 = []

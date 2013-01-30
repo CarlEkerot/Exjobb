@@ -1,7 +1,5 @@
 CC	 = gcc
-CFLAGS	 = -fPIC -I/usr/include/python2.7 -fno-strict-aliasing -DNDEBUG
-CFLAGS	+= -fwrapv -O2 -Wall -Wstrict-prototypes -g -fstack-protector
-CFLAGS	+= --param=ssp-buffer-size=4 -Wformat -Wformat-security -Werror=format-security
+CFLAGS	 = -fPIC -O3
 
 SRC	 = align.c
 
@@ -14,7 +12,7 @@ align: align.o
 	gcc -shared -o libalign.so align.o
 
 install: align
-	mv libalign.so /usr/lib/
+	cp libalign.so /usr/lib/
 	cp align.h /usr/include/
 
 uninstall:
