@@ -1,5 +1,4 @@
 *.pyc
-*.cap
-*.pcap
 *.png
 src/model
+cap/
