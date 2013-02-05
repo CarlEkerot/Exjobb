@@ -10,10 +10,6 @@ import pydot
 import collections
 import matplotlib.pyplot
 
-size = 6
-limit = 100
-M = numpy.ndarray((size, size))
-
 class Node(object):
     def compare_to(self, n):
         a = self.get_leaves()
@@ -45,50 +41,36 @@ class LeafNode(Node):
     def get_leaves(self):
         return [self]
 
-packets = pcap_reassembler.load_pcap('../cap/http.cap', strict=False)
-#streams = collections.defaultdict(list)
-#for packet in packets:
-#    streams[(packet.source_addr, packet.destination_addr)].append(packet.data)
-#for key in streams:
-#    print(key)
-entropy = collections.defaultdict(set)
-for packet in packets:
-    for (pos, val) in enumerate(packet.data[:limit]):
-        entropy[pos].add(val)
-#left = []
-#height = []
-#for pos in entropy:
-#    left.append(pos)
-#    height.append(len(entropy[pos]))
-#plot = matplotlib.pyplot.bar(left, height, color='r')
-#matplotlib.pyplot.show()
+def upgma(packets, size, limit=100):
+    entropy = collections.defaultdict(set)
+    for packet in packets:
+        for (pos, val) in enumerate(packet.data[:limit]):
+            entropy[pos].add(val)
 
-msgs = map(lambda x: x.data[:limit], packets[:size])
+    msgs = map(lambda x: x.data[:limit], packets[:size])
 
-S = 3 * numpy.identity(256) - numpy.ones((256, 256))
-S = S.astype(numpy.int16)
+    to_process = []
+    for (i, msg) in enumerate(msgs):
+        features = numpy.asarray(map(lambda (j, x): ord(x) / len(entropy[j]), enumerate(msg)))
+        to_process.append(LeafNode(i, features))
 
-#for i in range(size):
-#    for j in range(i + 1, size):
-#        (s, _, _) = align.align(msgs[i], msgs[j], -2, S, local=True)
-#        M[i,j] = s
+    while len(to_process) > 1:
+        score_min = float('inf')
+        for (A, B) in itertools.combinations(to_process, 2):
+            score = A.compare_to(B)
+            if score < score_min:
+                to_merge = (A, B)
+                score_min = score
+        (A, B) = to_merge
+        to_process.remove(A)
+        to_process.remove(B)
+        to_process.append(ParentNode(A, B, score_min))
 
-to_process = []
-for i in range(size):
-    features = numpy.asarray(map(lambda (j, x): ord(x) / len(entropy[j]), enumerate(msgs[i])))
-    to_process.append(LeafNode(i, features))
+    return to_process[0]
 
-while len(to_process) > 1:
-    score_min = float('inf')
-    for (A, B) in itertools.combinations(to_process, 2):
-        score = A.compare_to(B)
-        if score < score_min:
-            to_merge = (A, B)
-            score_min = score
-    (A, B) = to_merge
-    to_process.remove(A)
-    to_process.remove(B)
-    to_process.append(ParentNode(A, B, score_min))
+size = 100
+packets = pcap_reassembler.load_pcap('../cap/dns-30628-packets.pcap', strict=True)
+root = upgma(packets, size)
 
 count = 0
 def build_tree(tree, node, parent):
@@ -107,13 +89,6 @@ def build_tree(tree, node, parent):
 
 # output tree
 tree = pydot.Dot(graph_type='graph')
-root = to_process[0]
 build_tree(tree, root, None)
-
 tree.write_png('tree.png')
-
-#while True:
-#    i = int(raw_input('Message index: '))
-#    print('\n')
-#    print(msgs[i])
 
