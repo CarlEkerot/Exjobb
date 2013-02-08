@@ -49,7 +49,7 @@ def upgma(packets, size, P, entropy, limit):
         for (j, byte) in enumerate(msg):
             def h(j):
                 t = len(entropy[j])
-                return 0.01 + 0.99 * (1 - 1 / (1 + math.exp(12 - t)))
+                return 0.01 + 0.99 * 1 / (1 + math.exp(t - 12))
             features.append(h(j) * P[j,ord(byte)])
             #features.append(h(j) * ord(byte))
             #features.append(ord(byte) / len(entropy[j]))
@@ -103,14 +103,16 @@ P = P / len(packets)
 
 root = upgma(packets, size, P, entropy, limit)
 
+nodes = []
 count = 0
 def build_tree(tree, node, parent, max_score):
     global count
     if type(node) is ParentNode:
-        n = pydot.Node(str(count), shape='box', label=('Dist: %.2f' % (100 * node.score / max_score)))
+        n = pydot.Node(str(count), shape='box', label=('%d dist: %.2f' % (count, 100 * node.score / max_score)))
     else:
         n = pydot.Node(str(count), label='%d, %d' % (packets[node.index].number, types[packets[node.index].number - 1]))
     count += 1
+    nodes.append(node)
     tree.add_node(n)
     if parent:
         tree.add_edge(pydot.Edge(parent, n))
@@ -124,14 +126,36 @@ build_tree(tree, root, None, root.score)
 tree.write_png('tree.png')
 
 while True:
-    row = int(raw_input('Byte position to plot: '))
+    # plot PDF for one byte position
+    #row = int(raw_input('Byte position to plot: '))
+    #left = []
+    #height = []
+    #for col in range(len(P[row])):
+    #    left.append(col)
+    #    height.append(P[row,col])
+    #plot = matplotlib.pyplot.bar(left, height, color='r')
+    #matplotlib.pyplot.xlim((0, 256))
+    #matplotlib.pyplot.show()
+
+    # plot feature vector for one parent node
+    idx = int(raw_input('Node index: '))
     left = []
     height = []
-    for col in range(len(P[row])):
-        left.append(col)
-        height.append(P[row,col])
-    plot = matplotlib.pyplot.bar(left, height, color='r')
-    matplotlib.pyplot.xlim((0, 256))
-    matplotlib.pyplot.show()
 
+    leaves = nodes[idx].get_leaves()
+    entropy = collections.defaultdict(set)
+    for leaf in leaves:
+        for (pos, val) in enumerate(packets[leaf.index].data[:limit]):
+            entropy[pos].add(val)
+
+    for i in range(limit):
+        def h(t):
+            return 0.01 + 0.99 * 1 / (1 + math.exp(t - 12))
+        ent = len(entropy[i])
+        height.append(h(ent) * ent)
+        left.append(i)
+
+    plot = matplotlib.pyplot.bar(left, height, color='r')
+    matplotlib.pyplot.xlim((0, limit))
+    matplotlib.pyplot.show()
 
