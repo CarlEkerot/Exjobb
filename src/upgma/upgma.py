@@ -111,6 +111,28 @@ for packet in packets:
         P[pos,ord(val)] += 1
 P = P / len(packets)
 
+###################### global alignment ##################
+S = 3 * numpy.identity(256) - 2 * numpy.ones((256, 256))
+S = S.astype(numpy.int16)
+msgs = map(lambda x: x.data[:limit], packets[:size])
+
+M = numpy.ndarray((size, size))
+for i in range(size):
+    for j in range(i + 1, size):
+        (s, _, _) = align.align(msgs[i], msgs[j], -2, S, local=True)
+        M[i,j] = s
+
+def compare_align_to(n):
+    a = n.get_leaves()
+    ab = list(itertools.combinations(a,2))
+    score = 0
+    for (i, j) in ab:
+        if i > j:
+            (i, j) = (j, i)
+        score += M[i.index, j.index]
+    score /= len(ab)
+    return score
+##########################################################
 root = upgma(packets, size, P, entropy, limit)
 
 nodes = []
@@ -118,26 +140,7 @@ count = 0
 def build_tree(tree, node, parent, max_score):
     global count
     if type(node) is ParentNode:
-
-        def h(x):
-            return 0.01 + 0.99 * 1 / (1 + math.exp(0.5 * (x - 20)))
-        const_count = 0
-        for i in range(limit):
-            leaves = node.get_leaves()
-            first = None
-            const = True
-            for leaf in leaves:
-                try:
-                    if not first:
-                        first = ord(packets[leaf.index].data[i])
-                    elif first != ord(packets[leaf.index].data[i]):
-                        const = False
-                except:
-                    pass
-            if const:
-                const_count += h(i)
-
-        n = pydot.Node(str(count), shape='box', label=('%d d: %.2f c: %.2f' % (count, 100 * node.score / max_score, const_count)))
+        n = pydot.Node(str(count), shape='box', label=('%d s: %.2f' % (count, compare_align_to(node))))
     else:
         n = pydot.Node(str(count), label='%d, %d' % (packets[node.index].number, types[packets[node.index].number - 1]))
     count += 1
