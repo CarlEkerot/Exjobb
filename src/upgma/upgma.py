@@ -41,6 +41,13 @@ class LeafNode(Node):
         return [self]
 
 def upgma(packets, size, P, entropy, limit):
+    sources = {}
+    count = 0
+    for packet in packets:
+        if packet.source_addr not in sources:
+            sources[packet.source_addr] = count
+            count += 1
+
     msgs = map(lambda x: x.data[:limit], packets[:size])
 
     to_process = []
@@ -53,6 +60,9 @@ def upgma(packets, size, P, entropy, limit):
             features.append(h(j) * P[j,ord(byte)])
             #features.append(h(j) * ord(byte))
             #features.append(ord(byte) / len(entropy[j]))
+        source = len(sources) * [0]
+        source[sources[packets[i].source_addr]] = 0.001
+        features.extend(source)
         features = numpy.asarray(features)
         to_process.append(LeafNode(i, features))
 
@@ -108,7 +118,26 @@ count = 0
 def build_tree(tree, node, parent, max_score):
     global count
     if type(node) is ParentNode:
-        n = pydot.Node(str(count), shape='box', label=('%d dist: %.2f' % (count, 100 * node.score / max_score)))
+
+        def h(x):
+            return 0.01 + 0.99 * 1 / (1 + math.exp(0.5 * (x - 20)))
+        const_count = 0
+        for i in range(limit):
+            leaves = node.get_leaves()
+            first = None
+            const = True
+            for leaf in leaves:
+                try:
+                    if not first:
+                        first = ord(packets[leaf.index].data[i])
+                    elif first != ord(packets[leaf.index].data[i]):
+                        const = False
+                except:
+                    pass
+            if const:
+                const_count += h(i)
+
+        n = pydot.Node(str(count), shape='box', label=('%d d: %.2f c: %.2f' % (count, 100 * node.score / max_score, const_count)))
     else:
         n = pydot.Node(str(count), label='%d, %d' % (packets[node.index].number, types[packets[node.index].number - 1]))
     count += 1
@@ -124,38 +153,4 @@ def build_tree(tree, node, parent, max_score):
 tree = pydot.Dot(graph_type='graph')
 build_tree(tree, root, None, root.score)
 tree.write_png('tree.png')
-
-while True:
-    # plot PDF for one byte position
-    #row = int(raw_input('Byte position to plot: '))
-    #left = []
-    #height = []
-    #for col in range(len(P[row])):
-    #    left.append(col)
-    #    height.append(P[row,col])
-    #plot = matplotlib.pyplot.bar(left, height, color='r')
-    #matplotlib.pyplot.xlim((0, 256))
-    #matplotlib.pyplot.show()
-
-    # plot feature vector for one parent node
-    idx = int(raw_input('Node index: '))
-    left = []
-    height = []
-
-    leaves = nodes[idx].get_leaves()
-    entropy = collections.defaultdict(set)
-    for leaf in leaves:
-        for (pos, val) in enumerate(packets[leaf.index].data[:limit]):
-            entropy[pos].add(val)
-
-    for i in range(limit):
-        def h(t):
-            return 0.01 + 0.99 * 1 / (1 + math.exp(t - 12))
-        ent = len(entropy[i])
-        height.append(h(ent) * ent)
-        left.append(i)
-
-    plot = matplotlib.pyplot.bar(left, height, color='r')
-    matplotlib.pyplot.xlim((0, limit))
-    matplotlib.pyplot.show()
 
