@@ -41,28 +41,13 @@ class LeafNode(Node):
         return [self]
 
 def upgma(packets, size, P, entropy, limit):
-    sources = {}
-    count = 0
-    for packet in packets:
-        if packet.source_addr not in sources:
-            sources[packet.source_addr] = count
-            count += 1
-
     msgs = map(lambda x: x.data[:limit], packets[:size])
 
     to_process = []
     for (i, msg) in enumerate(msgs):
         features = []
         for (j, byte) in enumerate(msg):
-            def h(j):
-                t = len(entropy[j])
-                return 0.01 + 0.99 * 1 / (1 + math.exp(t - 12))
-            features.append(h(j) * P[j,ord(byte)])
-            #features.append(h(j) * ord(byte))
-            #features.append(ord(byte) / len(entropy[j]))
-        source = len(sources) * [0]
-        source[sources[packets[i].source_addr]] = 0.001
-        features.extend(source)
+            features.append(P[j,ord(byte)])
         features = numpy.asarray(features)
         to_process.append(LeafNode(i, features))
 
@@ -82,13 +67,13 @@ def upgma(packets, size, P, entropy, limit):
 
 size = 100
 limit = 100
-packets = pcap_reassembler.load_pcap('../../cap/smbtorture.cap', strict=True)
+packets = pcap_reassembler.load_pcap('../../cap/smb-only.cap', strict=True)
 
 type_dict = {}
 types = []
 count = 0
 
-with open('../../cap/smb.csv') as f:
+with open('../../cap/smb-only.csv') as f:
     f.readline()
     for line in f:
         cols = line.split('","')
@@ -105,34 +90,12 @@ with open('../../cap/smb.csv') as f:
 
 P = numpy.zeros((limit, 256))
 entropy = collections.defaultdict(set)
-for packet in packets:
+for packet in packets[:100]:
     for (pos, val) in enumerate(packet.data[:limit]):
         entropy[pos].add(val)
         P[pos,ord(val)] += 1
 P = P / len(packets)
 
-###################### global alignment ##################
-S = 3 * numpy.identity(256) - 2 * numpy.ones((256, 256))
-S = S.astype(numpy.int16)
-msgs = map(lambda x: x.data[:limit], packets[:size])
-
-M = numpy.ndarray((size, size))
-for i in range(size):
-    for j in range(i + 1, size):
-        (s, _, _) = align.align(msgs[i], msgs[j], -2, S, local=True)
-        M[i,j] = s
-
-def compare_align_to(n):
-    a = n.get_leaves()
-    ab = list(itertools.combinations(a,2))
-    score = 0
-    for (i, j) in ab:
-        if i > j:
-            (i, j) = (j, i)
-        score += M[i.index, j.index]
-    score /= len(ab)
-    return score
-##########################################################
 root = upgma(packets, size, P, entropy, limit)
 
 nodes = []
@@ -140,7 +103,7 @@ count = 0
 def build_tree(tree, node, parent, max_score):
     global count
     if type(node) is ParentNode:
-        n = pydot.Node(str(count), shape='box', label=('%d s: %.2f' % (count, compare_align_to(node))))
+        n = pydot.Node(str(count), shape='box', label=('%d s: %.2f' % (count, 100 * node.score / max_score)))
     else:
         n = pydot.Node(str(count), label='%d, %d' % (packets[node.index].number, types[packets[node.index].number - 1]))
     count += 1
