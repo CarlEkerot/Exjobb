@@ -1,17 +1,33 @@
 #! /usr/bin/env python
 
 import sklearn.cluster
+import scipy.spatial.distance as dist
 import pcap_reassembler
 import numpy
-import pydot
+import collections
 
-def compare(a, b):
-    min_len = min(len(a), len(b))
-    return numpy.linalg.norm(a[:min_len] - b[:min_len])
+limit = 60
+size = 1000
+packets = pcap_reassembler.load_pcap('../cap/smb_pure.cap', strict=True)
 
-limit = 40
-size = 100
-packets = pcap_reassembler.load_pcap('../cap/smbtorture.cap', strict=True)
+type_dict = {}
+types = []
+count = 0
+real_type = []
+with open('../cap/smb_pure.csv') as f:
+    f.readline()
+    for line in f:
+        cols = line.split('","')
+        prot = cols[4]
+        type_ = cols[-1].split(',')[0]
+        real_type.append(cols[-1])
+        if prot == 'SMB' and type_ not in type_dict:
+            type_dict[type_] = count
+        count += 1
+        try:
+            types.append(type_dict[type_])
+        except:
+            types.append(-1)
 
 # calculate probability matrix
 P = numpy.zeros((limit, 256))
@@ -23,53 +39,28 @@ P = P / len(packets)
 msgs = map(lambda x: x.data[:limit], packets[:size])
 samples = []
 for (i, msg) in enumerate(msgs):
-    features = []
+    features = numpy.zeros(limit)
     for (j, byte) in enumerate(msg):
-        features.append(P[j,ord(byte)])
-    features = numpy.asarray(features)
+        features[j] = (P[j,ord(byte)])
     samples.append(features)
 
 # Create distance matrix
-nbr_samples = len(samples)
-dist_matrix = numpy.zeros((nbr_samples, nbr_samples))
-
-for i in range(nbr_samples):
-    for j in range(nbr_samples):
-        dist_matrix[i, j] = compare(samples[i], samples[j])
+dist_matrix = dist.squareform(dist.pdist(samples))
 
 # Normalize distances
 norm_dists = dist_matrix / numpy.max(dist_matrix)
 
 # Perform clustering
-db = sklearn.cluster.DBSCAN(eps=0.6, min_samples=1).fit_predict(norm_dists)
+db = sklearn.cluster.DBSCAN(eps=0.55, min_samples=3).fit_predict(norm_dists)
 
-# Get actual types
-type_dict = {}
-types = []
-count = 0
-with open('../cap/smb.csv') as f:
-    f.readline()
-    for line in f:
-        cols = line.split('","')
-        prot = cols[4]
-        type_ = cols[-1].split(',')[0]
-        if prot == 'SMB' and type_ not in type_dict:
-            type_dict[type_] = count
-            count += 1
-        try:
-            types.append(type_dict[type_])
-        except:
-            types.append(-1)
+result_dict = collections.defaultdict(list)
+for i, result in enumerate(db):
+    result_dict[result].append(i)
 
-# Display clustering
-graph = pydot.Dot(graph_type='graph')
-clusters = {}
-for i, c in enumerate(db):
-    no = packets[i].number
-    node = pydot.Node(str(no), label=('%d type=%d' % (no, types[no - 1])))
-    graph.add_node(node)
-    if c in clusters:
-        graph.add_edge(pydot.Edge(clusters[c], node))
-    clusters[c] = node
+print result_dict
 
-graph.write_png('clusters.png')
+for label in result_dict:
+    print str(label) + ": "
+    for real in result_dict[label][:30]:
+        print packets[real].number, types[real], real_type[real][:-2]
+    print ""
