@@ -1,9 +1,9 @@
 import align
 import numpy as np
-import collections
 import sklearn.cluster
 import sklearn.decomposition
 from  matplotlib import pyplot as plt
+from collections import defaultdict
 
 class Clustering(object):
     def __init__(self, packets, truth, size, limit):
@@ -38,7 +38,7 @@ class Clustering(object):
         self.reach_dists = opt.reachability_distances_
         self.labels = opt.labels_
 
-        self.result = collections.defaultdict(list)
+        self.result = defaultdict(list)
         for i, label in enumerate(self.labels):
             self.result[label].append(i)
 
@@ -79,78 +79,23 @@ class Clustering(object):
 
     def merge_clusters(self):
         """
-        Uses a heuristic for merging clusters.
-
-        The algorithm works as follows:
-
-            1. Find the positions in the global consensus that are variable
-            2. For each of those positions count the distinct number of byte
-               values which are constant within a cluster. We'll call these
-               values constant.
-            3. For each of the same positions also calculate the number of
-               byte values that are assumed for all packets. We'll call these
-               values entropy.
-            4. Now find the positions where 2 * constant[pos] - entropy[pos]
-               gives a positive value (This means that the difference between
-               the entropy value and the constant value is less than the
-               constant value [the entropy value is always larger than the
-               constant value]). We'll call these positions important.
-            5. Now for each cluster we create a signature based on the
-               byte values of the important positions. A cluster will have
-               a signature only if the byte values of all the important
-               positions are constant throughout all samples in a cluster.
-            6. Merge clusters which contain the same signature.
-
+        Merges clusters with a shared consensus.
         """
         # Calculate consensus for the clusters
         self.calculate_consensus()
 
-        variable = []
-        constant = []
-        for (i, val) in enumerate(self.global_consensus):
-            if val == 256:
-                variable.append(i)
-                s = set()
-                for label in self.consensus:
-                    c = self.consensus[label]
-                    if c[i] != 256:
-                        s.add(c[i])
-                num_vals = len(s)
-                constant.append(num_vals)
+        consensuses = defaultdict(list)
+        for label in self.consensus:
+            consensus = align.alignment_to_string(self.consensus[label], hex_=True)
+            consensuses[consensus].append(label)
 
-        entropy = []
-        sets = collections.defaultdict(set)
-        for m in self.msgs:
-            for i in variable:
-                sets[i].add(m[i])
-        for i in variable:
-            entropy.append(len(sets[i]))
-
-        important = []
-        for i in xrange(len(variable)):
-            diff = 2 * constant[i] - entropy[i]
-            if diff > 0:
-                important.append(variable[i])
-
-        signatures = collections.defaultdict(list)
-        for label in self.result:
-            signature = []
-            cluster = self.result[label]
-            for i in cluster:
-                msg = self.msgs[i]
-                for j in important:
-                    signature.append(msg[j])
-            l = len(cluster)
-            if l * signature[:len(important)] == signature:
-                signatures[' '.join(signature[:len(important)])].append(label)
-
-        for sig in signatures:
-            cluster_labels = signatures[sig]
+        for c in consensuses:
+            clusters = consensuses[c]
             merged = []
-            for label in cluster_labels:
+            for label in clusters:
                 merged.extend(self.result[label])
-            self.result[cluster_labels[0]] = merged
-            for label in cluster_labels[1:]:
+            self.result[clusters[0]] = merged
+            for label in clusters[1:]:
                 del self.result[label]
 
     def print_clustering(self):
@@ -165,7 +110,7 @@ class Clustering(object):
         print ''
 
         # Count the different types in each cluster
-        num_types_in_clusters = collections.defaultdict(lambda: collections.defaultdict(int))
+        num_types_in_clusters = defaultdict(lambda: defaultdict(int))
         for label in self.result:
             for i in self.result[label]:
                 t = self.truth[self.packets[i].number]
