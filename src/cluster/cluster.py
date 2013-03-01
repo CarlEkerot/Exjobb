@@ -2,8 +2,10 @@ import align
 import numpy as np
 import sklearn.cluster
 import sklearn.decomposition
-from  matplotlib import pyplot as plt
+
+from matplotlib import pyplot as plt
 from collections import defaultdict
+from itertools import cycle
 
 class Clustering(object):
     def __init__(self, packets, truth, size, limit):
@@ -14,7 +16,7 @@ class Clustering(object):
         # Limit number of messages and the size of each message
         self.msgs = map(lambda x: x.data[:self.limit], self.packets[:self.size])
 
-    def cluster(self, min_samples):
+    def cluster(self, min_samples, args=dict()):
         # Calculate probability matrix for the different byte values
         P = np.zeros((self.limit, 256))
         for msg in self.msgs:
@@ -33,7 +35,7 @@ class Clustering(object):
         X = sklearn.decomposition.PCA(0.8).fit_transform(samples)
 
         # Perform clustering
-        opt = sklearn.cluster.OPTICS(min_samples=min_samples).fit(X)
+        opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
         self.order = opt.ordering_
         self.reach_dists = opt.reachability_distances_
         self.labels = opt.labels_
@@ -89,6 +91,7 @@ class Clustering(object):
             consensus = align.alignment_to_string(self.consensus[label], hex_=True)
             consensuses[consensus].append(label)
 
+        # TODO make exception for cluster -1
         for c in consensuses:
             clusters = consensuses[c]
             merged = []
@@ -98,16 +101,19 @@ class Clustering(object):
             for label in clusters[1:]:
                 del self.result[label]
 
-    def print_clustering(self):
+    def print_clustering(self, f):
         if not self.result:
             return
 
         # Calculate consensus for the clusters
         self.calculate_consensus()
 
-        print 'Consensus of all packets:'
-        print align.alignment_to_string(self.global_consensus, hex_=True)
-        print ''
+        def print_(s):
+            f.write('%s\n' % s)
+
+        print_('Consensus of all packets:')
+        print_(align.alignment_to_string(self.global_consensus, hex_=True))
+        print_('')
 
         # Count the different types in each cluster
         num_types_in_clusters = defaultdict(lambda: defaultdict(int))
@@ -119,15 +125,15 @@ class Clustering(object):
         # Print information about each cluster
         for label in self.result:
             cluster = self.result[label]
-            print 'Cluster %d - size: %d types: %d' % (label,
-                    len(cluster), len(num_types_in_clusters[label]))
+            print_('Cluster %d - size: %d types: %d' % (label,
+                    len(cluster), len(num_types_in_clusters[label])))
             for t in num_types_in_clusters[label]:
-                print num_types_in_clusters[label][t], t
-            print ''
-            print align.alignment_to_string(self.consensus[label], hex_=True)
-            print ''
+                print_('%d %s' % (num_types_in_clusters[label][t], t))
+            print_('')
+            print_(align.alignment_to_string(self.consensus[label], hex_=True))
+            print_('')
 
-    def print_metrics(self):
+    def get_metrics(self):
         # Extract samples that are not noise
         types = []
         labels = []
@@ -136,13 +142,35 @@ class Clustering(object):
                 labels.append(label)
                 types.append(self.truth[self.packets[i].number])
 
-        # Print clustering statistics
-        print 'Total number of clusters: %d' % len(self.result)
-        print("Homogeneity: %0.3f" % sklearn.metrics.homogeneity_score(types, labels))
-        print("Completeness: %0.3f" % sklearn.metrics.completeness_score(types, labels))
-        print("V-measure: %0.3f" % sklearn.metrics.v_measure_score(types, labels))
-        print("Adjusted Rand Index: %0.3f"
-                      % sklearn.metrics.adjusted_rand_score(types, labels))
-        print("Adjusted Mutual Information: %0.3f"
-                      % sklearn.metrics.adjusted_mutual_info_score(types, labels))
+        metrics = {
+            'num': len(self.result),
+            'homo': sklearn.metrics.homogeneity_score(types, labels),
+            'comp': sklearn.metrics.completeness_score(types, labels),
+            'v': sklearn.metrics.v_measure_score(types, labels),
+            'ari': sklearn.metrics.adjusted_rand_score(types, labels),
+            'ami': sklearn.metrics.adjusted_mutual_info_score(types, labels),
+        }
+
+        return metrics
+
+    def print_metrics(self, f):
+        metrics = self.get_metrics()
+
+        def print_(s):
+            f.write('%s\n' % s)
+
+        print_('Total number of clusters: %d' % metrics['num'])
+        print_('Homogeneity: %0.3f' % metrics['homo'])
+        print_('Completeness: %0.3f' % metrics['comp'])
+        print_('V-measure: %0.3f' % metrics['v'])
+        print_('Adjusted Rand Index: %0.3f' % metrics['ari'])
+        print_('Adjusted Mutual Information: %0.3f' % metrics['ami'])
+
+    def plot_reachability_distances(self, filename):
+        x = range(len(self.msgs))
+        y = self.reach_dists[self.order]
+        plt.bar(x, y, color='k')
+        plt.xlabel('Samples in OPTICS order')
+        plt.ylabel('Reachability distance')
+        plt.savefig('%s.svg' % filename)
 
