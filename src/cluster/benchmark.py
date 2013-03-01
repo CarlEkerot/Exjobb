@@ -14,10 +14,10 @@ from itertools import product
 #min_samples = [1, 3, 5, 10, 20, 50]
 #significant_ratios = [0.4, 0.6, 0.70, 0.75, 0.80, 0.85, 0.90]
 #similarity_ratios = [0.4, 0.5, 0.6, 0.7, 0.8]
-sizes = [100, 500]
+sizes = [100, 500, 1000, 3000]
 limits = [20, 40]
-min_samples = [1, 3]
-significant_ratios = [0.4, 0.6]
+min_samples = [1, 3, 10]
+significant_ratios = [0.4, 0.6, 0.75]
 similarity_ratios = [0.4, 0.5]
 
 packets = pcap_reassembler.load_pcap('../../cap/dns-30628-packets.pcap', strict=True)
@@ -30,7 +30,7 @@ with open('../../cap/dns.csv.clean') as f:
 met_q = mp.Queue()
 
 def benchmark(size, limit, min_samples, significant_ratio, similarity_ratio):
-    filename = 'dns/dns-%d-%d-%d-%.2f-%.2f' % (size, limit, min_samples,
+    filename = '/media/data/dns/dns-%d-%d-%d-%.2f-%.2f' % (size, limit, min_samples,
             significant_ratio, similarity_ratio)
     d = os.path.dirname(filename)
     if not os.path.exists(d):
@@ -43,12 +43,14 @@ def benchmark(size, limit, min_samples, significant_ratio, similarity_ratio):
     clustering = cluster.Clustering(packets, truth, size, limit)
     clustering.cluster(min_samples, args)
     clustering.merge_clusters()
-    with open('%s.txt' % filename, 'w') as f:
-        clustering.print_clustering(f)
-        clustering.print_metrics(f)
-    clustering.plot_reachability_distances(filename)
 
     metrics = clustering.get_metrics()
+    if metrics['homo'] >= 0.8 and metrics['comp'] >= 0.2:
+        with open('%s.txt' % filename, 'w') as f:
+            clustering.print_clustering(f)
+            clustering.print_metrics(f)
+        clustering.plot_reachability_distances(filename)
+
     row = [
             size,
             limit,
@@ -71,7 +73,7 @@ for arg in args:
 pool.close()
 pool.join()
 
-with open('dns-metrics-summary.csv', 'w') as f:
+with open('/media/data/dns/dns-metrics-summary.csv', 'w') as f:
     f.write('size,limit,min_samples,significant_ratio,similarity_ratio,num,homo,comp,v,ari,ami\n')
     while not met_q.empty():
         row = met_q.get()
