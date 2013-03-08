@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 
+from __future__ import division
+
+import pcap_reassembler
 import numpy as np
 
 from lxml import etree
@@ -61,10 +64,74 @@ for field in fields:
                     # pointer
                     byte_pos += 1
 
-import matplotlib.pyplot as plt
-plt.bar(range(256), samples['dns.qry.name'][0][0])
-plt.xlim(0, 255)
-plt.show()
+classes = {
+    'FLAG': 0,
+    'NUMBER': 1,
+    'ASCII': 2,
+    'UNIFORM': 3,
+}
 
-# normalize the samples
+classes_rev = [
+    'FLAG',
+    'NUMBER',
+    'ASCII',
+    'UNIFORM',
+]
+
+X = []
+y = []
+names = []
+for name in samples:
+    fields = samples[name]
+    for field_num in fields:
+        field = fields[field_num]
+        for byte_pos in field:
+            features = field[byte_pos]
+            type_ = dns_fields[name]
+            if type_ != 'SPECIAL':
+                class_ = classes[type_]
+            else:
+                class_ = classes['NUMBER'] if (field_num % 2) == 0 else classes['ASCII']
+            X.append(features)
+            y.append(class_)
+            names.append(name)
+from sklearn.preprocessing import normalize
+X = normalize(X, norm='l1', axis=0)
+
+#import matplotlib.pyplot as plt
+#for i in range(0, 10):
+#    print names[i], y[i]
+#    plt.bar(range(256), X[i])
+#    plt.xlim(0, 255)
+#    plt.show()
+
+from sklearn.svm import SVC
+clf = SVC(C=1.0, gamma=0.0, probability=True)
+clf.fit(X, y)
+#pred = clf.predict_proba(X)
+#
+#correct = 0
+#for i in range(len(X)):
+#    if np.argmax(pred[i]) == y[i]:
+#        correct += 1
+#print '%d correct out of %d (%.2f%%)' % (correct, len(X), 100 * correct / len(X))
+
+#print classes_rev
+#for i in range(40):
+#    print pred[i], classes_rev[y[i]], names[i]
+
+limit = 200
+
+packets = pcap_reassembler.load_pcap('../../cap/smb-only.cap', strict=True)
+
+global_msgs = [p.data[:limit] for p in packets]
+GP = np.zeros((limit, 256))
+for msg in global_msgs:
+    for (pos, val) in enumerate(msg):
+        GP[pos,ord(val)] += 1
+GP = normalize(GP, norm='l1', axis=0)
+
+pred = clf.predict_proba(GP)
+print classes_rev
+print pred
 
