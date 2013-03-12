@@ -1,11 +1,5 @@
 *.pyc
+*.pyo
 *.png
-*.aux
-*.bbl
-*.blg
-*.dvi
-*.log
-*.pdf
-*.toc
 src/model
 cap/
