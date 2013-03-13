@@ -14,7 +14,8 @@ class Clustering(object):
         self.size = size
         self.limit = limit
         # Limit number of messages and the size of each message
-        self.msgs = map(lambda x: x.data[:self.limit], self.packets[:self.size])
+        self.msgs = np.asarray(map(lambda x: x.data[:self.limit],
+            self.packets[:self.size]))
 
     def cluster(self, min_samples, args=dict()):
         # Calculate probability matrix for the different byte values
@@ -70,7 +71,7 @@ class Clustering(object):
         self.consensus = {}
         for label in self.result:
             cluster = self.result[label]
-            c_msgs = [self.msgs[i] for i in cluster]
+            c_msgs = self.msgs[cluster]
 
             consensus = align.string_to_alignment(c_msgs[0])
             for msg in c_msgs[1:]:
@@ -79,10 +80,42 @@ class Clustering(object):
 
             self.consensus[label] = consensus
 
+    def filter_clusters(self):
+        """
+        Filters out messages that has deviant byte values.
+        """
+        for label in self.result:
+            if label == -1:
+                continue
+
+            cluster = self.result[label]
+
+            P = np.zeros((self.limit, 256))
+            for msg in self.msgs[cluster]:
+                for (pos, val) in enumerate(msg):
+                    P[pos,ord(val)] += 1
+            P = P / len(cluster)
+
+            delete_list = set()
+            for i in cluster:
+                msg = self.msgs[i]
+                for (pos, byte) in enumerate(msg):
+                    mostly_constant = np.where(P[pos] >= 0.99)[0]
+                    if mostly_constant and ord(byte) != mostly_constant[0]:
+                        delete_list.add(i)
+
+            for index in delete_list:
+                cluster.remove(index)
+                self.result[-1].append(index)
+
     def merge_clusters(self):
         """
         Merges clusters with a shared consensus.
         """
+        # Filter clusters
+        # FIXME uncomment below
+        #self.filter_clusters()
+
         # Calculate consensus for the clusters
         self.calculate_consensus()
 
@@ -91,14 +124,19 @@ class Clustering(object):
             consensus = align.alignment_to_string(self.consensus[label], hex_=True)
             consensuses[consensus].append(label)
 
-        # TODO make exception for cluster -1
         for c in consensuses:
             clusters = consensuses[c]
             merged = []
             for label in clusters:
                 merged.extend(self.result[label])
-            self.result[clusters[0]] = merged
-            for label in clusters[1:]:
+            if -1 in clusters:
+                merge_index = -1
+                labels = [label for label in clusters if label != -1]
+            else:
+                merge_index = clusters[0]
+                labels = clusters[1:]
+            self.result[merge_index] = merged
+            for label in labels:
                 del self.result[label]
 
     def print_clustering(self, f):
