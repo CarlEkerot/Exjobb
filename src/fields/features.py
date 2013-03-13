@@ -1,10 +1,14 @@
+from __future__ import division
+
 __all__ = [
     'ConstantFeature',
+    'FlagFeature',
     'AsciiFeature',
     'UniformFeature',
     'NumberFeature',
 ]
 
+import copy
 import numpy as np
 
 from string import printable
@@ -18,28 +22,51 @@ class ConstantFeature(Feature):
         constant = 1 if len(np.where(dist == 0)[0]) == 255 else 0
         return [constant]
 
+class FlagFeature(Feature):
+    def get_values(self, dist):
+        thres = round(sum(dist) * 0.9)
+        sort_dist = sorted(dist, reverse=True)
+
+        sum_ = 0
+        for i, b in enumerate(sort_dist):
+            sum_ += b
+            if sum_ > thres:
+                break
+
+        return [i+1]
+
 class AsciiFeature(Feature):
     def get_values(self, dist):
+        dist = copy.deepcopy(dist)
+        dist /= np.linalg.norm(dist, ord=1)
+
         num_ascii = sum([f for (b, f) in enumerate(dist) if b in map(ord, printable)])
         return [num_ascii]
 
 class UniformFeature(Feature):
     def get_values(self, dist):
+        dist = copy.deepcopy(dist)
+        dist /= np.linalg.norm(dist, ord=1)
+
         med = np.median(dist)
         deviation = sum([abs(f - med) for f in dist])
+
         return [deviation]
 
 class NumberFeature(Feature):
-    def __init__(self):
-        nor = norm(10 * range(256), 256 * np.linspace(1, 20, 10).tolist())
-        self.pdf = np.asarray([nor.pdf(i) for i in range(256)])
-
     def get_values(self, dist):
-        deviation = float('inf')
-        for param in range(256 * 10):
-            dev = sum(abs(dist[b] - self.pdf[b,param]) for b in range(256))
-            if dev < deviation:
-                deviation = dev
-            print param
+        dist = copy.deepcopy(dist)
+
+        samples = []
+        for (i, count) in enumerate(dist):
+            samples.extend(count * [i])
+        (mu, sigma) = norm.fit(samples)
+        sigma = max(sigma, 0.6)
+        sigma = min(sigma, 20)
+
+        dist /= np.linalg.norm(dist, ord=1)
+
+        deviation = sum(abs(dist[i] - norm.pdf(i, loc=mu, scale=sigma)) for i in range(256))
+
         return [deviation]
 
