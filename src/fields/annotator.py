@@ -3,6 +3,7 @@
 from __future__ import division
 
 import pcap_reassembler
+import pickle
 import numpy as np
 
 from features import *
@@ -47,8 +48,11 @@ def classify(features):
         return UNKNOWN
 
 limit = 40
-packets = pcap_reassembler.load_pcap('../../cap/rtp.pcap', strict=True)
-msgs = [p.data[:limit] for p in packets[:4000]]
+packets = pcap_reassembler.load_pcap('../../cap/dns-30628-packets.pcap', strict=True)
+with open('/media/data/dns-filtered/dns-30000-100-200-0.75-0.40.dump') as f:
+    result = pickle.load(f)
+cluster = result[5]
+msgs = [p.data[:limit] for p in [packets[i] for i in cluster]]
 
 distributions = np.zeros((limit, 256))
 for msg in msgs:

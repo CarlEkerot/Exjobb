@@ -20,7 +20,7 @@ similarity_ratios = [0.3, 0.4, 0.7, 0.8]
 #significant_ratios = [0.4, 0.6, 0.70, 0.75, 0.80, 0.85, 0.90]
 #similarity_ratios = [0.4, 0.5, 0.6, 0.7, 0.8]
 
-output_path = '/media/data/dns-unfiltered/'
+output_path = '/media/data/dns-filtered/'
 packets = pcap_reassembler.load_pcap('../../cap/dns-30628-packets.pcap', strict=True)
 truth = {}
 with open('../../cap/dns.csv.clean') as f:

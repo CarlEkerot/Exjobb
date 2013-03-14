@@ -113,8 +113,7 @@ class Clustering(object):
         Merges clusters with a shared consensus.
         """
         # Filter clusters
-        # FIXME uncomment below
-        #self.filter_clusters()
+        self.filter_clusters()
 
         # Calculate consensus for the clusters
         self.calculate_consensus()
