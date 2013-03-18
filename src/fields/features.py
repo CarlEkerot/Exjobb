@@ -24,13 +24,13 @@ class ConstantFeature(Feature):
 
 class FlagFeature(Feature):
     def get_values(self, dist):
-        thres = round(sum(dist) * 0.9)
+        thres = sum(dist) * 0.9
         sort_dist = sorted(dist, reverse=True)
 
         sum_ = 0
         for i, b in enumerate(sort_dist):
             sum_ += b
-            if sum_ > thres:
+            if sum_ >= thres:
                 break
 
         return [i+1]

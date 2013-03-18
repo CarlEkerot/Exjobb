@@ -100,7 +100,7 @@ class Clustering(object):
             for i in cluster:
                 msg = self.msgs[i]
                 for (pos, byte) in enumerate(msg):
-                    mostly_constant = np.where(P[pos] >= 0.99)[0]
+                    mostly_constant = np.where(P[pos] >= 0.95)[0]
                     if mostly_constant and ord(byte) != mostly_constant[0]:
                         delete_list.add(i)
 
