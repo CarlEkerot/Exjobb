@@ -2,6 +2,7 @@ from __future__ import division
 
 __all__ = [
     'ConstantFeature',
+    'ZeroFeature',
     'FlagFeature',
     'AsciiFeature',
     'UniformFeature',
@@ -20,7 +21,17 @@ class Feature(object):
 class ConstantFeature(Feature):
     def get_values(self, dist):
         constant = 1 if len(np.where(dist == 0)[0]) == 255 else 0
+
         return [constant]
+
+class ZeroFeature(Feature):
+    def get_values(self, dist):
+        dist = copy.deepcopy(dist)
+        dist /= np.linalg.norm(dist, ord=1)
+
+        ratio = dist[0]
+
+        return [ratio]
 
 class FlagFeature(Feature):
     def get_values(self, dist):
@@ -41,6 +52,7 @@ class AsciiFeature(Feature):
         dist /= np.linalg.norm(dist, ord=1)
 
         num_ascii = sum([f for (b, f) in enumerate(dist) if b in map(ord, printable)])
+
         return [num_ascii]
 
 class UniformFeature(Feature):
