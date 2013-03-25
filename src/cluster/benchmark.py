@@ -42,7 +42,7 @@ def benchmark(size, limit, min_samples, significant_ratio, similarity_ratio):
         'significant_ratio': significant_ratio,
         'similarity_ratio': similarity_ratio,
     }
-    clustering = cluster.Clustering(packets, truth, size, limit)
+    clustering = cluster.Clustering(packets[:size], truth, limit)
     clustering.cluster(min_samples, args)
     clustering.merge_clusters()
 

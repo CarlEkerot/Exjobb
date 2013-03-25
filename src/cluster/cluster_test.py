@@ -9,38 +9,42 @@ import numpy as np
 
 from itertools import product
 
-# check if filtered fixes cluster 1 in 15000-100-200-0.60-0.40
+size = 20000
+limit = 200
+min_samples = 50
+significant_ratio = 0.75
+similarity_ratio = 0.4
 
-output_path = '/media/data/dns-filtered/'
-packets = pcap_reassembler.load_pcap('../../cap/dns-30628-packets.pcap', strict=True)
+output_path = '/media/data/smb/'
+packets = pcap_reassembler.load_pcap('../../cap/smb-only.cap', strict=True)
+packets = filter(lambda x: x.data[4:8] == '\xffSMB', packets)[:size]
 truth = {}
-with open('../../cap/dns.csv.clean') as f:
+with open('../../cap/smb-only.csv.clean') as f:
     for line in f:
         (no, type_) = line.split(',')
         truth[int(no)] = type_[:-1]
 
-def benchmark(size, limit, min_samples, significant_ratio, similarity_ratio):
-    filename = output_path + 'dns-%d-%d-%d-%.2f-%.2f' % (size, limit, min_samples,
-            significant_ratio, similarity_ratio)
-    d = os.path.dirname(filename)
-    if not os.path.exists(d):
-        os.makedirs(d)
+filename = output_path + 'smb-%d-%d-%d-%.2f-%.2f' % (size, limit, min_samples,
+        significant_ratio, similarity_ratio)
+d = os.path.dirname(filename)
+if not os.path.exists(d):
+    os.makedirs(d)
 
-    args = {
-        'significant_ratio': significant_ratio,
-        'similarity_ratio': similarity_ratio,
-    }
-    clustering = cluster.Clustering(packets, truth, size, limit)
-    clustering.cluster(min_samples, args)
-    clustering.merge_clusters()
+args = {
+    'significant_ratio': significant_ratio,
+    'similarity_ratio': similarity_ratio,
+}
+clustering = cluster.Clustering(packets, truth, limit)
+clustering.cluster(min_samples, args)
+clustering.merge_clusters()
 
-    with open('%s.dump' % filename, 'w') as f:
-        pickle.dump(clustering.result, f)
+with open('%s.res' % filename, 'w') as f:
+    pickle.dump(clustering.clusters, f)
+with open('%s.lbl' % filename, 'w') as f:
+    pickle.dump(clustering.labels, f)
 
-    metrics = clustering.get_metrics()
-    with open('%s.txt' % filename, 'w') as f:
-        clustering.print_clustering(f)
-        clustering.print_metrics(f)
-
-benchmark(30000, 100, 200, 0.75, 0.4)
+metrics = clustering.get_metrics()
+with open('%s.txt' % filename, 'w') as f:
+    clustering.print_clustering(f)
+    clustering.print_metrics(f)
 

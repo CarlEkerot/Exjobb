@@ -1,4 +1,9 @@
+# FIXME use correct relative imports
+import sys
+sys.path.append('..')
+
 import align
+import scoring
 import numpy as np
 import sklearn.cluster
 import sklearn.decomposition
@@ -8,14 +13,13 @@ from collections import defaultdict
 from itertools import cycle
 
 class Clustering(object):
-    def __init__(self, packets, truth, size, limit):
+    def __init__(self, packets, truth, limit):
         self.packets = packets
         self.truth = truth
-        self.size = size
         self.limit = limit
         # Limit number of messages and the size of each message
         self.msgs = np.asarray(map(lambda x: x.data[:self.limit],
-            self.packets[:self.size]))
+            self.packets))
 
     def cluster(self, min_samples, args=dict()):
         # Calculate probability matrix for the different byte values
@@ -41,18 +45,17 @@ class Clustering(object):
         self.reach_dists = opt.reachability_distances_
         self.labels = opt.labels_
 
-        self.result = defaultdict(list)
+    @property
+    def clusters(self):
+        clusters = defaultdict(list)
         for i, label in enumerate(self.labels):
-            self.result[label].append(i)
+            clusters[label].append(i)
 
-        return self.result
+        return clusters
 
     def calculate_consensus(self):
-        # Create scoring matrix for alignment
-        S = 3 * np.identity(257) - 1 * np.ones((257, 257))
-        S[256,:] = np.zeros(257)
-        S[:,256] = np.zeros(257)
-        S = S.astype(np.int16)
+        # Get clusters
+        clusters = self.clusters
 
         # Define a function for merging alignments
         def merge(a1, a2):
@@ -69,26 +72,29 @@ class Clustering(object):
 
         # Calculate consensus for each cluster
         self.consensus = {}
-        for label in self.result:
-            cluster = self.result[label]
+        for label in clusters:
+            cluster = clusters[label]
             c_msgs = self.msgs[cluster]
 
-            consensus = align.string_to_alignment(c_msgs[0])
-            for msg in c_msgs[1:]:
-                (_, a1, a2) = align.align(consensus, align.string_to_alignment(msg), -2, S)
+            consensus = align.string_to_alignment(c_msgs[np.argmax(map(len, c_msgs))])[::-1]
+            for msg in c_msgs:
+                (_, a1, a2) = align.align(consensus,
+                        align.string_to_alignment(msg)[::-1], 0, -2, scoring.S, mutual=False)
                 consensus = merge(a1, a2)
 
-            self.consensus[label] = consensus
+            self.consensus[label] = consensus[::-1]
 
     def filter_clusters(self):
         """
         Filters out messages that has deviant byte values.
         """
-        for label in self.result:
+        clusters = self.clusters
+
+        for label in clusters:
             if label == -1:
                 continue
 
-            cluster = self.result[label]
+            cluster = clusters[label]
 
             P = np.zeros((self.limit, 256))
             for msg in self.msgs[cluster]:
@@ -105,8 +111,7 @@ class Clustering(object):
                         delete_list.add(i)
 
             for index in delete_list:
-                cluster.remove(index)
-                self.result[-1].append(index)
+                self.labels[index] = -1
 
     def merge_clusters(self):
         """
@@ -114,6 +119,8 @@ class Clustering(object):
         """
         # Filter clusters
         self.filter_clusters()
+
+        clusters = self.clusters
 
         # Calculate consensus for the clusters
         self.calculate_consensus()
@@ -124,23 +131,22 @@ class Clustering(object):
             consensuses[consensus].append(label)
 
         for c in consensuses:
-            clusters = consensuses[c]
+            labels = consensuses[c]
             merged = []
-            for label in clusters:
-                merged.extend(self.result[label])
-            if -1 in clusters:
-                merge_index = -1
-                labels = [label for label in clusters if label != -1]
-            else:
-                merge_index = clusters[0]
-                labels = clusters[1:]
-            self.result[merge_index] = merged
             for label in labels:
-                del self.result[label]
+                merged.extend(clusters[label])
+            if -1 in labels:
+                merge_index = -1
+            else:
+                merge_index = labels[0]
+            for index in merged:
+                self.labels[index] = merge_index
 
     def print_clustering(self, f):
-        if not self.result:
+        if self.labels is None:
             return
+
+        clusters = self.clusters
 
         # Calculate consensus for the clusters
         self.calculate_consensus()
@@ -154,14 +160,14 @@ class Clustering(object):
 
         # Count the different types in each cluster
         num_types_in_clusters = defaultdict(lambda: defaultdict(int))
-        for label in self.result:
-            for i in self.result[label]:
+        for label in clusters:
+            for i in clusters[label]:
                 t = self.truth[self.packets[i].number]
                 num_types_in_clusters[label][t] += 1
 
         # Print information about each cluster
-        for label in self.result:
-            cluster = self.result[label]
+        for label in clusters:
+            cluster = clusters[label]
             print_('Cluster %d - size: %d types: %d' % (label,
                     len(cluster), len(num_types_in_clusters[label])))
             for t in num_types_in_clusters[label]:
@@ -180,7 +186,7 @@ class Clustering(object):
                 types.append(self.truth[self.packets[i].number])
 
         metrics = {
-            'num': len(self.result),
+            'num': len(self.clusters),
             'homo': sklearn.metrics.homogeneity_score(types, labels),
             'comp': sklearn.metrics.completeness_score(types, labels),
             'v': sklearn.metrics.v_measure_score(types, labels),
