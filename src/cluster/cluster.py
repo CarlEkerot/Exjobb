@@ -18,8 +18,7 @@ class Clustering(object):
         self.truth = truth
         self.limit = limit
         # Limit number of messages and the size of each message
-        self.msgs = np.asarray(map(lambda x: x.data[:self.limit],
-            self.packets))
+        self.msgs = [p.payload[:self.limit] for p in self.packets]
 
     def cluster(self, min_samples, args=dict()):
         # Calculate probability matrix for the different byte values
@@ -74,8 +73,9 @@ class Clustering(object):
         self.consensus = {}
         for label in clusters:
             cluster = clusters[label]
-            c_msgs = self.msgs[cluster]
+            c_msgs = [self.msgs[i] for i in cluster]
 
+            # TODO: This should only be calculated once.
             consensus = align.string_to_alignment(c_msgs[np.argmax(map(len, c_msgs))])[::-1]
             for msg in c_msgs:
                 (_, a1, a2) = align.align(consensus,
@@ -97,7 +97,8 @@ class Clustering(object):
             cluster = clusters[label]
 
             P = np.zeros((self.limit, 256))
-            for msg in self.msgs[cluster]:
+            c_msgs = [self.msgs[i] for i in cluster]
+            for msg in c_msgs:
                 for (pos, val) in enumerate(msg):
                     P[pos,ord(val)] += 1
             P = P / len(cluster)
