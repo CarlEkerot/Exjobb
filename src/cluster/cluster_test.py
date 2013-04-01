@@ -38,7 +38,6 @@ args = {
 }
 clustering = cluster.Clustering(packets, truth, limit)
 clustering.cluster(min_samples, args)
-clustering.merge_clusters()
 
 fd_labels = format_distinguisher_clustering(msgs, clustering.labels,
         max_num_types=100)
@@ -52,6 +51,5 @@ with open('%s.fdl' % filename, 'w') as f:
 
 metrics = clustering.get_metrics()
 with open('%s.txt' % filename, 'w') as f:
-    clustering.print_clustering(f)
     clustering.print_metrics(f)
 
