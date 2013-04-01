@@ -73,7 +73,7 @@ cluster_flags       = global_flags
 cluster_uniforms    = global_uniforms
 cluster_numbers     = global_numbers
 
-size = 20000
+size = 30000
 
 packets = pcap_reassembler.load_pcap('../../cap/smb-only.cap', strict=True)
 packets = filter(lambda x: x.payload[4:8] == '\xffSMB', packets)[:size]
@@ -88,8 +88,8 @@ limit = min(map(len, msgs))
 limited_msgs = [m[:limit] for m in msgs]
 
 filename = '/media/data/smb/smb-20000-200-50-0.75-0.40'
-with open(filename + '.res') as f:
-    clusters = pickle.load(f)
+with open(filename + '.fdl') as f:
+    labels = pickle.load(f)
 
 # Gather message indices from each individual stream and connection
 connection_mapping = {}
@@ -109,13 +109,16 @@ for (i, p) in enumerate(packets):
     stream_msgs[sockets].append(i)
     connection_msgs[connection_id].append(i)
 
-estimations = defaultdict(dict)
+# Create clusters from FD labels
+clusters = defaultdict(list)
+for (i, label) in enumerate(labels):
+    clusters[label].append(i)
 
-for size in [1, 2, 3, 4]:
-    estimations['global_lengths'][size] = global_lengths(msgs[:100], size)
-print estimations['global_lengths']
+estimations = defaultdict(dict)
 global_samples = build_samples(limited_msgs)
+
 for size in [1, 2, 4]:
+    estimations['global_lengths'][size] = global_lengths(msgs[:100], size)
     estimations['global_constants'][size] = global_constants(global_samples, size)
     estimations['global_flags'][size] = global_flags(global_samples, size)
     estimations['global_uniforms'][size] = global_uniforms(global_samples, size)

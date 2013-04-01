@@ -15,15 +15,15 @@ size = 20000
 limit = 200
 
 packets = pcap_reassembler.load_pcap('../../cap/smb-only.cap', strict=True)
-packets = filter(lambda x: x.data[4:8] == '\xffSMB', packets)[:size]
-msgs = [p.data[:limit] for p in packets]
+packets = filter(lambda x: x.payload[4:8] == '\xffSMB', packets)[:size]
+msgs = [p.payload[:limit] for p in packets]
 
 with open('/media/data/smb/smb-20000-200-50-0.75-0.40.lbl') as f:
     labels = pickle.load(f)
-labels = format_distinguisher_clustering(msgs, labels, max_num_types=220, max_type_ratio=0.7)
+labels = format_distinguisher_clustering(msgs, labels, max_num_types=100)
 
 (C_M, S_M) = state_inference.state_inference(packets, labels)
-state_inference.render_state_diagram(C_M, S_M, 'state_diagram.png', 5)
+state_inference.render_state_diagram(C_M, S_M, 'smb-state_diagram.png', 5)
 
 print 'States:'
 truth = {}

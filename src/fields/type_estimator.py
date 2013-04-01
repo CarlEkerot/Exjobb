@@ -74,7 +74,7 @@ def incremental(msgs, size, incr_ratio=0.99):
 def length(msgs, size, residual_threshold=1e-10, filter_ratio=0.9):
     fields = []
     min_size = min(map(len, msgs))
-    for i in range(0, min_size - size + 1):
+    for i in range(0, min_size - size + 1, size):
         X = [_get_value_from_bytes(msg[i:i+size]) for msg in msgs]
         Y = [len(msg) for msg in msgs]
         points = set(zip(X, Y))

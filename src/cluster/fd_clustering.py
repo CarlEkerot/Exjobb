@@ -28,7 +28,7 @@ def format_distinguisher_score(msgs, labels, max_num_types, header_limit,
             for j in bin_:
                 pred[j] = i
         comp = completeness_score(labels, pred)
-        scores.append((comp, pos, len(bins)))
+        scores.append((comp, pos))
 
     return scores
 
@@ -39,10 +39,11 @@ def format_distinguisher_clustering(msgs, labels, max_num_types=50,
     scores.sort(reverse=True)
 
     positions = []
-    num_types = 1
-    for (_, pos, pos_types) in scores:
-        num_types *= pos_types
-        if num_types >= max_num_types:
+    for (_, pos) in scores:
+        types = set()
+        for msg in msgs:
+            types.add(tuple(msg[i] for i in positions + [pos]))
+        if len(types) >= max_num_types:
             break
         positions.append(pos)
 
