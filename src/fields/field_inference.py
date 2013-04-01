@@ -61,6 +61,8 @@ global_precedences = [
 ]
 
 cluster_precedences = [
+    'lengths',
+    'incrementals',
     'numbers',
     'uniforms',
     'flags',
@@ -82,6 +84,8 @@ global_symbols = {
 }
 
 cluster_symbols = {
+    'lengths':      'LEN',
+    'incrementals': 'INC',
     'numbers':      'NUM',
     'uniforms':     'UNI',
     'flags':        'FLA',

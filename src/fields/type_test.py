@@ -68,12 +68,16 @@ def stream_incrementals(msgs, stream_msgs, size):
         fields = fields & type_estimator.incremental(strm_msgs, size)
     return fields.tolist()
 
+def cluster_incrementals(msgs, size):
+    return type_estimator.incremental(msgs, size)
+
+cluster_lengths     = global_lengths
 cluster_constants   = global_constants
 cluster_flags       = global_flags
 cluster_uniforms    = global_uniforms
 cluster_numbers     = global_numbers
 
-size = 30000
+size = 20000
 
 packets = pcap_reassembler.load_pcap('../../cap/smb-only.cap', strict=True)
 packets = filter(lambda x: x.payload[4:8] == '\xffSMB', packets)[:size]
@@ -132,15 +136,18 @@ limit = 200
 
 cluster_estimations = defaultdict(lambda: defaultdict(dict))
 for label in clusters:
-    cluster_msgs = [msgs[i][:limit] for i in clusters[label]]
-    longest = cluster_msgs[np.argmax(map(len, cluster_msgs))][::-1]
+    cluster_msgs = [msgs[i] for i in clusters[label]]
+    lim_cluster_msgs = [msg[:limit] for msg in cluster_msgs]
+    longest = lim_cluster_msgs[np.argmax(map(len, lim_cluster_msgs))][::-1]
     (_, _, a) = align.align(longest, longest, 0, -2, scoring.S, mutual=False)
     aligned_msgs = []
-    for msg in cluster_msgs:
+    for msg in lim_cluster_msgs:
         (_, _, a) = align.align(longest, msg[::-1], 0, -2, scoring.S, mutual=False)
         aligned_msgs.append(a[::-1])
     samples = build_samples(aligned_msgs)
     for size in [1, 2, 4]:
+        cluster_estimations[label]['lengths'][size] = cluster_lengths(cluster_msgs[:100], size)
+        cluster_estimations[label]['incrementals'][size] = cluster_incrementals(aligned_msgs, size)
         cluster_estimations[label]['constants'][size] = cluster_constants(samples, size)
         cluster_estimations[label]['flags'][size] = cluster_flags(samples, size)
         cluster_estimations[label]['uniforms'][size] = cluster_uniforms(samples, size)

@@ -67,11 +67,11 @@ def incremental(msgs, size, incr_ratio=0.99):
             if value > prev_value:
                 count += 1
             prev_value = value
-        success = count >= incr_ratio * len(msgs)
+        success = 1 < count >= incr_ratio * len(msgs)
         fields.append(success)
     return fields
 
-def length(msgs, size, residual_threshold=1e-10, filter_ratio=0.9):
+def length(msgs, size, filter_ratio=0.9, eps=1e-10):
     fields = []
     min_size = min(map(len, msgs))
     for i in range(0, min_size - size + 1, size):
@@ -86,7 +86,7 @@ def length(msgs, size, residual_threshold=1e-10, filter_ratio=0.9):
             ret = np.polyfit(X, Y, 1, full=True)
             mul = ret[0][0]
             res = ret[1]
-            success = mul != 0 and len(res) > 0 and res[0] < residual_threshold
+            success = (mul - 1) > -eps and len(res) > 0 and res[0] < eps
         fields.append(success)
     return fields
 
