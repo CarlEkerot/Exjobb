@@ -3,6 +3,15 @@ import numpy as np
 from features import *
 from struct import unpack
 
+__all__ = [
+    'constant',
+    'flag',
+    'uniform',
+    'number',
+    'incremental',
+    'length',
+]
+
 number_threshold    = 1.2
 uniform_threshold   = 0.6
 
@@ -51,12 +60,6 @@ def number(samples, size, zero_ratio=0.1):
         fields.append(success)
     return fields
 
-def _get_value_from_bytes(data):
-    value = 0
-    for byte in data:
-        value = (value << 8) + byte
-    return value
-
 def incremental(msgs, size, incr_ratio=0.99):
     fields = []
     for i in range(0, len(msgs[0]) - size + 1, size):
@@ -89,4 +92,10 @@ def length(msgs, size, filter_ratio=0.9, eps=1e-10):
             success = (mul - 1) > -eps and len(res) > 0 and res[0] < eps
         fields.append(success)
     return fields
+
+def _get_value_from_bytes(data):
+    value = 0
+    for byte in data:
+        value = (value << 8) + byte
+    return value
 
