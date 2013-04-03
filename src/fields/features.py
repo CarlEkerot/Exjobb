@@ -3,7 +3,6 @@ from __future__ import division
 import copy
 import numpy as np
 
-from string import printable
 from scipy.stats import norm
 
 __all__ = [

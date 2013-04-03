@@ -44,11 +44,11 @@ def uniform(samples, size):
 def number(samples, size, zero_ratio=0.1):
     fields = []
     for i in range(0, len(samples) - size + 1, size):
-        consts  = samples[i:i+size,CONSTANT]
+        consts  = samples[i:i+size,CONSTANT].astype(bool)
         zeros   = samples[i:i+size,ZERO]
         unifs   = samples[i:i+size,UNIFORM]
         nums    = samples[i:i+size,NUMBER]
-        found = np.where(np.logical_and(nums < number_threshold, np.logical_not(consts)))[0].tolist()
+        found = np.where((nums < number_threshold) & ~consts)[0].tolist()
         if not found:
             fields.append(False)
             continue
