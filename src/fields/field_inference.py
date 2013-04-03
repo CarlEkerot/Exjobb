@@ -1,5 +1,3 @@
-import numpy as np
-
 from itertools import product
 
 global_precedences = [
@@ -50,16 +48,19 @@ class Field(object):
             self.scope = 'cluster'
         self.type   = type_
 
-def create_fields(order, estimations, length):
-    fields = []
-    occupied = np.asarray(length * [None])
+def create_fields(order, estimations):
+    fields      = []
+    occupied    = []
     for ((scope, type_), size) in order:
         est = estimations[scope][type_][size]
         for (i, b) in enumerate(est):
             if b:
                 off = size * i
                 fields.append(Field(off, size, scope, type_))
-                occupied[off:off+size] = np.ones(size, dtype=bool)
+                diff = (off + size) - len(occupied)
+                if diff > 0:
+                    occupied.extend(diff * [False])
+                occupied[off:off+size] = size * [True]
 
     for (offset, byte) in enumerate(occupied):
         if not byte:
@@ -69,14 +70,12 @@ def create_fields(order, estimations, length):
 
 def create_global_fields(estimations, sizes):
     global_order = list(product(global_precedences, sizes))
-    min_len = len(estimations['global']['constants'][1])
-    fields = create_fields(global_order, estimations, min_len)
+    fields = create_fields(global_order, estimations)
     return fields
 
 def create_cluster_fields(estimations, sizes, label):
     cluster_order = list(product(product([label], cluster_precedences), sizes))
-    min_len = len(estimations[label]['constants'][1])
-    fields = create_fields(cluster_order, estimations, min_len)
+    fields = create_fields(cluster_order, estimations)
     return fields
 
 def print_fields(fields):
@@ -85,7 +84,7 @@ def print_fields(fields):
     for field in fields:
         off     = field.offset
         len_    = field.length
-        if not np.any(occupied[off:off+len_]):
+        if not any(occupied[off:off+len_]):
             diff = (off + len_) - len(occupied)
             if diff > 0:
                 occupied.extend(diff * [False])

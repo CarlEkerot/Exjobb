@@ -10,7 +10,7 @@ from collections import defaultdict
 from features import *
 from classifiers import *
 
-def build_samples(msgs, constant=True, zero=True, flag=True, uniform=True,
+def _build_samples(msgs, constant=True, zero=True, flag=True, uniform=True,
         number=True):
     max_size = max(map(len, msgs))
     distributions = np.zeros((max_size, 256))
@@ -24,7 +24,7 @@ def build_samples(msgs, constant=True, zero=True, flag=True, uniform=True,
         samples.append(features)
     return np.asarray(samples)
 
-def build_stream_and_connection_msgs(packets, limit):
+def _build_stream_and_connection_msgs(packets, limit):
     connection_mapping = {}
     stream_msgs     = defaultdict(list)
     connection_msgs = defaultdict(list)
@@ -45,7 +45,7 @@ def build_stream_and_connection_msgs(packets, limit):
 
     return (stream_msgs, connection_msgs)
 
-def build_aligned_msgs(msgs, limit):
+def _build_aligned_msgs(msgs, limit):
     msgs = [msg[:limit] for msg in msgs]
     aligned_msgs = []
 
@@ -57,7 +57,7 @@ def build_aligned_msgs(msgs, limit):
 
     return aligned_msgs
 
-def field_consensus(categorized_samples, length, size, classifier):
+def _field_consensus(categorized_samples, length, size, classifier):
     num_fields = int(length / size)
     fields = np.asarray(num_fields * [True])
     for samples in categorized_samples.values():
@@ -66,31 +66,19 @@ def field_consensus(categorized_samples, length, size, classifier):
         fields = fields & result
     return fields.tolist()
 
-def classify_fields(packets, labels, cluster_limit, global_limit='min-length',
-        sizes=[1, 2, 4]):
-    msgs = [align.string_to_alignment(p.payload) for p in packets]
-
-    if global_limit == 'min-length':
-        global_limit = min(map(len, msgs))
-
-    global_est = classify_global_fields(msgs, packets, global_limit, sizes)
-    cluster_est = classify_cluster_fields(msgs, labels, cluster_limit, sizes)
-
-    return (global_est, cluster_est)
-
-def classify_global_fields(msgs, packets, limit, sizes):
+def _classify_global_fields(msgs, packets, limit, sizes):
     limited_msgs = [m[:limit] for m in msgs]
-    (stream_msgs, conn_msgs) = build_stream_and_connection_msgs(packets, limit)
+    (stream_msgs, conn_msgs) = _build_stream_and_connection_msgs(packets, limit)
 
-    global_samples  = build_samples(limited_msgs)
+    global_samples  = _build_samples(limited_msgs)
     conn_samples    = {}
     stream_samples  = {}
 
     for key in conn_msgs:
-        conn_samples[key] = build_samples(conn_msgs[key], zero=False,
+        conn_samples[key] = _build_samples(conn_msgs[key], zero=False,
                 flag=False, uniform=False, number=False)
     for key in stream_msgs:
-        stream_samples[key] = build_samples(stream_msgs[key], zero=False,
+        stream_samples[key] = _build_samples(stream_msgs[key], zero=False,
                 flag=False, uniform=False, number=False)
 
     global_est  = defaultdict(dict)
@@ -103,9 +91,9 @@ def classify_global_fields(msgs, packets, limit, sizes):
         global_est['uniforms'][size]        = uniform(global_samples, size)
         global_est['numbers'][size]         = number(global_samples, size)
         global_est['lengths'][size]         = length(msgs[:100], size)
-        conn_est['constants'][size]         = field_consensus(conn_samples, limit, size, constant)
-        stream_est['constants'][size]       = field_consensus(stream_samples, limit, size, constant)
-        stream_est['incrementals'][size]    = field_consensus(stream_msgs, limit, size, incremental)
+        conn_est['constants'][size]         = _field_consensus(conn_samples, limit, size, constant)
+        stream_est['constants'][size]       = _field_consensus(stream_samples, limit, size, constant)
+        stream_est['incrementals'][size]    = _field_consensus(stream_msgs, limit, size, incremental)
 
     est = {
         'global':       global_est,
@@ -115,7 +103,7 @@ def classify_global_fields(msgs, packets, limit, sizes):
 
     return dict(est)
 
-def classify_cluster_fields(msgs, labels, limit, sizes):
+def _classify_cluster_fields(msgs, labels, limit, sizes):
     # Create clusters from FD labels
     clusters = defaultdict(list)
     for (i, label) in enumerate(labels):
@@ -124,8 +112,8 @@ def classify_cluster_fields(msgs, labels, limit, sizes):
     est = defaultdict(lambda: defaultdict(dict))
     for label in clusters:
         cluster_msgs = [msgs[i] for i in clusters[label]]
-        aligned_msgs = build_aligned_msgs(cluster_msgs, limit)
-        samples = build_samples(aligned_msgs)
+        aligned_msgs = _build_aligned_msgs(cluster_msgs, limit)
+        samples = _build_samples(aligned_msgs)
         for size in sizes:
             est[label]['constants'][size]       = constant(samples, size)
             est[label]['flags'][size]           = flag(samples, size)
@@ -135,4 +123,16 @@ def classify_cluster_fields(msgs, labels, limit, sizes):
             est[label]['lengths'][size]         = length(cluster_msgs[:100], size)
 
     return dict(est)
+
+def classify_fields(packets, labels, cluster_limit, global_limit='min-length',
+        sizes=[1, 2, 4]):
+    msgs = [align.string_to_alignment(p.payload) for p in packets]
+
+    if global_limit == 'min-length':
+        global_limit = min(map(len, msgs))
+
+    global_est = _classify_global_fields(msgs, packets, global_limit, sizes)
+    cluster_est = _classify_cluster_fields(msgs, labels, cluster_limit, sizes)
+
+    return (global_est, cluster_est)
 
