@@ -5,34 +5,26 @@ import numpy as np
 from collections import defaultdict
 from pydot import Dot, Node, Edge
 
-def state_inference(packets, labels):
+def state_inference(msgs, labels):
     num_labels = max(labels) + 1
     C_M = np.zeros((num_labels + 1, num_labels + 1), dtype=int)
     S_M = np.zeros((num_labels + 1, num_labels + 1), dtype=int)
-    connection_states = defaultdict(lambda: num_labels)
-    connection_clients = {}
-    connection_mapping = {}
-    next_connection_id = 0
+    conn_clients    = {}
+    conn_states     = defaultdict(lambda: num_labels)
 
-    for (i, p) in enumerate(packets):
-        src_socket = (p.src_addr, p.src_port)
-        dst_socket = (p.dst_addr, p.dst_port)
-        sockets = (src_socket, dst_socket)
-        if sockets not in connection_mapping:
-            connection_mapping[sockets] = next_connection_id
-            connection_mapping[sockets[::-1]] = next_connection_id
-            connection_clients[next_connection_id] = p.src_addr
-            next_connection_id += 1
-
-        connection_id = connection_mapping[sockets]
-        client = connection_clients[connection_id]
-        curr_state = connection_states[connection_id]
+    for (i, msg) in enumerate(msgs):
+        curr_state = conn_states[msg.conn]
         next_state = labels[i]
-        if p.src_addr == client:
+
+        if msg.conn not in conn_clients:
+            conn_clients[msg.conn] = msg.stream
+        client = conn_clients[msg.conn]
+        if msg.stream == client:
             C_M[curr_state,next_state] += 1
         else:
             S_M[curr_state,next_state] += 1
-        connection_states[connection_id] = next_state
+
+        conn_states[msg.conn] = next_state
 
     return (C_M, S_M)
 
@@ -52,6 +44,7 @@ def find_reachable_states(M, state, depth):
     return _find(M, state, depth)
 
 def render_state_diagram(C_M, S_M, filename, depth=None):
+    print "render_state_diagram", depth
     tot_M = C_M + S_M
 
     if depth:

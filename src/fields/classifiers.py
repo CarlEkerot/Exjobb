@@ -2,6 +2,7 @@ import numpy as np
 
 from features import *
 from struct import unpack
+from ransac import LineModel, ransac
 
 __all__ = [
     'constant',
@@ -15,6 +16,8 @@ __all__ = [
 number_threshold    = 1.2
 uniform_threshold   = 0.6
 
+_model = LineModel()
+
 def constant(samples, size):
     fields = []
     for i in range(0, len(samples) - size + 1, size):
@@ -23,12 +26,12 @@ def constant(samples, size):
         fields.append(success)
     return fields
 
-def flag(samples, size):
+def flag(samples, size, max_num_values):
     fields = []
     for i in range(0, len(samples) - size + 1, size):
         flags    = samples[i:i+size,FLAG]
         min_vals = np.all(flags > 1)
-        max_vals = np.all(flags < 10)
+        max_vals = np.all(flags < max_num_values)
         success  = min_vals & max_vals
         fields.append(success)
     return fields
@@ -74,23 +77,24 @@ def incremental(msgs, size, incr_ratio=0.99):
         fields.append(success)
     return fields
 
-def length(msgs, size, filter_ratio=0.9, eps=1e-10):
+def length(msgs, size, noise_ratio, num_iters, eps=1e-10):
     fields = []
     min_size = min(map(len, msgs))
     for i in range(0, min_size - size + 1, size):
         X = [_get_value_from_bytes(msg[i:i+size]) for msg in msgs]
         Y = [len(msg) for msg in msgs]
-        points = set(zip(X, Y))
-        filtered = zip(*[(x, y) for (x, y) in points if x <= y])
-        if not filtered or len(filtered[0]) < filter_ratio * len(points):
+        data = np.asarray([X, Y]).T
+
+        try:
+            (params, _, res) = ransac(data, _model, 2, (1 - noise_ratio), num_iters, eps)
+            k = params[0]
+            m = params[1]
+            success = k > (1 - eps) and m > -eps
+        except ValueError:
             success = False
-        else:
-            (X, Y) = filtered
-            ret = np.polyfit(X, Y, 1, full=True)
-            mul = ret[0][0]
-            res = ret[1]
-            success = (mul - 1) > -eps and len(res) > 0 and res[0] < eps
+
         fields.append(success)
+
     return fields
 
 def _get_value_from_bytes(data):

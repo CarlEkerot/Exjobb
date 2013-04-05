@@ -10,12 +10,12 @@ from collections import defaultdict
 from features import *
 from classifiers import *
 
-def _build_samples(msgs, constant=True, zero=True, flag=True, uniform=True,
+def _build_samples(data, constant=True, zero=True, flag=True, uniform=True,
         number=True):
-    max_size = max(map(len, msgs))
+    max_size = max(map(len, data))
     distributions = np.zeros((max_size, 256))
-    for msg in msgs:
-        for (i, byte) in enumerate(msg):
+    for d in data:
+        for (i, byte) in enumerate(d):
             if byte != 256:
                 distributions[i,byte] += 1
     samples = []
@@ -24,38 +24,28 @@ def _build_samples(msgs, constant=True, zero=True, flag=True, uniform=True,
         samples.append(features)
     return np.asarray(samples)
 
-def _build_stream_and_connection_msgs(packets, limit):
-    connection_mapping = {}
-    stream_msgs     = defaultdict(list)
-    connection_msgs = defaultdict(list)
-    next_connection_id = 0
+def _build_stream_and_connection_data(msgs, limit):
+    stream_data = defaultdict(list)
+    conn_data   = defaultdict(list)
 
-    for (i, p) in enumerate(packets):
-        src_socket = (p.src_addr, p.src_port)
-        dst_socket = (p.dst_addr, p.dst_port)
-        sockets    = (src_socket, dst_socket)
-        if sockets not in connection_mapping:
-            connection_mapping[sockets] = next_connection_id
-            connection_mapping[sockets[::-1]] = next_connection_id
-            next_connection_id += 1
-        connection_id = connection_mapping[sockets]
-        msg = align.string_to_alignment(packets[i].payload[:limit])
-        stream_msgs[sockets].append(msg)
-        connection_msgs[connection_id].append(msg)
-
-    return (stream_msgs, connection_msgs)
-
-def _build_aligned_msgs(msgs, limit):
-    msgs = [msg[:limit] for msg in msgs]
-    aligned_msgs = []
-
-    longest = msgs[np.argmax(map(len, msgs))][::-1]
     for msg in msgs:
-        (_, _, a) = align.align(longest, msg[::-1], 0, -2, scoring.S,
-                mutual=False)
-        aligned_msgs.append(a[::-1])
+        data = align.string_to_alignment(msg.data[:limit])
+        stream_data[msg.stream].append(data)
+        conn_data[msg.conn].append(data)
 
-    return aligned_msgs
+    return (stream_data, conn_data)
+
+def _build_aligned_data(data, limit):
+    limited_data = [d[:limit] for d in data]
+    aligned_data = []
+
+    longest = limited_data[np.argmax(map(len, limited_data))][::-1]
+    for d in limited_data:
+        (_, _, a) = align.align(longest, d[::-1], 0, -2, scoring.S,
+                mutual=False)
+        aligned_data.append(a[::-1])
+
+    return aligned_data
 
 def _field_consensus(categorized_samples, length, size, classifier):
     num_fields = int(length / size)
@@ -66,19 +56,21 @@ def _field_consensus(categorized_samples, length, size, classifier):
         fields = fields & result
     return fields.tolist()
 
-def _classify_global_fields(msgs, packets, limit, sizes):
-    limited_msgs = [m[:limit] for m in msgs]
-    (stream_msgs, conn_msgs) = _build_stream_and_connection_msgs(packets, limit)
+def _classify_global_fields(msgs, limit, sizes, max_num_flag_values,
+        noise_ratio, num_iters):
+    data = [align.string_to_alignment(msg.data) for msg in msgs]
+    limited_data = [d[:limit] for d in data]
+    (stream_data, conn_data) = _build_stream_and_connection_data(msgs, limit)
 
-    global_samples  = _build_samples(limited_msgs)
+    global_samples  = _build_samples(limited_data)
     conn_samples    = {}
     stream_samples  = {}
 
-    for key in conn_msgs:
-        conn_samples[key] = _build_samples(conn_msgs[key], zero=False,
+    for key in conn_data:
+        conn_samples[key] = _build_samples(conn_data[key], zero=False,
                 flag=False, uniform=False, number=False)
-    for key in stream_msgs:
-        stream_samples[key] = _build_samples(stream_msgs[key], zero=False,
+    for key in stream_data:
+        stream_samples[key] = _build_samples(stream_data[key], zero=False,
                 flag=False, uniform=False, number=False)
 
     global_est  = defaultdict(dict)
@@ -87,13 +79,13 @@ def _classify_global_fields(msgs, packets, limit, sizes):
 
     for size in sizes:
         global_est['constants'][size]       = constant(global_samples, size)
-        global_est['flags'][size]           = flag(global_samples, size)
+        global_est['flags'][size]           = flag(global_samples, size, max_num_flag_values)
         global_est['uniforms'][size]        = uniform(global_samples, size)
         global_est['numbers'][size]         = number(global_samples, size)
-        global_est['lengths'][size]         = length(msgs[:100], size)
+        global_est['lengths'][size]         = length(data, size, noise_ratio, num_iters)
         conn_est['constants'][size]         = _field_consensus(conn_samples, limit, size, constant)
         stream_est['constants'][size]       = _field_consensus(stream_samples, limit, size, constant)
-        stream_est['incrementals'][size]    = _field_consensus(stream_msgs, limit, size, incremental)
+        stream_est['incrementals'][size]    = _field_consensus(stream_data, limit, size, incremental)
 
     est = {
         'global':       global_est,
@@ -103,7 +95,10 @@ def _classify_global_fields(msgs, packets, limit, sizes):
 
     return dict(est)
 
-def _classify_cluster_fields(msgs, labels, limit, sizes):
+def _classify_cluster_fields(msgs, limit, sizes, max_num_flag_values,
+        noise_ratio, num_iters, labels):
+    data = [align.string_to_alignment(msg.data) for msg in msgs]
+
     # Create clusters from FD labels
     clusters = defaultdict(list)
     for (i, label) in enumerate(labels):
@@ -111,28 +106,29 @@ def _classify_cluster_fields(msgs, labels, limit, sizes):
 
     est = defaultdict(lambda: defaultdict(dict))
     for label in clusters:
-        cluster_msgs = [msgs[i] for i in clusters[label]]
-        aligned_msgs = _build_aligned_msgs(cluster_msgs, limit)
-        samples = _build_samples(aligned_msgs)
+        cluster_data = [data[i] for i in clusters[label]]
+        aligned_data = _build_aligned_data(cluster_data, limit)
+        samples = _build_samples(aligned_data)
         for size in sizes:
             est[label]['constants'][size]       = constant(samples, size)
-            est[label]['flags'][size]           = flag(samples, size)
+            est[label]['flags'][size]           = flag(samples, size, max_num_flag_values)
             est[label]['uniforms'][size]        = uniform(samples, size)
             est[label]['numbers'][size]         = number(samples, size)
-            est[label]['incrementals'][size]    = incremental(aligned_msgs, size)
-            est[label]['lengths'][size]         = length(cluster_msgs[:100], size)
+            est[label]['incrementals'][size]    = incremental(aligned_data, size)
+            est[label]['lengths'][size]         = length(cluster_data, size,
+                    noise_ratio, num_iters)
 
     return dict(est)
 
-def classify_fields(packets, labels, cluster_limit, global_limit='min-length',
-        sizes=[1, 2, 4]):
-    msgs = [align.string_to_alignment(p.payload) for p in packets]
-
+def classify_fields(msgs, labels, cluster_limit, global_limit, sizes,
+        max_num_flag_values, noise_ratio, num_iters):
     if global_limit == 'min-length':
-        global_limit = min(map(len, msgs))
+        global_limit = min(map(lambda m: len(m.data), msgs))
 
-    global_est = _classify_global_fields(msgs, packets, global_limit, sizes)
-    cluster_est = _classify_cluster_fields(msgs, labels, cluster_limit, sizes)
+    global_est = _classify_global_fields(msgs, global_limit, sizes,
+            max_num_flag_values, noise_ratio, num_iters)
+    cluster_est = _classify_cluster_fields(msgs, cluster_limit, sizes,
+            max_num_flag_values, noise_ratio, num_iters, labels)
 
     return (global_est, cluster_est)
 

@@ -1,7 +1,3 @@
-# FIXME use correct relative imports
-import sys
-sys.path.append('..')
-
 import numpy as np
 import sklearn.cluster
 import sklearn.decomposition
@@ -20,7 +16,7 @@ class Clustering(object):
 
         return clusters
 
-    def cluster(self, min_samples, args=dict()):
+    def cluster(self, min_samples, args):
         max_length = max(map(len, self.msgs))
 
         # Calculate probability matrix for the different byte values
