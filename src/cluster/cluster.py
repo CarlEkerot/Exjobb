@@ -20,12 +20,10 @@ class Clustering(object):
 
     def cluster(self, min_samples, optics_args, max_num_types, header_limit,
             max_type_ratio):
-        self.labels = self._optics_clustering(min_samples, optics_args)
-        print self.get_metrics()
-        scores = self._format_distinguisher_score(max_num_types, header_limit,
-                max_type_ratio)
-        self.labels = self._format_distinguisher_clustering(scores, max_num_types)
-        print self.get_metrics()
+        self._optics_clustering(min_samples, optics_args)
+        #scores = self._format_distinguisher_score(max_num_types, header_limit,
+        #        max_type_ratio)
+        #self.labels = self._format_distinguisher_clustering(scores, max_num_types)
 
     def _optics_clustering(self, min_samples, args):
         max_length = max(map(len, self.msgs))
@@ -45,13 +43,26 @@ class Clustering(object):
             samples.append(features)
 
         # Decrease dimensionality
-        X = sklearn.decomposition.PCA(0.8).fit_transform(samples)
+        X = sklearn.decomposition.PCA(2).fit_transform(samples)
+
+        types = defaultdict(list)
+        for (i, type_) in enumerate(self.truth):
+            types[type_].append(i)
+
+        import matplotlib.pyplot as plt
+        from itertools import cycle
+        colors = cycle('gb')
+        for indices in types.values():
+            x = X[indices,0]
+            y = X[indices,1]
+            plt.scatter(x, y, marker='.', color=colors.next())
+        plt.show()
 
         # Perform clustering
-        opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
+        #opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
         #self.order = opt.ordering_
         #self.reach_dists = opt.reachability_distances_
-        return opt.labels_
+        #return opt.labels_
 
     def _format_distinguisher_score(self, max_num_types=50, header_limit=20,
             max_type_ratio=0.6):
