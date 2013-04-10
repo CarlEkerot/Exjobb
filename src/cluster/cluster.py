@@ -20,12 +20,10 @@ class Clustering(object):
 
     def cluster(self, min_samples, optics_args, max_num_types, header_limit,
             max_type_ratio):
-        self.labels = self._optics_clustering(min_samples, optics_args)
-        print self.get_metrics()
-        scores = self._format_distinguisher_score(max_num_types, header_limit,
-                max_type_ratio)
-        self.labels = self._format_distinguisher_clustering(scores, max_num_types)
-        print self.get_metrics()
+        self._optics_clustering(min_samples, optics_args)
+        #scores = self._format_distinguisher_score(max_num_types, header_limit,
+        #        max_type_ratio)
+        #self.labels = self._format_distinguisher_clustering(scores, max_num_types)
 
     def _optics_clustering(self, min_samples, args):
         max_length = max(map(len, self.msgs))
@@ -35,23 +33,62 @@ class Clustering(object):
         for msg in self.msgs:
             for (pos, val) in enumerate(msg):
                 P[pos,ord(val)] += 1
-        P = P / len(self.msgs)
+        P_norm = P / len(self.msgs)
 
+        import matplotlib.pyplot as plt
+
+        # Constant
+        plt.bar(range(256), P_norm[5], color='b', edgecolor='b')
+        plt.xlim(0, 256)
+        plt.show()
+
+        # Zero
+        plt.bar(range(256), P_norm[4], color='b', edgecolor='b')
+        plt.xlim(0, 256)
+        plt.show()
+
+        # Flag
+        plt.bar(range(256), P_norm[3], color='b', edgecolor='b')
+        plt.xlim(0, 256)
+        plt.show()
+
+        # Uniform
+        med = np.median(P_norm[1])
+        plt.bar(range(256), P_norm[1], color='b', edgecolor='b')
+        plt.axhline(med, color='k')
+        plt.xlim(0, 256)
+        plt.show()
+
+        # Number
+        from scipy.stats import norm
         samples = []
-        for (i, msg) in enumerate(self.msgs):
-            features = np.zeros(max_length)
-            for (j, byte) in enumerate(msg):
-                features[j] = P[j,ord(byte)]
-            samples.append(features)
+        for (i, count) in enumerate(P[12]):
+            samples.extend(count * [i])
+        (mu, sigma) = norm.fit(samples)
+        sigma = max(sigma, 0.6)
+        sigma = min(sigma, 20)
+        plt.bar(range(256), P_norm[12], color='b', edgecolor='b')
+        x = np.linspace(0, 256, 1000)
+        y = [norm.pdf(i, loc=mu, scale=sigma) for i in x]
+        plt.plot(x, y, 'k-')
+        plt.xlim(0, 256)
+        plt.show()
 
-        # Decrease dimensionality
-        X = sklearn.decomposition.PCA(0.8).fit_transform(samples)
+        #samples = []
+        #for (i, msg) in enumerate(self.msgs):
+        #    features = np.zeros(max_length)
+        #    for (j, byte) in enumerate(msg):
+        #        features[j] = P[j,ord(byte)]
+        #    samples.append(features)
 
-        # Perform clustering
-        opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
-        #self.order = opt.ordering_
-        #self.reach_dists = opt.reachability_distances_
-        return opt.labels_
+        ## Decrease dimensionality
+        #X = sklearn.decomposition.PCA(0.8).fit_transform(samples)
+
+        ## Perform clustering
+        #opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
+        ##self.order = opt.ordering_
+        ##self.reach_dists = opt.reachability_distances_
+        #return opt.labels_
 
     def _format_distinguisher_score(self, max_num_types=50, header_limit=20,
             max_type_ratio=0.6):

@@ -20,7 +20,7 @@ class ProtocolAnalyser(object):
             'similarity_ratio':     similarity_ratio,
         }
         clustering.cluster(min_samples, args, max_num_types, header_limit, max_type_ratio)
-        self.labels = clustering.labels
+        #self.labels = clustering.labels
 
     def state_inference(self, filename, depth=None):
         assert self.labels is not None, ("Missing cluster labels. "
