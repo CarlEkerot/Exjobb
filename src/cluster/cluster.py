@@ -20,12 +20,10 @@ class Clustering(object):
 
     def cluster(self, min_samples, optics_args, max_num_types, header_limit,
             max_type_ratio):
-        self.labels = self._optics_clustering(min_samples, optics_args)
-        print self.get_metrics()
-        scores = self._format_distinguisher_score(max_num_types, header_limit,
-                max_type_ratio)
-        self.labels = self._format_distinguisher_clustering(scores, max_num_types)
-        print self.get_metrics()
+        self._optics_clustering(min_samples, optics_args)
+        #scores = self._format_distinguisher_score(max_num_types, header_limit,
+        #        max_type_ratio)
+        #self.labels = self._format_distinguisher_clustering(scores, max_num_types)
 
     def _optics_clustering(self, min_samples, args):
         max_length = max(map(len, self.msgs))
@@ -49,9 +47,43 @@ class Clustering(object):
 
         # Perform clustering
         opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
-        #self.order = opt.ordering_
-        #self.reach_dists = opt.reachability_distances_
-        return opt.labels_
+        self.labels = opt.labels_
+        self.order = np.asarray(opt.ordering_)
+        self.reach_dists = opt.reachability_distances_
+
+        types = defaultdict(list)
+        for (i, type_) in enumerate(self.truth):
+            types[type_].append(i)
+
+        inverse_order = np.ndarray(len(self.order), dtype=int)
+        for (i, o) in enumerate(self.order):
+            inverse_order[o] = i
+
+        import matplotlib.pyplot as plt
+        from itertools import cycle
+
+        # Basic reachability plot
+        x = range(len(self.order))
+        y = self.reach_dists[self.order]
+        plt.bar(x, y, color='k')
+        plt.show()
+
+        # Advanced reachability plot showing OPTICS clusters and truth
+        colors = cycle(['1.0', '0.9'])
+        for label in self.clusters:
+            if label == -1:
+                continue
+            indices = self.clusters[label]
+            x = inverse_order[indices].astype(float) / len(inverse_order)
+            plt.axhspan(0, 1, min(x), max(x), color=colors.next(), linewidth=3)
+        colors = cycle('bg')
+        for indices in types.values():
+            x = inverse_order[indices]
+            y = self.reach_dists[self.order[x]]
+            c = colors.next()
+            plt.bar(x, y, color=c, edgecolor=c)
+        plt.show()
+        #return opt.labels_
 
     def _format_distinguisher_score(self, max_num_types=50, header_limit=20,
             max_type_ratio=0.6):
