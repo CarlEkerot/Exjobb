@@ -44,7 +44,6 @@ def find_reachable_states(M, state, depth):
     return _find(M, state, depth)
 
 def render_state_diagram(C_M, S_M, filename, depth=None):
-    print "render_state_diagram", depth
     tot_M = C_M + S_M
 
     if depth:

@@ -1,27 +1,26 @@
 from math import log, ceil
 from cluster.cluster import Clustering
-from cluster.fd_clustering import format_distinguisher_clustering
 from state.state_inference import state_inference, render_state_diagram
 from fields.field_classifier import classify_fields
 from fields.field_inference import create_global_fields, create_cluster_fields, print_fields
 
 class ProtocolAnalyser(object):
-    def __init__(self, msgs, limit):
+    def __init__(self, msgs, limit, truth=None):
         self.msgs   = msgs
         self.limit  = limit
+        self.truth  = truth
 
     def cluster(self, min_samples, significant_ratio=0.75,
             similarity_ratio=0.4, max_num_types=50, header_limit=20,
             max_type_ratio=0.6):
         limited_msg_data = [msg.data[:self.limit] for msg in self.msgs]
-        clustering = Clustering(limited_msg_data)
+        clustering = Clustering(limited_msg_data, self.truth)
         args = {
             'significant_ratio':    significant_ratio,
             'similarity_ratio':     similarity_ratio,
         }
-        clustering.cluster(min_samples, args)
-        self.labels = format_distinguisher_clustering(limited_msg_data,
-                clustering.labels, max_num_types, header_limit, max_type_ratio)
+        clustering.cluster(min_samples, args, max_num_types, header_limit, max_type_ratio)
+        self.labels = clustering.labels
 
     def state_inference(self, filename, depth=None):
         assert self.labels is not None, ("Missing cluster labels. "
