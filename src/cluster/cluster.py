@@ -26,43 +26,62 @@ class Clustering(object):
         #self.labels = self._format_distinguisher_clustering(scores, max_num_types)
 
     def _optics_clustering(self, min_samples, args):
-        max_length = max(map(len, self.msgs))
+        #max_length = max(map(len, self.msgs))
 
-        # Calculate probability matrix for the different byte values
-        P = np.zeros((max_length, 256))
-        for msg in self.msgs:
-            for (pos, val) in enumerate(msg):
-                P[pos,ord(val)] += 1
-        P = P / len(self.msgs)
+        ## Calculate probability matrix for the different byte values
+        #P = np.zeros((max_length, 256))
+        #for msg in self.msgs:
+        #    for (pos, val) in enumerate(msg):
+        #        P[pos,ord(val)] += 1
+        #P = P / len(self.msgs)
 
-        samples = []
-        for (i, msg) in enumerate(self.msgs):
-            features = np.zeros(max_length)
-            for (j, byte) in enumerate(msg):
-                features[j] = P[j,ord(byte)]
-            samples.append(features)
+        #samples = []
+        #for (i, msg) in enumerate(self.msgs):
+        #    features = np.zeros(max_length)
+        #    for (j, byte) in enumerate(msg):
+        #        features[j] = P[j,ord(byte)]
+        #    samples.append(features)
 
         # Decrease dimensionality
-        X = sklearn.decomposition.PCA(2).fit_transform(samples)
+        from sklearn.datasets import make_blobs
+        #rand = np.random.RandomState()
+        #rand.seed(2)
+        X = make_blobs(1000, 2, 10, 0.3)[0]
 
-        types = defaultdict(list)
-        for (i, type_) in enumerate(self.truth):
-            types[type_].append(i)
-
+        from sklearn.cluster import KMeans
         import matplotlib.pyplot as plt
-        from itertools import cycle
-        colors = cycle('gb')
-        for indices in types.values():
+        from itertools import cycle, product
+
+        mc = cycle(product('ox^', 'gbry'))
+
+        k_means = KMeans(init='random', n_clusters=4)
+        k_means.fit(X)
+
+        plt.subplot(1, 2, 1)
+        self.labels = k_means.labels_
+        for indices in self.clusters.values():
             x = X[indices,0]
             y = X[indices,1]
-            plt.scatter(x, y, marker='.', color=colors.next())
-        plt.show()
+            (m, c) = mc.next()
+            plt.scatter(x, y, color=c, marker=m)
+        #plt.show()
 
         # Perform clustering
-        #opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
-        #self.order = opt.ordering_
-        #self.reach_dists = opt.reachability_distances_
-        #return opt.labels_
+        opt = sklearn.cluster.OPTICS(min_samples=10, ext_kwargs=args).fit(X)
+        self.order = opt.ordering_
+        self.reach_dists = opt.reachability_distances_
+
+        self.labels = opt.labels_
+
+        plt.subplot(1, 2, 2)
+        print len(self.clusters)
+        for label in self.clusters:
+            indices = self.clusters[label]
+            x = X[indices,0]
+            y = X[indices,1]
+            (m, c) = mc.next()
+            plt.scatter(x, y, color=c, marker=m)
+        plt.show()
 
     def _format_distinguisher_score(self, max_num_types=50, header_limit=20,
             max_type_ratio=0.6):
