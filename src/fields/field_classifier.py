@@ -10,8 +10,7 @@ from collections import defaultdict
 from features import *
 from classifiers import *
 
-def _build_samples(data, constant=True, zero=True, flag=True, uniform=True,
-        number=True):
+def _build_samples(data, constant=True, zero=True, flag=True, uniform=True):
     max_size = max(map(len, data))
     distributions = np.zeros((max_size, 256))
     for d in data:
@@ -20,7 +19,7 @@ def _build_samples(data, constant=True, zero=True, flag=True, uniform=True,
                 distributions[i,byte] += 1
     samples = []
     for dist in distributions:
-        features = get_features(dist, constant, zero, flag, uniform, number)
+        features = get_features(dist, constant, zero, flag, uniform)
         samples.append(features)
     return np.asarray(samples)
 
@@ -53,7 +52,10 @@ def _field_consensus(categorized_samples, length, size, classifier):
     for samples in categorized_samples.values():
         result = classifier(samples, size)
         result += (num_fields - len(result)) * [False]
-        fields = fields & result
+        try:
+            fields = fields & result
+        except:
+            print type(fields), type(result), fields, result
     return fields.tolist()
 
 def _classify_global_fields(msgs, limit, sizes, max_num_flag_values,
@@ -68,10 +70,10 @@ def _classify_global_fields(msgs, limit, sizes, max_num_flag_values,
 
     for key in conn_data:
         conn_samples[key] = _build_samples(conn_data[key], zero=False,
-                flag=False, uniform=False, number=False)
+                flag=False, uniform=False)
     for key in stream_data:
         stream_samples[key] = _build_samples(stream_data[key], zero=False,
-                flag=False, uniform=False, number=False)
+                flag=False, uniform=False)
 
     global_est  = defaultdict(dict)
     conn_est    = defaultdict(dict)
@@ -81,7 +83,7 @@ def _classify_global_fields(msgs, limit, sizes, max_num_flag_values,
         global_est['constants'][size]       = constant(global_samples, size)
         global_est['flags'][size]           = flag(global_samples, size, max_num_flag_values)
         global_est['uniforms'][size]        = uniform(global_samples, size)
-        global_est['numbers'][size]         = number(global_samples, size)
+        global_est['numbers'][size]         = number(limited_data, size)
         global_est['lengths'][size]         = length(data, size, noise_ratio, num_iters)
         conn_est['constants'][size]         = _field_consensus(conn_samples, limit, size, constant)
         stream_est['constants'][size]       = _field_consensus(stream_samples, limit, size, constant)
@@ -113,7 +115,7 @@ def _classify_cluster_fields(msgs, limit, sizes, max_num_flag_values,
             est[label]['constants'][size]       = constant(samples, size)
             est[label]['flags'][size]           = flag(samples, size, max_num_flag_values)
             est[label]['uniforms'][size]        = uniform(samples, size)
-            est[label]['numbers'][size]         = number(samples, size)
+            est[label]['numbers'][size]         = number(aligned_data, size)
             est[label]['incrementals'][size]    = incremental(aligned_data, size)
             est[label]['lengths'][size]         = length(cluster_data, size,
                     noise_ratio, num_iters)
@@ -122,9 +124,6 @@ def _classify_cluster_fields(msgs, limit, sizes, max_num_flag_values,
 
 def classify_fields(msgs, labels, cluster_limit, global_limit, sizes,
         max_num_flag_values, noise_ratio, num_iters):
-    if global_limit == 'min-length':
-        global_limit = min(map(lambda m: len(m.data), msgs))
-
     global_est = _classify_global_fields(msgs, global_limit, sizes,
             max_num_flag_values, noise_ratio, num_iters)
     cluster_est = _classify_cluster_fields(msgs, cluster_limit, sizes,

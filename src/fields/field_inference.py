@@ -1,14 +1,14 @@
 from itertools import product
 
 global_precedences = [
+    ('global', 'constants'),
+    ('connection', 'constants'),
+    ('stream', 'constants'),
     ('global', 'lengths'),
     ('stream', 'incrementals'),
     ('global', 'numbers'),
     ('global', 'uniforms'),
     ('global', 'flags'),
-    ('global', 'constants'),
-    ('connection', 'constants'),
-    ('stream', 'constants'),
 ]
 
 cluster_precedences = [
@@ -54,12 +54,12 @@ def create_fields(order, estimations):
     for ((scope, type_), size) in order:
         est = estimations[scope][type_][size]
         for (i, b) in enumerate(est):
+            off = size * i
+            diff = (off + size) - len(occupied)
+            if diff > 0:
+                occupied.extend(diff * [False])
             if b:
-                off = size * i
                 fields.append(Field(off, size, scope, type_))
-                diff = (off + size) - len(occupied)
-                if diff > 0:
-                    occupied.extend(diff * [False])
                 occupied[off:off+size] = size * [True]
 
     for (offset, byte) in enumerate(occupied):
@@ -78,7 +78,7 @@ def create_cluster_fields(estimations, sizes, label):
     fields = create_fields(cluster_order, estimations)
     return fields
 
-def print_fields(fields):
+def print_fields(fields, limit=None):
     output      = []
     occupied    = []
     for field in fields:
@@ -95,6 +95,8 @@ def print_fields(fields):
     msg = '0' + 30 * ' ' + '32' + '\n ' + 31 * '_' + '\n'
     count = 0
     for field in output:
+        if limit and count == limit:
+            break
         field_label = scope_prefix[field.scope]
         field_label += '_' if field_label else ''
         field_label += type_symbols[field.type]

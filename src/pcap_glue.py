@@ -3,7 +3,6 @@ from message import Message
 
 def build_messages(filename):
     packets = load_pcap(filename, strict=True)
-    packets = filter(lambda x: x.payload[4:8] == '\xffSMB', packets)
 
     messages            = []
     connection_ids      = {}

@@ -21,6 +21,7 @@ class ProtocolAnalyser(object):
         }
         clustering.cluster(min_samples, args, max_num_types, header_limit, max_type_ratio)
         self.labels = clustering.labels
+        self.clusters = clustering.clusters
 
     def state_inference(self, filename, depth=None):
         assert self.labels is not None, ("Missing cluster labels. "
@@ -31,17 +32,19 @@ class ProtocolAnalyser(object):
 
     def classify_fields(self, cluster_limit=200, global_limit='min-length',
             sizes=[1, 2, 4], max_num_flag_values=10, noise_ratio=0.5, prob=0.99):
+        if global_limit == 'min-length':
+            global_limit = min(map(lambda m: len(m.data), self.msgs))
         num_iters = int(ceil(log(1 - prob) / log(1 - (1 - noise_ratio)**2)))
 
-        (global_est, cluster_est) = classify_fields(self.msgs, self.labels,
-                cluster_limit, global_limit, sizes, max_num_flag_values,
-                noise_ratio, num_iters)
+        (self.global_est, self.cluster_est) = classify_fields(self.msgs,
+                self.labels, cluster_limit, global_limit, sizes,
+                max_num_flag_values, noise_ratio, num_iters)
         ordered_sizes = sorted(sizes, reverse=True)
         print ' GLOBAL '.center(33, '=')
-        fields = create_global_fields(global_est, ordered_sizes)
-        print_fields(fields)
-        for label in cluster_est:
-            print (' CLUSTER %d ' % label).center(33, '=')
-            fields = create_cluster_fields(cluster_est, ordered_sizes, label)
+        fields = create_global_fields(self.global_est, ordered_sizes)
+        print_fields(fields, global_limit)
+        for label in self.cluster_est:
+            print (' CLUSTER %d (%d) ' % (label, len(self.clusters[label]))).center(33, '=')
+            fields = create_cluster_fields(self.cluster_est, ordered_sizes, label)
             print_fields(fields)
 
