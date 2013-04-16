@@ -1,13 +1,15 @@
 texfile=report
 bibfile=thesis
 
+all: pdf
+
 pdf: compile
 	pdflatex ${texfile}
 
 compile:
-	latex ${texfile}
+	pdflatex ${texfile}
 	bibtex ${texfile}
-	latex ${texfile}
+	pdflatex ${texfile}
 
 clean:
-	rm ${texfile}.aux ${texfile}.bbl ${texfile}.blg ${texfile}.dvi ${texfile}.log ${texfile}.toc ${texfile}.pdf
+	rm ${texfile}.aux ${texfile}.bbl ${texfile}.blg ${texfile}.log ${texfile}.toc ${texfile}.pdf
