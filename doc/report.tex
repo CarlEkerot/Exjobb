@@ -31,90 +31,32 @@ Here is a discussion about related work. We talk about different methodologies
 along with their respective advantages and disadvantages. As an example here
 is a citation \cite{cui07}.
 
-\chapter{Method}
+\chapter{Theory}
 
-\section{Approach}
-Here we will write how we approched the problem of network protocol inference
-and the different components that comprise our method. Start with explaining
-why we need to cluster our data and continue to explain what needs to be done
-after the clustering step to actually achieve protocol inference.
-
-\section{Clustering}
-
-\subsection{Cluster theory}
-Here we will explain in general terms what clustering is and what it is used
-for.
-
-\subsubsection{K-means}
-The K-means algorithm is explained here as an example of a simple clustering
-algorithm. The section is concluded with a practical example.
-
-\subsection{Features}
+\section{Features}
 The term feature is explained here and one can draw parallels to how we use
 raw data in the K-means example above where that is the most basic kind of
 feature.
 
-\subsubsection{High dimensional data}
+\subsection{High dimensional data}
 Continue to build upon the simple idea of two dimensional clustering and
 introduce new problems where the number of dimensions are significantly
 higher.
 
-\subsubsection{Principal component analysis}
+\subsection{Principal component analysis}
 Introduce principal component analysis (PCA) and explain how it can relieve
 some of the issues that occurs in high dimensional clustering. End with an
 example of how this can be done in practice with our choice of features on a
 set of data taken from DNS traffic.
 
-\subsection{Hierarchical clustering}
-Introduce the concept of hierarchical clustering and how different clusters
-may be related to one another.
+\section{Linear models}
+Explain what a linear model is.
 
-\subsubsection{Unweighted Pair Group Method with Arithmetic Mean}
-Use the Unweighted Pair Group Method with Arithmetic Mean (UPGMA) as an example
-of hierarchical clustering. Show how it fares well on our DNS data used in the
-PCA section but note clearly the problem with extracting clusters from the tree
-structure.
-
-\subsection{Density-based clustering}
-Explain the basic idea of density-based clustering.
-
-\subsubsection{DBSCAN}
-Continue to describe the DBSCAN algorithm as a practical implementation of the
-ideas introduced in the section above. Conclude with an example based on the
-same DNS data as before. Be sure to mention the problem with using the method
-on unknown data as the parameters needs to be fine tuned.
-
-\subsubsection{OPTICS}
-Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
-that marries the concepts of hierarchical clustering with density-based
-clustering. Emphasize the advantage of more robust parameters but also the
-disadvantage of yet again introducing the problem of cluster extraction.
-
-\paragraph{Cluster extraction}
-Explain that the problem with cluster extraction can be solved in OPTICS in
-contrast to UPGMA. Start with the most basic threshold extraction and continue
-with the more advanced hierarchical extraction method. Conclude with an example
-of cluster extraction from DNS data.
-
-\section{Field analysis}
-
-\subsection{Byte distribution}
-Explain how we reached the decision to use byte distributions in our attempts
-to find structures in protocols.
-
-\subsection{Field classes}
-Introduce the classes of fields that we have established as identifiable. Use
-plots of their byte distributions to motivate our decision.
-
-\subsection{Linear models}
-Explain what a linear model is and how we use it to model the relationship
-between length fields and message lengths.
-
-\subsubsection{Linear regression}
+\subsection{Linear regression}
 Explain how one can fit a linear model to data using regression. Mention the
 problem with noise.
 
-\subsubsection{RANSAC}
+\subsection{RANSAC}
 Explain how the RANSAC algorithm works and how it can be used to solve the
 problem with fitting a linear model in noisy data.
 
@@ -123,20 +65,94 @@ problem with fitting a linear model in noisy data.
     \caption{The RANSAC algorithm in action.}
 \end{figure}
 
-\subsection{Sequence alignment}
+\section{Clustering}
+Here we will explain in general terms what clustering is and what it is used
+for.
+
+\subsection{K-means}
+The K-means algorithm is explained here as an example of a simple clustering
+algorithm. The section is concluded with a practical example.
+
+\subsection{UPGMA}
+Introduce the concept of hierarchical clustering and how different clusters
+may be related to one another. Use the Unweighted Pair Group Method with
+Arithmetic Mean (UPGMA) as an example of hierarchical clustering. Show how it
+fares well on our DNS data used in the PCA section but note clearly the problem
+with extracting clusters from the tree
+structure.
+
+\subsection{DBSCAN}
+Explain the basic idea of density-based clustering. Continue to describe the
+DBSCAN algorithm as a practical implementation of the ideas introduced in the
+section above. Conclude with an example based on the same DNS data as before.
+Be sure to mention the problem with using the method on unknown data as the
+parameters needs to be fine tuned.
+
+\subsection{OPTICS}
+Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
+that marries the concepts of hierarchical clustering with density-based
+clustering. Emphasize the advantage of more robust parameters but also the
+disadvantage of yet again introducing the problem of cluster extraction.
+
+\subsubsection{Cluster extraction}
+Explain that the problem with cluster extraction can be solved in OPTICS in
+contrast to UPGMA. Start with the most basic threshold extraction and continue
+with the more advanced hierarchical extraction method. Conclude with an example
+of cluster extraction from DNS data.
+
+\section{Sequence alignment}
 Explain the concept of sequence alignment and why it is needed. (We need it
 because of fields with variable length)
 
-\subsubsection{Needleman-Wunsch}
+\subsection{Needleman-Wunsch}
 Describe the Needleman-Wunsch algorithm for performing global sequence
 alignment.
 
+\section{State machines}
+Explain what a state machine is and how it can be represented by an adjacency
+matrix.
+
+\chapter{Method}
+
+\section{Approach}
+Here we will write how we approached the problem of network protocol inference
+and the different components that comprise our method. Start with explaining
+why we need to cluster our data and continue to explain what needs to be done
+after the clustering step to actually achieve protocol inference.
+
+\section{Type inference}
+Explain that our type inference step is actually two different clustering steps
+performed in sequence.
+
+\subsection{Initial clustering}
+Explain our choice of features and clustering algorithm.
+
+\subsection{Type distinguishers}
+Describe our FD clustering algorithm.
+
+\section{Field analysis}
+Introduce the classes of fields that we have established as identifiable. Use
+plots of their byte distributions to motivate our decision.
+
+\subsection{Byte distribution}
+Explain how we reached the decision to use byte distributions in our attempts
+to find structures in protocols.
+
+\subsection{Constant fields}
+
+\subsection{Flag fields}
+
+\subsection{Uniform fields}
+
+\subsection{Number fields}
+
+\subsection{Incremental fields}
+
+\subsection{Length fields}
+Explain how we use a linear model to model the relationship between length
+fields and message lengths.
+
 \section{Protocol state inference}
-
-\subsection{Protocol state}
-Explain what a protocol state is and how to represent it.
-
-\subsection{State inference}
 Explain how we build a state machine from our clusters.
 
 \chapter{Results}
@@ -144,13 +160,17 @@ Explain how we build a state machine from our clusters.
 \section{Data sets}
 Provide information about the data used to produce the results.
 
-Shouldn't there be a section here?
+\section{Metrics}
+Explain what metrics we use to measure our results.
+
+\section{Clustering performance}
 Display the results of applying our method to different data sets.
 
-\chapter{Discussion}
-Discuss why the results are as they are.
+\section{Field inference performance}
 
-\chapter{Conclusions}
+\chapter{Discussion}
+
+\section{Conclusions}
 Draw conclusions about our method and compare it to the related methods.
 
 \section{Limitations}
