@@ -49,37 +49,65 @@ some of the issues that occurs in high dimensional clustering. End with an
 example of how this can be done in practice with our choice of features on a
 set of data taken from DNS traffic.
 
-\section{Linear models}
-Explain what a linear model is.
+\section{Simple linear regression}
+In statistics, a response variable $Y_i$ that is linearly dependent on an
+explanatory variable $X_i$ can be modeled with a simple linear regression
+model. The relationship between the two variables are then
 
-\subsection{Linear regression}
-Explain how one can fit a linear model to data using regression. Mention the
-problem with noise.
+\begin{equation}
+    Y_i = \alpha + \beta X_i + \epsilon_i
+    \label{eq:slr}
+\end{equation}
+
+where $\alpha$ and $\beta$ are the \emph{regression coefficients} and
+$\epsilon_i$ is the error term. Given a set of data ${Y_i, X_i}_1^n$ the
+regression coefficients can be estimated through simple linear regression. This
+process is often called fitting as it can be seen as trying to find the model
+with the best fit for the data. There are different methods to do this as there
+is no consistent measure for what is the best fit. One common method is the
+least squares method.
+
+\subsection{Ordinary least squares}
+Ordinary least squares (OLS) is a method for estimating the regression
+coefficients in equation~\ref{eq:slr}. It does this by minimizing the sum of
+squared residuals of the simple linear regression model. This can be formulated
+as minimizing the following cost function.
+
+\begin{equation}
+    C(\alpha, \beta) = \sum_{i=1}^n(Y_i - \alpha - \beta X_i)^2
+\end{equation}
+
+The result of this is a model that minimizes the residuals \emph{globally}
+across all samples. This intrinsically makes the method \emph{non-robust}, i.e.
+sensitive to outliers.
 
 \subsection{RANSAC}
-Explain how the RANSAC algorithm works and how it can be used to solve the
-problem with fitting a linear model in noisy data.
+Random Sample Consensus (RANSAC) is a \emph{robust} method for fitting a
+dataset to a model and was originally intended for image analysis
+\cite{fischler81}. The robustness of the method allows it to avoid the
+influence of outliers on the model. The algorithm is however
+\emph{non-deterministic} meaning that it only produces a good fit with a
+certain probability. The solution to this is that the algorithm is normally
+run a number of iterations until the probability of success is sufficiently
+large.
+
+The model that RANSAC operates on can be any kind of mathematical model, 
+therefore when handling two-dimensional linear data the simple linear
+regression model given in equation~\ref{eq:slr} can be used. This gives us a
+method that solves the problem of simple linear regression but that is also
+insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
+some samples have been replaced by random noise can be seen in
+figure~\ref{fig:ransac}.
 
 \begin{figure}
     \includegraphics[width=\linewidth]{ransac}
     \caption{The RANSAC algorithm in action.}
+    \label{fig:ransac}
 \end{figure}
 
 \section{Clustering}
 Here we will explain in general terms what clustering is and what it is used
 for.
-
-\subsection{K-means}
-The K-means algorithm is explained here as an example of a simple clustering
-algorithm. The section is concluded with a practical example.
-
-\subsection{UPGMA}
-Introduce the concept of hierarchical clustering and how different clusters
-may be related to one another. Use the Unweighted Pair Group Method with
-Arithmetic Mean (UPGMA) as an example of hierarchical clustering. Show how it
-fares well on our DNS data used in the PCA section but note clearly the problem
-with extracting clusters from the tree
-structure.
 
 \subsection{DBSCAN}
 Explain the basic idea of density-based clustering. Continue to describe the
