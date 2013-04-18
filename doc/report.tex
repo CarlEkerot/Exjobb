@@ -2,7 +2,10 @@
 
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage[section]{placeins}
 \usepackage[noline,noend,algoruled]{algorithm2e}
+\usepackage{amssymb}
 
 \begin{document}
 
@@ -30,7 +33,7 @@ course.
 \section{Related work}
 Here is a discussion about related work. We talk about different methodologies
 along with their respective advantages and disadvantages. As an example here
-is a citation \cite{cui07}.
+is a citation\cite{cui07}.
 
 \chapter{Theory}
 
@@ -58,12 +61,12 @@ explanatory variable $X_i$ can be modeled with a simple linear regression
 model. The relationship between the two variables are then
 
 \begin{equation}
-    Y_i = \alpha + \beta X_i + \epsilon_i
+    Y_i = \alpha + \beta X_i + \varepsilon_i
     \label{eq:slr}
 \end{equation}
 
 where $\alpha$ and $\beta$ are the \emph{regression coefficients} and
-$\epsilon_i$ is the error term. Given a set of data $\{Y_i, X_i\}_1^n$ the
+$\varepsilon_i$ is the error term. Given a set of data $\{Y_i, X_i\}_1^n$ the
 regression coefficients can be estimated through simple linear regression. This
 process is often called fitting as it can be seen as trying to find the model
 with the best fit for the data. There are different methods to do this as there
@@ -84,47 +87,53 @@ The result of this is a model that minimizes the residuals globally across all
 samples. This intrinsically makes the method \emph{non-robust}, i.e. sensitive
 to outliers.
 
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{ransac}
+    \caption{The RANSAC algorithm in action.}
+    \label{fig:ransac}
+\end{figure}
+
 \subsection{RANSAC}
 Random Sample Consensus (RANSAC) is a \emph{robust} method for fitting a
-dataset to a model and was originally intended for image analysis
-\cite{fischler81}. The robustness of the method allows it to avoid the
+dataset to a model and was originally intended for image
+analysis\cite{fischler81}. The robustness of the method allows it to avoid the
 influence of outliers in the model. The algorithm is however
 \emph{non-deterministic} meaning that it only produces a good fit with a
 certain probability. The solution to this is that the algorithm is normally
 run a number of iterations until the probability of success is sufficiently
 large. The algorithm is described in the following pseudocode:
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
     \DontPrintSemicolon
     \KwIn{
-        data
-        model
-        $n$
-        min\_inliers
-        iterations
-        \epsilon
+        $data$,
+        $model$,
+        $n$,
+        $min\_inliers$,
+        $iterations$,
+        $\varepsilon$
     }
     \KwOut{
-        best\_params
+        $best\_params$
     }
     \BlankLine
-    best\_params \gets \varnothing\;
-    best\_residual \gets \infty\;
-    \For{iterations}{
-        inliers \gets $n$ number of randomly chosen samples\;
-        fit model to inliers\;
-        more\_inliers \gets samples where distance from model \leq \epsilon\;
-        inliers \gets inliers \cup more\_inliers\;
-        \If{|inliers| \geq min\_inliers}{
-            fit model to inliers\;
-            residual \gets deviation from the estimated model for all inliers\;
-            \If{residual < best\_residual}{
-                best\_params \gets parameters in model\;
-                best\_residual \gets residual\;
+    $best\_params \gets \varnothing$\;
+    $best\_residual \gets \infty$\;
+    \For{$iterations$}{
+        $inliers \gets n$ number of randomly chosen samples\;
+        fit $model$ to $inliers$\;
+        $more\_inliers \gets$ samples where distance from $model \leq \varepsilon$\;
+        $inliers \gets inliers \cup more\_inliers$\;
+        \If{$|inliers| \geq min\_inliers$}{
+            fit $model$ to $inliers$\;
+            $residual \gets$ deviation from the estimated $model$ for all $inliers$\;
+            \If{$residual < best\_residual$}{
+                $best\_params \gets$ parameters in $model$\;
+                $best\_residual \gets residual$\;
             }
         }
     }
-    \Return{best\_params}
+    \Return{$best\_params$}
     \caption{RANSAC robust fitting algorithm.}
     \label{alg:ransac}
 \end{algorithm}
@@ -137,24 +146,18 @@ insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
 some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
 
-\begin{figure}[h]
-    \includegraphics[width=\linewidth]{ransac}
-    \caption{The RANSAC algorithm in action.}
-    \label{fig:ransac}
-\end{figure}
-
 \section{Clustering}
-A clustering is a grouping of samples in to individuals \textit{clusters}
+A clustering is a grouping of samples in to individuals \emph{clusters}
 based on the similarity of samples based on their features. The features are
 predefined to represent distinct properties of the samples. Similarities
 between samples are normally represented as distances in an $n$-dimensional
 space, where $n$ is the number of features. Distances may be calculated using
-a suitable distance function such as euclidean distance. 
+a suitable distance measure such as euclidean distance. 
 
 In cluster analysis, the goal is normally to find a clustering from a
 set of samples such that the membership of a cluster represents some true
 relationship. In some clustering algorithms such as K-means, the number of
-clusters are predefined \cite{macqueen67}.
+clusters are predefined\cite{macqueen67}.
 When the number of clusters are unknown, other algorithms such as DBSCAN,
 OPTICS and hierarchical clustering methods may be used.
 
@@ -168,6 +171,37 @@ DBSCAN algorithm as a practical implementation of the ideas introduced in the
 section above. Conclude with an example based on the same DNS data as before.
 Be sure to mention the problem with using the method on unknown data as the
 parameters needs to be fine tuned.
+
+DBSCAN is a \emph{density-based} clustering algorithm, as opposed to
+hierarchical clustering algortihms, or partitioning clustering algorithms such
+as K-means. Density-based cluster algorithms provides the benefit of not
+having to provide an estimated number of clusters as a parameter to the
+algorithm.
+
+DBSCAN was first presented in [citat]. The algorithm takes a set of samples
+$D$ and two parameters, $minPts$ and $\varepsilon$. $minPts$ decides how many
+samples that are needed in order to form a cluster.
+
+The densities are defined by the distances between a set of points.
+The algorithm introduces the definition \emph{$\varepsilon$-neighborhood}
+$N_{\varepsilon}(p)$ for a point $p$. The samples which are in 
+$N_{\varepsilon}(p)$ are given by the following condition:
+
+\begin{equation}
+    N_{\varepsilon}(p) = \{ q \in D ~|~ dist(p,q) < \varepsilon  \}
+    \label{eq:eps}
+\end{equation}
+
+The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
+reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge minPts$, the samples in
+$N_{\varepsilon}(p)$ forms a cluster. 
+
+A cluster is not limited to containing samples which are direcly
+density-reachable. The DBSCAN algorithm also defines that samples which are
+not directly density-reachable may be \emph{density-reachable}.
+A sample $q$ is density-reachable from a sample $p$ if there is a set of samples
+$S = \{s_1, .., s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is directly
+density-reachable from $s_i$ for $0 < i < n$.
 
 \subsection{OPTICS}
 Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
