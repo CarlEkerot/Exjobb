@@ -176,12 +176,12 @@ as K-means. Density-based cluster algorithms provides the benefit of not
 having to provide an estimated number of clusters as a parameter to the
 algorithm.
 
-DBSCAN takes a set of samples $D$ and two parameters, $minPts$ and
-$\varepsilon$. $minPts$ decides how many samples that are needed in order to
-form a cluster.
+DBSCAN was first presented in [citat]. The algorithm takes a set of samples
+$D$ and two parameters, $minPts$ and $\varepsilon$. $minPts$ decides how many
+samples that are needed in order to form a cluster.
 
 The densities are defined by the distances between a set of points.
-The algorithm introduces the definition \emph{$\varepsilon$-neighbourhood}
+The algorithm introduces the definition \emph{$\varepsilon$-neighborhood}
 $N_{\varepsilon}(p)$ for a point $p$. The samples which are in 
 $N_{\varepsilon}(p)$ are given by the following condition:
 
@@ -189,6 +189,17 @@ $N_{\varepsilon}(p)$ are given by the following condition:
     N_{\varepsilon}(p) = \{ q \in D ~|~ dist(p,q) < \varepsilon  \}
     \label{eq:eps}
 \end{equation}
+
+The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
+reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge minPts$, the samples in
+$N_{\varepsilon}(p)$ forms a cluster. 
+
+A cluster is not limited to containing samples which are direcly
+density-reachable. The DBSCAN algorithm also defines that samples which are
+not directly density-reachable may be \emph{density-reachable}.
+A sample $q$ is density-reachable from a sample $p$ if there is a set of samples
+$S = \{s_1, .., s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is directly
+density-reachable from $s_i$ for $0 < i < n$.
 
 \subsection{OPTICS}
 Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
