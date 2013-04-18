@@ -66,20 +66,23 @@ problem with fitting a linear model in noisy data.
 \end{figure}
 
 \section{Clustering}
-Here we will explain in general terms what clustering is and what it is used
-for.
+A clustering is a grouping of samples in to individuals \textit{clusters}
+based on the similarity of samples based on their features. The features are
+predefined to represent distinct properties of the samples. Similarities
+between samples are normally represented as distances in an $n$-dimensional
+space, where $n$ is the number of features. Distances may be calculated using
+a suitable distance function such as euclidean distance. 
 
-\subsection{K-means}
-The K-means algorithm is explained here as an example of a simple clustering
-algorithm. The section is concluded with a practical example.
+In cluster analysis, the goal is normally to find a clustering from a
+set of samples such that the membership of a cluster represents some true
+relationship. In some clustering algorithms such as K-means, the number of
+clusters are predefined [citera Lloyd].
+When the number of clusters are unknown, other algorithms such as DBSCAN,
+OPTICS and hierarchical clustering methods may be used.
 
-\subsection{UPGMA}
-Introduce the concept of hierarchical clustering and how different clusters
-may be related to one another. Use the Unweighted Pair Group Method with
-Arithmetic Mean (UPGMA) as an example of hierarchical clustering. Show how it
-fares well on our DNS data used in the PCA section but note clearly the problem
-with extracting clusters from the tree
-structure.
+The clustering algorithm we use in our method is OPTICS, which is based on
+DBSCAN. In the rest of this section we will explain these algorithms and
+provide examples based on protocol data.
 
 \subsection{DBSCAN}
 Explain the basic idea of density-based clustering. Continue to describe the
