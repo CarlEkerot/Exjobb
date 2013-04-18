@@ -2,6 +2,7 @@
 
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
+\usepackage[noline,noend,algoruled]{algorithm2e}
 
 \begin{document}
 
@@ -60,7 +61,7 @@ model. The relationship between the two variables are then
 \end{equation}
 
 where $\alpha$ and $\beta$ are the \emph{regression coefficients} and
-$\epsilon_i$ is the error term. Given a set of data ${Y_i, X_i}_1^n$ the
+$\epsilon_i$ is the error term. Given a set of data $\{Y_i, X_i\}_1^n$ the
 regression coefficients can be estimated through simple linear regression. This
 process is often called fitting as it can be seen as trying to find the model
 with the best fit for the data. There are different methods to do this as there
@@ -77,19 +78,54 @@ as minimizing the following cost function.
     C(\alpha, \beta) = \sum_{i=1}^n(Y_i - \alpha - \beta X_i)^2
 \end{equation}
 
-The result of this is a model that minimizes the residuals \emph{globally}
-across all samples. This intrinsically makes the method \emph{non-robust}, i.e.
-sensitive to outliers.
+The result of this is a model that minimizes the residuals globally across all
+samples. This intrinsically makes the method \emph{non-robust}, i.e. sensitive
+to outliers.
 
 \subsection{RANSAC}
 Random Sample Consensus (RANSAC) is a \emph{robust} method for fitting a
 dataset to a model and was originally intended for image analysis
 \cite{fischler81}. The robustness of the method allows it to avoid the
-influence of outliers on the model. The algorithm is however
+influence of outliers in the model. The algorithm is however
 \emph{non-deterministic} meaning that it only produces a good fit with a
 certain probability. The solution to this is that the algorithm is normally
 run a number of iterations until the probability of success is sufficiently
-large.
+large. The algorithm is described in the following pseudocode:
+
+\begin{algorithm}[h]
+    \DontPrintSemicolon
+    \KwIn{
+        data
+        model
+        $n$
+        min\_inliers
+        iterations
+        \epsilon
+    }
+    \KwOut{
+        best\_params
+    }
+    \BlankLine
+    best\_params \gets \varnothing\;
+    best\_residual \gets \infty\;
+    \For{iterations}{
+        inliers \gets $n$ number of randomly chosen samples\;
+        fit model to inliers\;
+        more\_inliers \gets samples where distance from model \leq \epsilon\;
+        inliers \gets inliers \cup more\_inliers\;
+        \If{|inliers| \geq min\_inliers}{
+            fit model to inliers\;
+            residual \gets deviation from the estimated model for all inliers\;
+            \If{residual < best\_residual}{
+                best\_params \gets parameters in model\;
+                best\_residual \gets residual\;
+            }
+        }
+    }
+    \Return{best\_params}
+    \caption{RANSAC robust fitting algorithm.}
+    \label{alg:ransac}
+\end{algorithm}
 
 The model that RANSAC operates on can be any kind of mathematical model, 
 therefore when handling two-dimensional linear data the simple linear
@@ -99,7 +135,7 @@ insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
 some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
 
-\begin{figure}
+\begin{figure}[h]
     \includegraphics[width=\linewidth]{ransac}
     \caption{The RANSAC algorithm in action.}
     \label{fig:ransac}
