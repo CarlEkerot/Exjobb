@@ -2,6 +2,8 @@
 
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage[section]{placeins}
 
 \begin{document}
 
@@ -81,6 +83,12 @@ The result of this is a model that minimizes the residuals \emph{globally}
 across all samples. This intrinsically makes the method \emph{non-robust}, i.e.
 sensitive to outliers.
 
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{ransac}
+    \caption{The RANSAC algorithm in action.}
+    \label{fig:ransac}
+\end{figure}
+
 \subsection{RANSAC}
 Random Sample Consensus (RANSAC) is a \emph{robust} method for fitting a
 dataset to a model and was originally intended for image analysis
@@ -99,19 +107,13 @@ insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
 some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
 
-\begin{figure}
-    \includegraphics[width=\linewidth]{ransac}
-    \caption{The RANSAC algorithm in action.}
-    \label{fig:ransac}
-\end{figure}
-
 \section{Clustering}
 A clustering is a grouping of samples in to individuals \textit{clusters}
 based on the similarity of samples based on their features. The features are
 predefined to represent distinct properties of the samples. Similarities
 between samples are normally represented as distances in an $n$-dimensional
 space, where $n$ is the number of features. Distances may be calculated using
-a suitable distance function such as euclidean distance. 
+a suitable distance measure such as euclidean distance. 
 
 In cluster analysis, the goal is normally to find a clustering from a
 set of samples such that the membership of a cluster represents some true
@@ -130,6 +132,26 @@ DBSCAN algorithm as a practical implementation of the ideas introduced in the
 section above. Conclude with an example based on the same DNS data as before.
 Be sure to mention the problem with using the method on unknown data as the
 parameters needs to be fine tuned.
+
+DBSCAN is a \textit{density-based} clustering algorithm, as opposed to
+hierarchical clustering algortihms, or partitioning clustering algorithms such
+as K-means. Density-based cluster algorithms provides the benefit of not
+having to provide an estimated number of clusters as a parameter to the
+algorithm.
+
+DBSCAN takes a set of samples $D$ and two parameters, $minPts$ and
+$\varepsilon$. $minPts$ decides how many samples that are needed in order to
+form a cluster.
+
+The densities are defined by the distances between a set of points.
+The algorithm introduces the definition \textit{$\varepsilon$-neighbourhood}
+$N_{\varepsilon}(p)$ for a point $p$. The samples which are in 
+$N_{\varepsilon}(p)$ are given by the following condition:
+
+\begin{equation}
+    N_{\varepsilon}(p) = \{ q \in D ~\|~ dist(p,q) < \varepsilon  \}
+    \label{eq:eps}
+\end{equation}
 
 \subsection{OPTICS}
 Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
