@@ -142,8 +142,23 @@ figure~\ref{fig:ransac}.
 \end{figure}
 
 \section{Clustering}
-Here we will explain in general terms what clustering is and what it is used
-for.
+A clustering is a grouping of samples in to individuals \textit{clusters}
+based on the similarity of samples based on their features. The features are
+predefined to represent distinct properties of the samples. Similarities
+between samples are normally represented as distances in an $n$-dimensional
+space, where $n$ is the number of features. Distances may be calculated using
+a suitable distance function such as euclidean distance. 
+
+In cluster analysis, the goal is normally to find a clustering from a
+set of samples such that the membership of a cluster represents some true
+relationship. In some clustering algorithms such as K-means, the number of
+clusters are predefined \cite{macqueen67}.
+When the number of clusters are unknown, other algorithms such as DBSCAN,
+OPTICS and hierarchical clustering methods may be used.
+
+The clustering algorithm we use in our method is OPTICS, which is based on
+DBSCAN. In the rest of this section we will explain these algorithms and
+provide examples based on protocol data.
 
 \subsection{DBSCAN}
 Explain the basic idea of density-based clustering. Continue to describe the
