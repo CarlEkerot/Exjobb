@@ -151,12 +151,11 @@ some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
 
 \section{Clustering}
-A clustering is a grouping of samples in to individuals \emph{clusters}
-based on the similarity of samples based on their features. The features are
-predefined to represent distinct properties of the samples. Similarities
-between samples are normally represented as distances in an $n$-dimensional
-space, where $n$ is the number of features. Distances may be calculated using
-any suitable norm.
+A clustering is a grouping of samples based on similarity with respect to their
+features. The features are predefined to represent distinct properties of the
+samples. Similarities between samples are normally represented as distances in
+an $n$-dimensional space, where $n$ is the number of features. Distances may be
+calculated using any suitable norm.
 
 In cluster analysis, the goal is normally to find a clustering from a
 set of samples such that the membership of a cluster represents some true
@@ -177,14 +176,13 @@ Be sure to mention the problem with using the method on unknown data as the
 parameters needs to be fine tuned.
 
 DBSCAN is a \emph{density-based} clustering algorithm, as opposed to
-hierarchical clustering algortihms, or partitioning clustering algorithms such
-as K-means. Density-based cluster algorithms provides the benefit of not
-having to provide an estimated number of clusters as a parameter to the
-algorithm.
+partitioning clustering algorithms such as K-means. Density-based clustering 
+algorithms provides the benefit of not having to provide an estimated number 
+of clusters as a parameter to the algorithm.
 
-DBSCAN was first presented in [citat]. The algorithm takes a set of samples
-$D$ and two parameters, $minPts$ and $\varepsilon$. $minPts$ decides how many
-samples that are needed in order to form a cluster.
+DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of 
+samples $D$ and two parameters, $minPts$ and $\varepsilon$. $minPts$ decides
+how many samples that are needed in order to form a cluster.
 
 The densities are defined by the distances between a set of points.
 The algorithm introduces the definition \emph{$\varepsilon$-neighborhood}
@@ -197,8 +195,8 @@ $N_{\varepsilon}(p)$ are given by the following condition:
 \end{equation}
 
 The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
-reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge minPts$, the samples in
-$N_{\varepsilon}(p)$ forms a cluster. 
+reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge minPts$, the samples
+in $N_{\varepsilon}(p)$ forms a cluster. 
 
 A cluster is not limited to containing samples which are direcly
 density-reachable. The DBSCAN algorithm also defines that samples which are
@@ -224,6 +222,22 @@ follows:
         \item $q$ is density-connected to $p$
     \end{enumerate}
 \end{definition}
+
+One of the drawbacks of DBSCAN is that it can only find clusters with a density
+higher than the density decided by the $\varepsilon$-paramter. It is also hard
+to estimate the $\varepsilon$ and $minPts$-parameters for an unknown dataset.
+This makes DBSCAN suitable for classifying data into known classes, but not as
+suitable for finding underlying structures in entirely unknown data. In
+figure~\ref{fig:dbscan} is an example of DBSCAN running on 5000 packets of DNS
+data. The parameters are manually selected to $\varepsilon = 0.085$ and
+$minPts = 200$.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{dbscan_dns}
+    \caption{An example of clustering with DBSCAN running on samples generated
+    from 5000 packets of DNS data.}
+    \label{fig:dbscan}
+\end{figure}
 
 \subsection{OPTICS}
 Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
