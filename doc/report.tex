@@ -41,22 +41,26 @@ is a citation \citep{cui07}.
 \chapter{Theory}
 
 \section{Features}
-In machine learning, a feature is a measurable property of the input data. For
-example, number of apples...
-Features can also be abstract; they do not need to directly correspond to a
-physically measurable property, instead they can be constructed by transforming
-.
+In machine learning, a feature is a measurable property of the input data. An
+example of a feature when working with images could be the intensity of light
+for a certain pixel. Features do not need to directly correspond to a
+physically measurable property however, instead they can be constructed by
+transforming other features. These new high-level features can then be used
+just like any other feature in order to simplify a complex problem.
 
-\subsection{High dimensional data}
-Continue to build upon the simple idea of two dimensional clustering and
-introduce new problems where the number of dimensions are significantly
-higher.
+One common type of complex problem is working with high dimensional data. There
+are different ways to deal with such data; one of them being to use a solving
+method that scales linearly. Another way is to reduce the dimensionality of the
+problem itself.
 
 \subsection{Principal component analysis}
-Introduce principal component analysis (PCA) and explain how it can relieve
-some of the issues that occurs in high dimensional clustering. End with an
-example of how this can be done in practice with our choice of features on a
-set of data taken from DNS traffic.
+One method to reduce the dimensionality of a problem is to use principal
+component analysis (PCA). PCA transforms the input data into another dataset
+where each dimension accounts for as much variance as possible while requiring
+it to maintain orthogonality to the other dimensions. The new dataset can be
+constructed to contain fewer dimensions than the original data and will then
+capture as much variance as possible in the given number of dimensions. PCA can
+be accomplished through singular value decomposition of a matrix.
 
 \section{Simple linear regression}
 In statistics, a response variable $Y_i$ that is linearly dependent on an
