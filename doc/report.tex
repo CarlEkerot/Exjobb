@@ -1,5 +1,6 @@
 \documentclass[a4paper]{report}
 
+\usepackage{natbib}
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
 \usepackage{float}
@@ -32,7 +33,7 @@ course.
 \section{Related work}
 Here is a discussion about related work. We talk about different methodologies
 along with their respective advantages and disadvantages. As an example here
-is a citation \cite{cui07}.
+is a citation \citep{cui07}.
 
 \chapter{Theory}
 
@@ -93,7 +94,7 @@ to outliers.
 \end{figure}
 
 \subsection{RANSAC}
-Random Sample Consensus (RANSAC) \cite{fischler81} is a \emph{robust} method
+Random Sample Consensus (RANSAC) \citep{fischler81} is a \emph{robust} method
 for fitting a dataset to a model and was originally intended for image
 analysis. The robustness of the method allows it to avoid the
 influence of outliers in the model. The algorithm is however
@@ -152,7 +153,7 @@ any suitable norm.
 
 In cluster analysis, the goal is normally to find a clustering from a
 set of samples such that the membership of a cluster represents some true
-relationship. In some clustering algorithms such as K-means \cite{macqueen67},
+relationship. In some clustering algorithms such as K-means \citep{macqueen67},
 the number of clusters are predefined. When the number of clusters are unknown,
 other algorithms such as DBSCAN, OPTICS and hierarchical clustering methods may
 be used.
@@ -314,7 +315,7 @@ Explain how correspondence analysis could give a better result than PCA.
 Explain how timestamps could potentially be identified from their distinguished
 byte distribution pattern.
 
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 \bibliography{thesis}
 
 \end{document}
