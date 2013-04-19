@@ -7,6 +7,7 @@
 \usepackage[noline,noend,algoruled]{algorithm2e}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage[small]{caption}
 
 \newtheorem*{definition}{Definition}
 
@@ -77,8 +78,7 @@ $\varepsilon_i$ is the error term. Given a set of data $\{Y_i, X_i\}_1^n$ the
 regression coefficients can be estimated through linear regression. This
 process is often called fitting as it can be seen as trying to find the model
 with the best fit for the data. There are different methods to do this as there
-is no consistent measure for what is the best fit. One common method is the
-least squares method.
+is no consistent measure for what is the best fit.
 
 \subsection{Ordinary least squares}
 Ordinary least squares (OLS) is a method for estimating the regression
@@ -96,7 +96,7 @@ to outliers.
 
 \begin{figure}[t]
     \includegraphics[width=\linewidth]{ransac}
-    \caption{The RANSAC algorithm in action.}
+    \caption{A comparison between OLS and RANSAC on a dataset containing outliers.}
     \label{fig:ransac}
 \end{figure}
 
@@ -108,12 +108,12 @@ influence of outliers in the model. The algorithm is however
 \emph{non-deterministic} meaning that it only produces a good fit with a
 certain probability. The solution to this is that the algorithm is normally
 run a number of iterations until the probability of success is sufficiently
-large. The algorithm is described in the following pseudocode:
+large. The pseudocode for RANSAC can be seen in algorithm~\ref{alg:ransac}.
 
 {
     \fontsize{10}{12}
     \selectfont
-    \begin{algorithm}[H]
+    \begin{algorithm}[t]
         \DontPrintSemicolon
         \BlankLine
         \KwIn{$data$, $model$, $n$, $min\_inliers$, $iterations$, $\varepsilon$}
@@ -208,7 +208,7 @@ $S = \{s_1, .., s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is directly
 density-reachable from $s_i$ for $0 < i < n$.
 
 Since the density-reachable relationship is not symmetric, a looser
-relationship is introduced: \textit{density-connected}. Two samples $p$ and
+relationship is introduced: \emph{density-connected}. Two samples $p$ and
 $q$ are density-connected if there exists a third point $o$ from which both
 $p$ and $q$ are density-reachable. The density-connected relationship
 is symmetric.
