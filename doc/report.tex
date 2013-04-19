@@ -1,11 +1,14 @@
 \documentclass[a4paper]{report}
 
-\usepackage{natbib}
+\usepackage[round]{natbib}
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage[noline,noend,algoruled]{algorithm2e}
 \usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem*{definition}{Definition}
 
 \begin{document}
 
@@ -199,6 +202,24 @@ not directly density-reachable may be \emph{density-reachable}.
 A sample $q$ is density-reachable from a sample $p$ if there is a set of samples
 $S = \{s_1, .., s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is directly
 density-reachable from $s_i$ for $0 < i < n$.
+
+Since the density-reachable relationship is not symmetric, a looser
+relationship is introduced: \textit{density-connected}. Two samples $p$ and
+$q$ are density-connected if there exists a third point $o$ from which both
+$p$ and $q$ are density-reachable. The density-connected relationship
+is symmetric.
+
+With these relationships, the algorithm defines cluster membership as
+follows:
+
+\begin{definition}
+    The following conditions needs to be satisfied for a point $q$ to be a 
+    member of a cluster $C$, given that there is a sample $p \in C$:
+    \begin{enumerate}
+        \item $q$ is density-reachable from $p$
+        \item $q$ is density-connected to $p$
+    \end{enumerate}
+\end{definition}
 
 \subsection{OPTICS}
 Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
