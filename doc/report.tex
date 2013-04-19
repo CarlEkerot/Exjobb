@@ -3,7 +3,6 @@
 \usepackage[round]{natbib}
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
-\usepackage{float}
 \usepackage[noline,noend,algoruled]{algorithm2e}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -74,11 +73,12 @@ model. The relationship between the two variables are then
 \end{equation}
 
 where $\alpha$ and $\beta$ are the \emph{regression coefficients} and
-$\varepsilon_i$ is the error term. Given a set of data $\{Y_i, X_i\}_1^n$ the
-regression coefficients can be estimated through linear regression. This
-process is often called fitting as it can be seen as trying to find the model
-with the best fit for the data. There are different methods to do this as there
-is no consistent measure for what is the best fit.
+$\varepsilon_i$ is the error term. Given a set of data
+$\displaystyle \{Y_i, X_i\}_1^n$ the regression coefficients can be estimated
+through linear regression. This process is often called fitting as it can be
+seen as trying to find the model with the best fit for the data. There are
+different methods to do this as there is no consistent measure for what is the
+best fit.
 
 \subsection{Ordinary least squares}
 Ordinary least squares (OLS) is a method for estimating the regression
@@ -94,53 +94,63 @@ The result of this is a model that minimizes the residuals globally across all
 samples. This intrinsically makes the method \emph{non-robust}, i.e. sensitive
 to outliers.
 
-\begin{figure}[t]
-    \includegraphics[width=\linewidth]{ransac}
-    \caption{A comparison between OLS and RANSAC on a dataset containing outliers.}
-    \label{fig:ransac}
-\end{figure}
-
-\subsection{RANSAC}
-Random Sample Consensus (RANSAC) \citep{fischler81} is a \emph{robust} method
-for fitting a dataset to a model and was originally intended for image
-analysis. The robustness of the method allows it to avoid the
-influence of outliers in the model. The algorithm is however
-\emph{non-deterministic} meaning that it only produces a good fit with a
-certain probability. The solution to this is that the algorithm is normally
-run a number of iterations until the probability of success is sufficiently
-large. The pseudocode for RANSAC can be seen in algorithm~\ref{alg:ransac}.
-
 {
     \fontsize{10}{12}
     \selectfont
     \begin{algorithm}[t]
         \DontPrintSemicolon
         \BlankLine
-        \KwIn{$data$, $model$, $n$, $min\_inliers$, $iterations$, $\varepsilon$}
-        \KwOut{$best\_params$}
+        \KwIn{$D$, $M$, $n$, $\delta$, $\gamma$, $k$}
+        \KwOut{$P_b$}
         \BlankLine
-        $best\_params \gets \varnothing$\;
-        $best\_residual \gets \infty$\;
-        \For{$iterations$}{
-            $inliers \gets n$ number of randomly chosen samples\;
-            fit $model$ to $inliers$\;
-            $more\_inliers \gets$ samples where distance from $model \leq \varepsilon$\;
-            $inliers \gets inliers \cup more\_inliers$\;
-            \If{$|inliers| \geq min\_inliers$}{
-                fit $model$ to $inliers$\;
-                $residual \gets$ deviation from the estimated $model$ for all $inliers$\;
-                \If{$residual < best\_residual$}{
-                    $best\_params \gets$ parameters in $model$\;
-                    $best\_residual \gets residual$\;
+        $P_b \gets \varnothing$\;
+        $\varepsilon_b \gets \infty$\;
+        \For{$k$}{
+            $I \gets n$ number of randomly chosen samples\;
+            fit $M$ to $I$\;
+            $I_m \gets$ samples where distance from $M \leq \delta$\;
+            $I \gets I \cup I_m$\;
+            \If{$|I| \geq \gamma$}{
+                fit $M$ to $I$\;
+                $\varepsilon \gets$ deviation from $M$ for all $I$\;
+                \If{$\varepsilon < \varepsilon_b$}{
+                    $P_b \gets$ parameters in $M$\;
+                    $\varepsilon_b \gets \varepsilon$\;
                 }
             }
         }
-        \Return{$best\_params$}
+        \Return{$P_b$}
         \BlankLine
         \caption{RANSAC}
         \label{alg:ransac}
     \end{algorithm}
 }
+
+\subsection{RANSAC}
+Random Sample Consensus (RANSAC) \citep{fischler81} is a \emph{robust} method
+for fitting a dataset to a model and was originally intended for image
+analysis. The robustness of the method allows it to avoid the influence of
+outliers in the model. Given a dataset $D$, a model $M$, a set of inliers $I$
+and two confidence parameters, $\delta$ and $\gamma$, it works the following
+way:
+
+\begin{enumerate}
+    \item fit $M$ to $I$
+    \item find the samples that are within $\delta$ distance from $M$
+    \item add those samples to $I$
+    \item continue if $|I|$ is at least $\gamma$
+    \item fit $M$ to $I$
+    \item evaluate $M$ from the residual of $I$
+\end{enumerate}
+
+One problem with this approach is that an initial set of inliers is required.
+In most cases this is not available so we need to guess which samples might be
+inliers. A simple solution to this is to take $n$ random samples and assume
+that they are inliers. This only works if the assumption is actually true and
+thus the resulting algorithm will be \emph{non-deterministic}, meaning that it
+only produces a good fit with a certain probability. The algorithm is normally
+run $k$ number of iterations until the probability of success is sufficiently
+large. Pseudocode for RANSAC can be seen in algorithm~\ref{alg:ransac}.
 
 The model that RANSAC operates on can be any kind of mathematical model, 
 therefore when handling two-dimensional linear data the simple linear
@@ -149,6 +159,12 @@ method that solves the problem of simple linear regression but that is also
 insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
 some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{ransac}
+    \caption{A comparison between OLS and RANSAC on a dataset containing outliers.}
+    \label{fig:ransac}
+\end{figure}
 
 \section{Clustering}
 A clustering is a grouping of samples in to individuals \emph{clusters}
