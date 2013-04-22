@@ -310,7 +310,51 @@ $\varepsilon$.
 % Få in att det är som att köra DBSCAN med alla möjliga eps-värden
 
 \subsubsection{Algorithm}
-% Beskriv core objects, core-distances, reachability-distances
+%
+{
+    \fontsize{10}{12}
+    \selectfont
+    \begin{algorithm}[t]
+        \DontPrintSemicolon
+        \BlankLine
+        \KwIn{$D$, $MinPts$, $\varepsilon$}
+        \KwOut{$ordering$, $reachability$-$distances$}
+        \BlankLine
+
+        $reachability$-$distances \gets \varnothing$\;
+        $ordering \gets \varnothing$\;
+        $seeds \gets 0,1,...,|D|$\;
+        $i \gets 0$\;
+
+        \While{$|seeds| > 1$} {
+            $p \gets seeds.get(i)$\;
+            $seeds.remove(i)$\;
+            $ordering.add(p)$\;
+
+            \If{$core$-$distance_{\varepsilon, MinPts}(p) \le \varepsilon$}{
+                $neighbors \gets N_{\varepsilon}(p)$\;
+                \For{each neighbor sample $n$} {
+                    $rdist \gets \text{$reachabilty$-
+                        $distance_{\varepsilon, MinPts}$}(n,p)$\;
+                    $reachability$-$distances[n] \gets rdist$\;
+                }
+                $i \gets$ seed with least reachability-distance\;
+            }
+            \Else{
+                $i \gets seeds.first$\;
+            }
+        } 
+        % Lägg in kommentar här
+        $ordering.add(seeds.get(0))$\;
+        $reachability$-$distances[0] \gets 0$\;
+        \Return{$ordering$, $reachability$-$distances$}
+        \BlankLine
+        \caption{OPTICS}
+        \label{alg:optics}
+    \end{algorithm}
+}
+
+ Beskriv core objects, core-distances, reachability-distances
 
 \subsubsection{Cluster extraction}
 Explain that the problem with cluster extraction can be solved in OPTICS in
