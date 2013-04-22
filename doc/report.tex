@@ -4,6 +4,7 @@
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
 \usepackage[noline,noend,algoruled]{algorithm2e}
+\usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage[small]{caption}
@@ -191,7 +192,7 @@ algorithms provides the benefit of not having to provide an estimated number
 of clusters as a parameter to the algorithm.
 
 DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of 
-samples $D$ and two parameters, $minPts$ and $\varepsilon$. $minPts$ decides
+samples $D$ and two parameters, $MinPts$ and $\varepsilon$. $MinPts$ decides
 how many samples that are needed in order to form a cluster.
 
 The densities are defined by the distances between a set of points.
@@ -205,8 +206,8 @@ $N_{\varepsilon}(p)$ are given by the following condition:
 \end{equation}
 
 The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
-reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge minPts$, the samples
-in $N_{\varepsilon}(p)$ forms a cluster. 
+reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge MinPts$, the samples
+in $N_{\varepsilon}(p)$ forms a cluster, and $p$ is a \emph{core point}. 
 
 A cluster is not limited to containing samples which are direcly
 density-reachable. The DBSCAN algorithm also defines that samples which are
@@ -234,13 +235,13 @@ follows:
 \end{definition}
 
 One of the drawbacks of DBSCAN is that it can only find clusters with a density
-higher than the density decided by the $\varepsilon$-paramter. It is also hard
-to estimate the $\varepsilon$ and $minPts$-parameters for an unknown dataset.
+higher than the density decided by the $\varepsilon$-parameter. It is also hard
+to estimate the $\varepsilon$ and $MinPts$-parameters for an unknown dataset.
 This makes DBSCAN suitable for classifying data into known classes, but not as
-suitable for finding underlying structures in entirely unknown data. In
+suitable for finding underlying structures in entirely unknown datasets. In
 figure~\ref{fig:dbscan} is an example of DBSCAN running on 5000 packets of DNS
 data. The parameters are manually selected to $\varepsilon = 0.085$ and
-$minPts = 200$.
+$MinPts = 200$.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{dbscan_dns}
@@ -263,8 +264,48 @@ the concepts introduced in DBSCAN. OPTICS uses the definitions
 eliminates the need for an explicit $\varepsilon$ parameter. The results is
 an algorithm which is less sensitive to user-specified parameters, and is able
 to find clusters with varying densities. One important *** of OPTICS is that
-it does not generate actual clusters. Instead, it creates an \emph{ordering}
-which reveals density-based structure in the input data.
+it does not generate actual clusters. Instead, it generates an \emph{ordering}
+which reveals density-based structure in the input data. The OPTICS algorithm
+extends DBSCAN with the definitions \emph{core-distance} and
+\emph{reachability-distance}.
+\\[0.5cm]
+Core-distance is a measurement of the distance $\varepsilon$ which is required
+for a sample $p$ to be a core point. That is, a core distance is the distance
+$\varepsilon$ which satisfies $|N_{\varepsilon}(p)| = MinPts$.
+
+\begin{definition}
+    The core-distance for a sample $p$ is defined as:
+\[
+    \begin{cases}
+        \text{UNDEFINED}, & \text{if $|N_{\varepsilon}(p)| < MinPts$}\\
+        \text{Min $\varepsilon$ which satisfies  $|N_{\varepsilon}(p)| = MinPts$}(p), & \text{otherwise}
+    \end{cases}
+\]
+\end{definition}
+
+The core-distance is $UNDEFINED$ when an upper limit on $\varepsilon$ is
+given as a parameter to the algorithm. This parameter is not required,
+although it has an impact on the runtime of the algorithm.
+\\[0.5cm]
+The reachability-distance of a sample $p$ is the smallest distance which is
+needed for $p$ to be directly density-reachable to a core point $q$ for some
+$\varepsilon$. 
+
+\begin{definition}
+    The reachability-distance of a sample $p$ with respect to some sample $q$
+    is defined as:
+\[
+    \begin{cases}
+        \text{UNDEFINED}, & \text{if $|N_{\varepsilon}(q)| < MinPts$}\\
+        \text{max(core-distance($q$), distance($q$, $p$))}, & \text{otherwise}
+    \end{cases}
+\]
+    where distance($q$, $p$) is the smallest $\varepsilon$ for which $q$ is
+    density-reachable from $p$.
+\end{definition}
+
+
+
 
 % Få in att det är som att köra DBSCAN med alla möjliga eps-värden
 
