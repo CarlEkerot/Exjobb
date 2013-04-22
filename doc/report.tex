@@ -255,6 +255,22 @@ that marries the concepts of hierarchical clustering with density-based
 clustering. Emphasize the advantage of more robust parameters but also the
 disadvantage of yet again introducing the problem of cluster extraction.
 
+Addressing the difficulties in selecting parameters for DBSCAN,
+\citet{ankerst99} introduced the OPTICS algorithm, which is an extension of
+the concepts introduced in DBSCAN. OPTICS uses the definitions
+\emph{directly density-reachable}, \emph{density-reachable} and
+\emph{density-connected} which were described in the DBSCAN algorithm, but
+eliminates the need for an explicit $\varepsilon$ parameter. The results is
+an algorithm which is less sensitive to user-specified parameters, and is able
+to find clusters with varying densities. One important *** of OPTICS is that
+it does not generate actual clusters. Instead, it creates an \emph{ordering}
+which reveals density-based structure in the input data.
+
+% Få in att det är som att köra DBSCAN med alla möjliga eps-värden
+
+\subsubsection{Algorithm}
+% Beskriv core objects, core-distances, reachability-distances
+
 \subsubsection{Cluster extraction}
 Explain that the problem with cluster extraction can be solved in OPTICS in
 contrast to UPGMA. Start with the most basic threshold extraction and continue
