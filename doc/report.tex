@@ -8,6 +8,8 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage[small]{caption}
+\usepackage{subcaption}
+\usepackage[table]{xcolor}
 
 \newtheorem*{definition}{Definition}
 
@@ -136,12 +138,12 @@ and two confidence parameters, $\delta$ and $\gamma$, it works the following
 way:
 
 \begin{enumerate}
-    \item fit $M$ to $I$
-    \item find the samples that are within $\delta$ distance from $M$
-    \item add those samples to $I$
-    \item continue if $|I|$ is at least $\gamma$
-    \item fit $M$ to $I$
-    \item evaluate $M$ from the residual of $I$
+    \item Fit $M$ to $I$
+    \item Find the samples that are within $\delta$ distance from $M$ and add
+        those samples to $I$
+    \item Continue if $|I|$ is at least $\gamma$
+    \item Fit $M$ to $I$
+    \item Evaluate $M$ from the residual of $I$
 \end{enumerate}
 
 One problem with this approach is that an initial set of inliers is required.
@@ -163,7 +165,8 @@ figure~\ref{fig:ransac}.
 
 \begin{figure}[t]
     \includegraphics[width=\linewidth]{ransac}
-    \caption{A comparison between OLS and RANSAC on a dataset containing outliers.}
+    \caption{A comparison between OLS and RANSAC on a dataset containing
+    outliers.}
     \label{fig:ransac}
 \end{figure}
 
@@ -226,7 +229,7 @@ With these relationships, the algorithm defines cluster membership as
 follows:
 
 \begin{definition}
-    The following conditions needs to be satisfied for a point $q$ to be a 
+    The following conditions needs to be satisfied for a point $q$ to be a
     member of a cluster $C$, given that there is a sample $p \in C$:
     \begin{enumerate}
         \item $q$ is density-reachable from $p$
@@ -243,7 +246,7 @@ figure~\ref{fig:dbscan} is an example of DBSCAN running on 5000 packets of DNS
 data. The parameters are manually selected to $\varepsilon = 0.085$ and
 $MinPts = 200$.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \includegraphics[width=\linewidth]{dbscan_dns}
     \caption{An example of clustering with DBSCAN running on samples generated
     from 5000 packets of DNS data.}
@@ -451,12 +454,96 @@ To extract clusters, simply take the leaves of the tree rooted in $root$.
 \subsubsection{Example}
 
 \section{Sequence alignment}
-Explain the concept of sequence alignment and why it is needed. (We need it
-because of fields with variable length)
+The problem of aligning sequences with one another originally arose in the area
+of bioinformatics. There, a need to find similarities in long chains of amino
+acids existed. One of the first methods that solved this problem was the
+Needleman-Wunsch algorithm \citep{needleman70}. The algorithm finds the maximal
+number of matching symbols between two sequences, allowing for gaps to be
+inserted into either sequence. This is done by tracing a path through an
+alignment matrix where each element represents a possible matching of symbols
+between the sequences.
 
-\subsection{Needleman-Wunsch}
-Describe the Needleman-Wunsch algorithm for performing global sequence
-alignment.
+Originally, the path was built only with respect to the number of matching
+identical symbols and not to the number of mismatches or gaps. This has since
+been improved upon to include pairwise scores for symbol matching and penalties
+for gaps. The different scores used when matching symbols is typically given in
+a similarity matrix. An example of such a matrix for a small alphabet of
+symbols is seen in figure~\ref{fig:simmatrix}.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \begin{tabular}{| c | c | c | c | c |}
+            \hline
+              &  A &  C & G &  T \\ \hline
+            A &  2 &  1 & 0 &  1 \\ \hline
+            C &  1 &  2 & 1 & -1 \\ \hline
+            G &  0 &  1 & 2 &  1 \\ \hline
+            T &  1 & -1 & 1 &  2 \\ \hline
+        \end{tabular}
+        \caption{The similarity matrix for the alphabet.}
+        \label{fig:simmatrix}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[b]{0.55\textwidth}
+        \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+            \hline
+            & & A & A & T & G & C & A & G \\ \hline
+            &\cellcolor[gray]{0.9}0 &\cellcolor[gray]{0.9}-1 & -2 & -3 & -4 &
+            -5 & -6 & -7 \\ \hline
+            A & -1 & 2 &\cellcolor[gray]{0.9}1 & 0 & -1 & -2 & -3 & -4 \\
+            \hline
+            T & -2 & 1 & 3 &\cellcolor[gray]{0.9}3 &\cellcolor[gray]{0.9}2 & 1
+            & 0 & -1 \\ \hline
+            C & -3 & 0 & 2 & 2 & 4 &\cellcolor[gray]{0.9}4 & 3 & 2 \\ \hline
+            G & -4 & -1 & 1 & 3 & 4 & 5 &\cellcolor[gray]{0.9}4 & 5 \\ \hline
+            G & -5 & -2 & 0 & 2 & 5 & 5 & 5 &\cellcolor[gray]{0.9}6 \\ \hline
+        \end{tabular}
+        \caption{The alignment matrix for the two sequences AATGCAG and
+        ATCGG.}
+        \label{fig:nwmatrix}
+    \end{subfigure}
+    \caption{An example of the Needleman-Wunsch algorithm run on two sequences
+    constructed from the alphabet $\{A, C, G, T\}$ with a gap penalty $d = -1$.
+    The similarity matrix used can be seen in (\subref{fig:simmatrix}) and the
+    resulting alignments is given by the gray elements in
+    (\subref{fig:nwmatrix}).}
+    \label{fig:nwtables}
+\end{figure}
+
+Given two sequences, $S$ and $T$, of length $m$ and $n$ respectively, a scoring
+matrix $C$ and a gap penalty $d$ the algorithm does the following:
+
+\begin{enumerate}
+    \item Construct an $(m + 1) \times (n + 1)$ alignment matrix $A$
+    \item Fill the first row of $A$ with gap penalties: $a_{0,j} \gets j \cdot
+        d$ where $0 \le j \le n$
+    \item Fill the first column of $A$ with gap penalties: $a_{i,0} \gets i
+        \cdot d$ where $0 \le i \le m$
+    \item Fill the rest of $A$ by doing one of the following actions for each
+        element $a_{i,j}$:
+        \begin{itemize}
+            \item Match - $a_{i,j} \gets a_{i - 1, j - 1} + C_{S_j,T_i}$
+            \item Delete - $a_{i,j} \gets a_{i - 1, j} + d$
+            \item Insert - $a_{i,j} \gets a_{i, j - 1} + d$
+        \end{itemize}
+        The action that is chosen is the one that results in the largest score
+        where, in the case of a tie, match is given priority. The priority of
+        delete and insert can be chosen arbitrarily.
+    \item Backtrace through the matrix from $a_{m,n}$ to build the alignments
+        in reverse order. Choose the path that was used to construct the score
+        at the current element.
+\end{enumerate}
+
+An example of applying the algorithm can be seen in figure~\ref{fig:nwtables}
+and the resulting alignments in figure~\ref{fig:align}.
+
+\begin{figure}[h]
+    \centering
+    \texttt{AATGCAG\\-AT-CGG}
+    \caption{The resulting alignment of the sequences AATGCAG and ATCGG.}
+    \label{fig:align}
+\end{figure}
 
 \section{State machines}
 Explain what a state machine is and how it can be represented by an adjacency
