@@ -302,7 +302,6 @@ $\varepsilon$.
 \end{definition}
 
 \subsubsection{Algorithm}
-%
 {
     \fontsize{10}{12}
     \selectfont
@@ -336,7 +335,6 @@ $\varepsilon$.
                 $i \gets seeds.first$\;
             }
         } 
-        % Lägg in kommentar här
         \CommentSty{/* Proccess last remaining seed */}\;
         $ordering.add(seeds.first)$\;
         $reachability$-$distances[0] \gets 0$\;
@@ -348,6 +346,13 @@ $\varepsilon$.
 }
 
 The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
+
+\subsubsection{Cluster extraction}
+Explain that the problem with cluster extraction can be solved in OPTICS in
+contrast to UPGMA. Start with the most basic threshold extraction and continue
+with the more advanced hierarchical extraction method. Conclude with an example
+of cluster extraction from DNS data.
+
 \citeauthor{ankerst99} describes the principles of the OPTICS algorithm as
 running DBSCAN for an infinite number of distance parameters $\varepsilon_i$
 in the interval $0 \le \varepsilon_i \le \varepsilon$. They also explain that
@@ -356,11 +361,89 @@ a static reachability-distance threshold $\varepsilon_i$ gives a clustering
 which is roughly equivalent to the clustering obtained when running DBSCAN
 with the same $MinPts$ and $\varepsilon = \varepsilon_i$.
 
-\subsubsection{Cluster extraction}
-Explain that the problem with cluster extraction can be solved in OPTICS in
-contrast to UPGMA. Start with the most basic threshold extraction and continue
-with the more advanced hierarchical extraction method. Conclude with an example
-of cluster extraction from DNS data.
+\citet{sander03} describes an hierarchical cluster extraction algorithm for
+OPTICS. As opposed to the DBSCAN-equivalent extraction approach, hierarchical
+cluster extraction retains many of the properties which comes with OPTICS,
+such as finding clusters with varying densities and subclusters nested in larger
+clusters.
+
+The algorithm builds an hierarchical representation of the clustering in the
+form of a tree, where the leaves are clusters. Below is the pseudocode for the
+algorithm described by \citeauthor{sander03} which takes an ordering and 
+reachability-distances from OPTICS and produces an hierarchical clustering.
+
+\subsubsection{Algorithm}
+{
+    \fontsize{10}{12}
+    \selectfont
+    \begin{algorithm}[H]
+        \DontPrintSemicolon
+        \BlankLine
+        \SetKwBlock{Fn}{function}{end}
+        \KwIn{$ordering$, $reachability$-$distances$}
+        \KwOut{$clustering$}
+        \BlankLine
+
+        $R \gets reachability$-$distances$ arranged according to $ordering$\;
+        $n \gets$ number of samples\;
+        $L \gets$ indices of local maximas in $R$\;
+        Sort $L$ on $R[L_i]$\;
+        $R_{max} \gets$ $R[L.last]$\;
+        $leaves \gets \varnothing$\;
+
+        \Fn(\emph{cluster\_tree(node, parent, L)}:){
+            \If{$L$ is empty}{
+                $leaves.add(node)$\;
+                \Return\;
+            }
+            $s \gets L.pop()$\;
+            $node.split \gets s$\;
+            $sign\_thres \gets significant$-$ratio * R[s]$\;
+            Create two new nodes, $N1$ and $N2$\;
+            $N1.samples \gets$ samples left of $s$\;
+            $N2.samples \gets$ samples right of $s$\;
+            $L1 \gets $ local maximas left of $s$\;
+            $L2 \gets $ local maximas right of $s$\;
+            \If{$N1$ and $N2$ has average reachability $<$ $sign\_thres$}{
+                \If{$|N1| > MinPts$}{
+                    $children.add(\{N1, L1\})$\;
+                }
+                \If{$|N2| > MinPts$}{
+                    $children.add(\{N2, L2\})$\;
+                }
+                \If{$children$ is empty}{
+                    $leaves.add(node)$\;
+                    \Return\;
+                }
+                \If{$R[s] \approx R[parent.split]$}{
+                    \For{$\{child, L\}$ in $children$}{
+                        $parent.children.add(child)$\;
+                    }
+                    $parent.children.remove(node)$\;
+                    $p \gets parent$\;
+                }
+                \Else{
+                    \For{$\{child, L\}$ in $children$}{
+                        $node.children.add(child)$\;
+                    }
+                    $p \gets node$\;
+                }
+                \For{$\{child, L\}$ in $children$}{
+                    \emph{cluster\_tree(child, p, L)}\;
+                }
+            }
+            \Else{
+                \emph{cluster\_tree(node, parent, L)}\;
+            }
+        }
+        \BlankLine
+        Create node $root$ containing all samples\;
+        \emph{cluster\_tree(root, null, L)}\;
+        \caption{Hierarchical Cluster Extraction}
+        \label{alg:hierextr}
+    \end{algorithm}
+}
+To extract clusters, simply take the leaves of the tree rooted in $root$.
 
 \section{Sequence alignment}
 Explain the concept of sequence alignment and why it is needed. (We need it
