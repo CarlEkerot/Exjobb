@@ -4,6 +4,7 @@
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{graphicx}
 \usepackage[noline,noend,algoruled]{algorithm2e}
+\usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage[small]{caption}
@@ -188,19 +189,13 @@ DBSCAN. In the rest of this section we will explain these algorithms and
 provide examples based on protocol data.
 
 \subsection{DBSCAN}
-Explain the basic idea of density-based clustering. Continue to describe the
-DBSCAN algorithm as a practical implementation of the ideas introduced in the
-section above. Conclude with an example based on the same DNS data as before.
-Be sure to mention the problem with using the method on unknown data as the
-parameters needs to be fine tuned.
-
 DBSCAN is a \emph{density-based} clustering algorithm, as opposed to
 partitioning clustering algorithms such as K-means. Density-based clustering 
 algorithms provides the benefit of not having to provide an estimated number 
 of clusters as a parameter to the algorithm.
 
 DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of 
-samples $D$ and two parameters, $minPts$ and $\varepsilon$. $minPts$ decides
+samples $D$ and two parameters, $MinPts$ and $\varepsilon$. $MinPts$ decides
 how many samples that are needed in order to form a cluster.
 
 The densities are defined by the distances between a set of points.
@@ -214,8 +209,8 @@ $N_{\varepsilon}(p)$ are given by the following condition:
 \end{equation}
 
 The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
-reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge minPts$, the samples
-in $N_{\varepsilon}(p)$ forms a cluster. 
+reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge MinPts$, the samples
+in $N_{\varepsilon}(p)$ forms a cluster, and $p$ is a \emph{core point}. 
 
 A cluster is not limited to containing samples which are direcly
 density-reachable. The DBSCAN algorithm also defines that samples which are
@@ -243,13 +238,13 @@ follows:
 \end{definition}
 
 One of the drawbacks of DBSCAN is that it can only find clusters with a density
-higher than the density decided by the $\varepsilon$-paramter. It is also hard
-to estimate the $\varepsilon$ and $minPts$-parameters for an unknown dataset.
+higher than the density decided by the $\varepsilon$-parameter. It is also hard
+to estimate the $\varepsilon$ and $MinPts$-parameters for an unknown dataset.
 This makes DBSCAN suitable for classifying data into known classes, but not as
-suitable for finding underlying structures in entirely unknown data. In
+suitable for finding underlying structures in entirely unknown datasets. In
 figure~\ref{fig:dbscan} is an example of DBSCAN running on 5000 packets of DNS
 data. The parameters are manually selected to $\varepsilon = 0.085$ and
-$minPts = 200$.
+$MinPts = 200$.
 
 \begin{figure}[h]
     \includegraphics[width=\linewidth]{dbscan_dns}
@@ -259,16 +254,199 @@ $minPts = 200$.
 \end{figure}
 
 \subsection{OPTICS}
-Introduce the OPTICS algorithm which is an extension to the DBSCAN algorithm
-that marries the concepts of hierarchical clustering with density-based
-clustering. Emphasize the advantage of more robust parameters but also the
-disadvantage of yet again introducing the problem of cluster extraction.
+Addressing the difficulties in selecting parameters for DBSCAN,
+\citet{ankerst99} introduced the OPTICS algorithm, which is an extension of
+the concepts introduced in DBSCAN. OPTICS uses the definitions
+\emph{directly density-reachable}, \emph{density-reachable} and
+\emph{density-connected} which were described in the DBSCAN algorithm, but
+eliminates the need for an explicit $\varepsilon$ parameter. Instead the
+$\varepsilon$ parameter is interpreted as the largest distance to consider
+when clustering. The results is an algorithm which is less sensitive to
+user-specified parameters, and is able to find clusters with varying densities.
+
+One important aspect of OPTICS is that it does not generate actual clusters.
+Instead, it generates an \emph{ordering} which reveals density-based structure
+in the input data. The OPTICS algorithm extends DBSCAN with the definitions
+\emph{core-distance} and \emph{reachability-distance}.
+\\[0.5cm]
+Core-distance is a measurement of the distance $\varepsilon$ which is required
+for a sample $p$ to be a core point. That is, a core distance is the distance
+$\varepsilon$ which satisfies $|N_{\varepsilon}(p)| = MinPts$.
+
+\begin{definition}
+    The core-distance for a sample $p$ is defined as:
+\[
+    \begin{cases}
+        \text{UNDEFINED}, & \text{if $|N_{\varepsilon}(p)| < MinPts$}\\
+        \text{Min $\varepsilon$ which satisfies  $|N_{\varepsilon}(p)| = MinPts$}(p), & \text{otherwise}
+    \end{cases}
+\]
+\end{definition}
+
+The core-distance is $UNDEFINED$ when an upper limit on $\varepsilon$ is
+given as a parameter to the algorithm. This parameter is not required,
+although it has an impact on the runtime of the algorithm.
+\\[0.5cm]
+The reachability-distance of a sample $p$ is the smallest distance which is
+needed for $p$ to be directly density-reachable to a core point $q$ for some
+$\varepsilon$. 
+
+\begin{definition}
+    The reachability-distance of a sample $p$ with respect to some sample $q$
+    is defined as:
+\[
+    \begin{cases}
+        \text{UNDEFINED}, & \text{if $|N_{\varepsilon}(q)| < MinPts$}\\
+        \text{max(core-distance($q$), distance($q$, $p$))}, & \text{otherwise}
+    \end{cases}
+\]
+    where distance($q$, $p$) is the smallest $\varepsilon$ for which $q$ is
+    density-reachable from $p$.
+\end{definition}
+
+\subsubsection{Algorithm}
+{
+    \fontsize{10}{12}
+    \selectfont
+    \begin{algorithm}[t]
+        \DontPrintSemicolon
+        \BlankLine
+        \KwIn{$D$, $MinPts$, $\varepsilon$}
+        \KwOut{$ordering$, $reachability$-$distances$}
+        \BlankLine
+
+        $reachability$-$distances \gets \varnothing$\;
+        $ordering \gets \varnothing$\;
+        $seeds \gets 0,1,...,|D|$\;
+        $i \gets 0$\;
+
+        \While{$|seeds| > 1$} {
+            $p \gets seeds.get(i)$\;
+            $seeds.remove(i)$\;
+            $ordering.add(p)$\;
+
+            \If{$core$-$distance_{\varepsilon, MinPts}(p) \le \varepsilon$}{
+                $neighbors \gets N_{\varepsilon}(p)$\;
+                \For{each neighbor sample $n$} {
+                    $rdist \gets \text{$reachabilty$-
+                        $distance_{\varepsilon, MinPts}$}(n,p)$\;
+                    $reachability$-$distances[n] \gets rdist$\;
+                }
+                $i \gets$ seed with least reachability-distance\;
+            }
+            \Else{
+                $i \gets seeds.first$\;
+            }
+        } 
+        \CommentSty{/* Proccess last remaining seed */}\;
+        $ordering.add(seeds.first)$\;
+        $reachability$-$distances[0] \gets 0$\;
+        \Return{$ordering$, $reachability$-$distances$}
+        \BlankLine
+        \caption{OPTICS}
+        \label{alg:optics}
+    \end{algorithm}
+}
+
+The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
 
 \subsubsection{Cluster extraction}
 Explain that the problem with cluster extraction can be solved in OPTICS in
 contrast to UPGMA. Start with the most basic threshold extraction and continue
 with the more advanced hierarchical extraction method. Conclude with an example
 of cluster extraction from DNS data.
+
+\citeauthor{ankerst99} describes the principles of the OPTICS algorithm as
+running DBSCAN for an infinite number of distance parameters $\varepsilon_i$
+in the interval $0 \le \varepsilon_i \le \varepsilon$. They also explain that
+extracting clusters from the OPTICS ordering and reachability-distances using
+a static reachability-distance threshold $\varepsilon_i$ gives a clustering
+which is roughly equivalent to the clustering obtained when running DBSCAN
+with the same $MinPts$ and $\varepsilon = \varepsilon_i$.
+
+\citet{sander03} describes an hierarchical cluster extraction algorithm for
+OPTICS. As opposed to the DBSCAN-equivalent extraction approach, hierarchical
+cluster extraction retains many of the properties which comes with OPTICS,
+such as finding clusters with varying densities and subclusters nested in larger
+clusters.
+
+The algorithm builds an hierarchical representation of the clustering in the
+form of a tree, where the leaves are clusters. Below is the pseudocode for the
+algorithm described by \citeauthor{sander03} which takes an ordering and 
+reachability-distances from OPTICS and produces an hierarchical clustering.
+
+\subsubsection{Algorithm}
+{
+    \fontsize{10}{12}
+    \selectfont
+    \begin{algorithm}[H]
+        \DontPrintSemicolon
+        \BlankLine
+        \SetKwBlock{Fn}{function}{end}
+        \KwIn{$ordering$, $reachability$-$distances$}
+        \KwOut{$clustering$}
+        \BlankLine
+
+        $R \gets reachability$-$distances$ arranged according to $ordering$\;
+        $n \gets$ number of samples\;
+        $L \gets$ indices of local maximas in $R$\;
+        Sort $L$ on $R[L_i]$\;
+        $R_{max} \gets$ $R[L.last]$\;
+        $leaves \gets \varnothing$\;
+
+        \Fn(\emph{cluster\_tree(node, parent, L)}:){
+            \If{$L$ is empty}{
+                $leaves.add(node)$\;
+                \Return\;
+            }
+            $s \gets L.pop()$\;
+            $node.split \gets s$\;
+            $sign\_thres \gets significant$-$ratio * R[s]$\;
+            Create two new nodes, $N1$ and $N2$\;
+            $N1.samples \gets$ samples left of $s$\;
+            $N2.samples \gets$ samples right of $s$\;
+            $L1 \gets $ local maximas left of $s$\;
+            $L2 \gets $ local maximas right of $s$\;
+            \If{$N1$ and $N2$ has average reachability $<$ $sign\_thres$}{
+                \If{$|N1| > MinPts$}{
+                    $children.add(\{N1, L1\})$\;
+                }
+                \If{$|N2| > MinPts$}{
+                    $children.add(\{N2, L2\})$\;
+                }
+                \If{$children$ is empty}{
+                    $leaves.add(node)$\;
+                    \Return\;
+                }
+                \If{$R[s] \approx R[parent.split]$}{
+                    \For{$\{child, L\}$ in $children$}{
+                        $parent.children.add(child)$\;
+                    }
+                    $parent.children.remove(node)$\;
+                    $p \gets parent$\;
+                }
+                \Else{
+                    \For{$\{child, L\}$ in $children$}{
+                        $node.children.add(child)$\;
+                    }
+                    $p \gets node$\;
+                }
+                \For{$\{child, L\}$ in $children$}{
+                    \emph{cluster\_tree(child, p, L)}\;
+                }
+            }
+            \Else{
+                \emph{cluster\_tree(node, parent, L)}\;
+            }
+        }
+        \BlankLine
+        Create node $root$ containing all samples\;
+        \emph{cluster\_tree(root, null, L)}\;
+        \caption{Hierarchical Cluster Extraction}
+        \label{alg:hierextr}
+    \end{algorithm}
+}
+To extract clusters, simply take the leaves of the tree rooted in $root$.
 
 \section{Sequence alignment}
 The problem of aligning sequences with one another originally arose in the area
