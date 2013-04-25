@@ -43,7 +43,7 @@ class Clustering(object):
             samples.append(features)
 
         # Decrease dimensionality
-        X = sklearn.decomposition.PCA(0.8).fit_transform(samples)
+        X = sklearn.decomposition.PCA(2).fit_transform(samples)
 
         # Perform clustering
         opt = sklearn.cluster.OPTICS(min_samples=min_samples, ext_kwargs=args).fit(X)
@@ -66,8 +66,11 @@ class Clustering(object):
         x = range(len(self.order))
         y = self.reach_dists[self.order]
         plt.bar(x, y, color='k')
+        plt.xlabel('Ordered samples')
+        plt.ylabel('Reachability-distance')
         plt.show()
 
+        print len(self.clusters)
         # Advanced reachability plot showing OPTICS clusters and truth
         colors = cycle(['1.0', '0.9'])
         for label in self.clusters:
@@ -81,7 +84,10 @@ class Clustering(object):
             x = inverse_order[indices]
             y = self.reach_dists[self.order[x]]
             c = colors.next()
-            plt.bar(x, y, color=c, edgecolor=c)
+            plt.bar(x, y, color=c, edgecolor=c, label=self.truth[x[0]])
+        plt.xlabel('Ordered samples')
+        plt.ylabel('Reachability-distance')
+        plt.legend()
         plt.show()
         #return opt.labels_
 
