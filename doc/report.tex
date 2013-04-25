@@ -316,24 +316,27 @@ reachability-plot represents samples which are close to each other. Spikes
 represents a large difference in distance between the samples to the left and
 right of the spike.
 
+The pseudocode for OPTICS is given in algorithm~\ref{alg:optics}.
+
 \begin{figure}[t]
     \centering
     \begin{subfigure}[b]{0.48\linewidth}
         \includegraphics[width=\linewidth]{rplot_dhcp}
-        \caption{Reachability-plot.}
+        \caption{Reachability-plot for 5000 DHCP-packets with $MinPts = 200$.}
         \label{fig:rplot}
     \end{subfigure}
-    %\quad
+    \quad
     \begin{subfigure}[b]{0.48\linewidth}
         \includegraphics[width=\linewidth]{hierextr}
-        \caption{Hierarchical extraction.}
+        \caption{Hierarchical extraction for 5000 DNS-packets with
+            $MinPts = 200$.}
         \label{fig:hierextr}
     \end{subfigure}
-    \caption{caption}
+    \caption{Reachability-plots generated from the ordering and
+        reachability-distances given by OPTICS.}
     \label{fig:rplots}
 \end{figure}
 
-\subsubsection{Algorithm}
 {
     \fontsize{10}{12}
     \selectfont
@@ -377,8 +380,6 @@ right of the spike.
     \end{algorithm}
 }
 
-% The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
-
 \subsubsection{Cluster extraction}
 
 \citeauthor{ankerst99} describes the principles of the OPTICS algorithm as
@@ -401,8 +402,14 @@ algorithm described by \citeauthor{sander03} which takes an ordering and
 reachability-distances from OPTICS and produces an hierarchical clustering.
 
 The pseudocode for hierarchical extraction is given in
-algorithm~\ref{alg:hierextr}. The results of the cluster extraction is
-visualized in figure~\ref{fig:hierextr}.
+algorithm~\ref{alg:hierextr}. Figure~\ref{fig:hierextr} is the result of
+the algorithm running on the same DNS dataset as figure~\ref{fig:dbscan}
+with $MinPts = 200$. The algorithm yields three clusters, each cluster
+distinguished by changing background color. The true types \emph{request} and
+\emph{response} are colored blue and green respectively in the reachability
+plot. Note that the algorithm is rather insensitive to the $MinPts$-parameter,
+and that the true types of DNS may be extended to different record types such
+as A/AAAA/CNAME-records.
 
 {
     \fontsize{10}{12}
