@@ -37,9 +37,39 @@ protocol inference is needed. Also explain what protocol inference is, of
 course.
 
 \section{Related work}
-Here is a discussion about related work. We talk about different methodologies
-along with their respective advantages and disadvantages. As an example here
-is a citation \citep{cui07}.
+A popular approach to the problem of automatic inference of network protocols
+has been to draw a parallel to bioinformatics. Byte-streams have been
+processed using the same methodology as DNA sequence analysis in order
+to mine patterns in protocol messages. \citep{beddoe05} explores the
+possibilities of using bioinformatics methods such as multiple sequence
+alignment in order to find patterns in both textual and binary protocols. These
+principles have been applied in e.g. Netzob\footnote{http://www.netzob.org}, a
+tool for protocol analysis.
+
+Using techniques from bioinformatics in protocol analysis seems natural since
+the analysis of messages, which may be viewed as the analysis of byte-streams,
+is easily converted to the problem of sequence analysis. Methods such as
+multiple sequence alignment does provide an insight to the structure of
+protocols, but further analysis is needed in order to find semantic meaning in
+segments of bytes.
+
+Discoverer by \citeauthor{cui07} is an approach which is specifically modelled
+after the behavior of network protocols. Discoverer tokenizes
+network dumps into textual and binary tokens. From the tokens Discoverer
+attempts to group messages based on their true message type, such as requests
+or responses. After the grouping of messages, Discoverer seeks semantic meaning
+in the tokens in common for each group of messages, and classifies the tokens
+into a set of predefined classes. 
+
+\citet{caballero12} proposes a method where protocol specifications are
+constructed by monitoring the execution state of the client or server software
+which utilizes the protocol. This approach has the obvious benefit of mapping
+data stored in memory at one state to the data subsequently present in a
+protocol message. This requires access to the actual software which generates
+the messages. In many cases this may limit the analysis to the messages sent by
+the client. When the server software is unavailable for execution state
+monitoring, one must resort to other methods in order to further analyse the
+protocol.
 
 \chapter{Theory}
 
@@ -208,9 +238,10 @@ $N_{\varepsilon}(p)$ are given by the following condition:
     \label{eq:eps}
 \end{equation}
 
-The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
-reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge MinPts$, the samples
-in $N_{\varepsilon}(p)$ forms a cluster, and $p$ is a \emph{core point}. 
+The samples in $N_{\varepsilon}(p)$ are defined as
+\emph{directly density-reachable} from $p$. Given that
+$|N_{\varepsilon}(p)| \ge MinPts$, the samples in $N_{\varepsilon}(p)$ forms a
+cluster, and $p$ is a \emph{core point}. 
 
 A cluster is not limited to containing samples which are direcly
 density-reachable. The DBSCAN algorithm also defines that samples which are
@@ -396,12 +427,11 @@ cluster extraction retains many of the properties which comes with OPTICS,
 such as finding clusters with varying densities and subclusters nested in larger
 clusters.
 
-The algorithm builds an hierarchical representation of the clustering in the
-form of a tree, where the leaves are clusters. Below is the pseudocode for the
-algorithm described by \citeauthor{sander03} which takes an ordering and 
-reachability-distances from OPTICS and produces an hierarchical clustering.
+The algorithm takes an ordering and reachability-distances from OPTICS and
+builds an hierarchical representation of the clustering in the form of a tree,
+where the leaves are clusters.
 
-The pseudocode for hierarchical extraction is given in
+The pseudocode for hierarchical extraction is given in 
 algorithm~\ref{alg:hierextr}. Figure~\ref{fig:hierextr} is the result of
 the algorithm running on the same DNS dataset as figure~\ref{fig:dbscan}
 with $MinPts = 200$. The algorithm yields three clusters, each cluster
