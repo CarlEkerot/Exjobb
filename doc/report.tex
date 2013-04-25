@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{Automatic Structural Inference of Network Protocols}
+\title{Automatic Structural Inference of Binary Protocols}
 \author{Fredrik Appelros \and Carl Ekerot}
 \date{\today}
 \maketitle
@@ -32,9 +32,34 @@ purpose.
 \chapter{Introduction}
 
 \section{Background}
-Here we will write a formal introduction to network protocols and why network
-protocol inference is needed. Also explain what protocol inference is, of
-course.
+Communication protocols are the foundation of everyday networking tasks. Each
+time a web page is served or an email is sent, a rigorous series of actions is
+taken to ensure that the requested piece of information is relayed. The
+information is packaged in a \emph{message} and both the syntax and the
+semantics of these messages are defined by protocols.
+
+Protocols may be open or closed in terms of available documentation. The reason
+for them being closed might be that they are proprietary and the owners do not
+want competitors to gain access to them or simply because no one invested in
+creating a documentation of the protocol in the first place. Despite the lack
+of a documentation there still sometimes exists a need to understand the inner
+workings of a certain protocol, e.g. when providing interoperability between
+services. One infamous example of this is Microsoft's proprietary SMB protocol.
+
+The Samba project spawned as an attempt to provide access to certain Windows
+services for Unix-like operating systems through protocol analysis of the SMB
+protocol. It took the project years to analyze the protocol in order to
+implement most of its functionality.
+
+Another area where the need for inferring the structures of closed protocols is
+in deep packet inspection (DPI). DPI...
+
+DPI is used to classify traffic for quality of service (QoS) solutions. The QoS
+solutions can then provide prioritized traffic in order to meet the demands of
+real-time services.
+
+In this thesis we present a method for automatically inferring the structure of
+an unknown protocol. We further...
 
 \section{Related work}
 Here is a discussion about related work. We talk about different methodologies
@@ -567,10 +592,6 @@ and the resulting alignments in figure~\ref{fig:align}.
     \caption{The resulting alignment of the sequences AATGCAG and ATCGG.}
     \label{fig:align}
 \end{figure}
-
-\section{State machines}
-Explain what a state machine is and how it can be represented by an adjacency
-matrix.
 
 \chapter{Method}
 
