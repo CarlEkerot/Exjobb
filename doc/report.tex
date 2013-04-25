@@ -87,6 +87,7 @@ method that scales linearly. Another way is to reduce the dimensionality of the
 problem itself.
 
 \subsection{Principal component analysis}
+\label{sec:pca}
 One method to reduce the dimensionality of a problem is to use principal
 component analysis (PCA). PCA transforms the input data into another dataset
 where each dimension accounts for as much variance as possible while requiring
@@ -280,7 +281,8 @@ $MinPts = 200$.
 \begin{figure}[h]
     \includegraphics[width=\linewidth]{dbscan_dns}
     \caption{An example of clustering with DBSCAN running on samples generated
-    from 5000 packets of DNS data.}
+    from 5000 packets of DNS data. The samples has been projected down to 
+    two dimensions using PCA (see section~\ref{sec:pca}.)}
     \label{fig:dbscan}
 \end{figure}
 
