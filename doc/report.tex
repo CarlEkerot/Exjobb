@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{Automatic Structural Inference of Network Protocols}
+\title{Automatic Structural Inference of Binary Protocols}
 \author{Fredrik Appelros \and Carl Ekerot}
 \date{\today}
 \maketitle
@@ -32,9 +32,41 @@ purpose.
 \chapter{Introduction}
 
 \section{Background}
-Here we will write a formal introduction to network protocols and why network
-protocol inference is needed. Also explain what protocol inference is, of
-course.
+Communication protocols are the foundation of everyday networking tasks. Each
+time a web page is served or an email is sent, a rigorous series of actions is
+taken to ensure that the requested piece of information is relayed. The
+information is packaged in a \emph{message} and both the syntax and the
+semantics of these messages are defined by protocols.
+
+Protocols may be open or closed in terms of available documentation. The reason
+for them being closed might be that they are proprietary or simply because no
+one invested in creating a documentation of the protocol in the first place.
+Despite the lack of a documentation there still sometimes exists a need to
+understand the inner workings of a certain protocol, e.g. when providing
+interoperability between services. One infamous example of this is Microsoft's
+proprietary SMB protocol which spawned the Samba project. This project was
+created in an attempt to provide access to certain Windows services for
+Unix-like operating systems. It did this through protocol analysis; a process
+which took many years until most of the functionality of the SMB protocol had
+been implemented.
+
+Another area where the need for inferring the structures of closed protocols is
+in \emph{deep packet inspection} (DPI). Messages sent over a network are
+usually constructed hierarchically. At the bottom there is only raw binary data
+and at the top there is the application data, e.g. an email or a video. There
+in between exists several layers that contain metadata which is used to make
+sure that the data reaches its target and that it does not get corrupted during
+transmission. As a message is sent from one party to another it traverses a
+series of nodes in the network. These nodes only needs to look at the lower
+parts of the hierarchical structure of the message in order to relay it. If a
+node wants to conduct DPI however, the higher levels of the hierarchy is looked
+at as well.
+
+There are many different reasons why one would want to perform DPI, one of
+which is to provide \emph{quality of service} (QoS). QoS is needed in order to
+gather statistics for Internet service providers that manage the networks. One
+company that delivers QoS solutions is Procera Networks on whose behalf we are
+writing this thesis.
 
 \section{Related work}
 A popular approach to the problem of automatic inference of network protocols
@@ -242,7 +274,7 @@ $N_{\varepsilon}(p)$ are given by the following condition:
 The samples in $N_{\varepsilon}(p)$ are defined as
 \emph{directly density-reachable} from $p$. Given that
 $|N_{\varepsilon}(p)| \ge MinPts$, the samples in $N_{\varepsilon}(p)$ forms a
-cluster, and $p$ is a \emph{core point}. 
+cluster, and $p$ is a \emph{core point}.
 
 A cluster is not limited to containing samples which are directly
 density-reachable. The DBSCAN algorithm also defines that samples which are
@@ -281,8 +313,8 @@ $MinPts = 200$.
 \begin{figure}[h]
     \includegraphics[width=\linewidth]{dbscan_dns}
     \caption{An example of clustering with DBSCAN running on samples generated
-    from 5000 packets of DNS data. The samples has been projected down to 
-    two dimensions using PCA (see section~\ref{sec:pca}).}
+    from 5000 packets of DNS data. The samples has been projected down to two
+    dimensions using PCA (see section~\ref{sec:pca}).}
     \label{fig:dbscan}
 \end{figure}
 
@@ -349,7 +381,7 @@ reachability-plot represents samples which are close to each other. Spikes
 represents a large difference in distance between the samples to the left and
 right of the spike.
 
-The pseudocode for OPTICS is given in algorithm~\ref{alg:optics}.
+The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
 
 \begin{figure}[t]
     \centering
@@ -362,11 +394,11 @@ The pseudocode for OPTICS is given in algorithm~\ref{alg:optics}.
     \begin{subfigure}[b]{0.48\linewidth}
         \includegraphics[width=\linewidth]{hierextr}
         \caption{Hierarchical extraction for 5000 DNS-packets with
-            $MinPts = 200$.}
+        $MinPts = 200$.}
         \label{fig:hierextr}
     \end{subfigure}
     \caption{Reachability-plots generated from the ordering and
-        reachability-distances given by OPTICS.}
+    reachability-distances given by OPTICS.}
     \label{fig:rplots}
 \end{figure}
 
@@ -402,7 +434,7 @@ The pseudocode for OPTICS is given in algorithm~\ref{alg:optics}.
             \Else{
                 $i \gets seeds.first$\;
             }
-        } 
+        }
         \CommentSty{/* Proccess last remaining seed */}\;
         $ordering.add(seeds.first)$\;
         $reachability$-$distances[0] \gets 0$\;
@@ -607,10 +639,6 @@ and the resulting alignments in figure~\ref{fig:align}.
     \label{fig:align}
 \end{figure}
 
-\section{State machines}
-Explain what a state machine is and how it can be represented by an adjacency
-matrix.
-
 \chapter{Method}
 
 \section{Approach}
@@ -661,6 +689,39 @@ Explain our choice of features and clustering algorithm.
 Describe our FD clustering algorithm.
 
 \section{Field analysis}
+With our type inference complete we now have a number of clusters that contain
+similar messages. The next step in inferring the structure of the protocol is
+to identify field boundaries and their contents. This is a very complex
+problem, there can be as many fields as there are bits in the messages and
+the boundaries may lie in between any pair of adjacent bits. The number of
+possible combinations of fields that comprise the structure can easily become
+too large to handle. Fortunately, most protocols are not designed to utilize
+each and every bit and there are some common design principles that may be
+exploited.
+
+First of all we restrict where boundaries may lie. We require fields to be a
+certain number of bytes in length and also that they must be aligned. We define
+alignment as the offset of where a field starts being a multiple of the length
+of the field. That means that a four byte field may be located at offset 0, 4
+or 12 but not at offset 5 or 10. Most protocols follow this principle of bytes
+being used as the smallest component and aligning data...
+
+Another principle that is often used is that the message starts with a header
+where most of the fields are fixed.
+
+In order to accomodate for
+varying field lengths we start by aligning the data of the messages.
+
+We align the messages by doing pairwise global sequence alignment of each
+message with the longest message in the cluster. We have also restricted the
+insertion of gaps so that the longest message will not be expanded. This was
+done by modifying the Needleman-Wunsch algorithm at a few key places.
+
+The scoring matrix used is constructed...
+
+Our assumption here is that header fields are of fixed length and that the
+messages in each cluster share the same structure.
+
 Introduce the classes of fields that we have established as identifiable. Use
 plots of their byte distributions to motivate our decision.
 
