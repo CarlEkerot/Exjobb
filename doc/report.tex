@@ -39,62 +39,27 @@ information is packaged in a \emph{message} and both the syntax and the
 semantics of these messages are defined by protocols.
 
 Protocols may be open or closed in terms of available documentation. The reason
-for them being closed might be that they are proprietary and the owners do not
-want competitors to gain access to them or simply because no one invested in
-creating a documentation of the protocol in the first place. Despite the lack
-of a documentation there still sometimes exists a need to understand the inner
-workings of a certain protocol, e.g. when providing interoperability between
-services. One infamous example of this is Microsoft's proprietary SMB protocol.
-
-The Samba project spawned as an attempt to provide access to certain Windows
-services for Unix-like operating systems through protocol analysis of the SMB
-protocol. It took the project years to analyze the protocol in order to
-implement most of its functionality.
+for them being closed might be that they are proprietary or simply because no
+one invested in creating a documentation of the protocol in the first place.
+Despite the lack of a documentation there still sometimes exists a need to
+understand the inner workings of a certain protocol, e.g. when providing
+interoperability between services. One infamous example of this is Microsoft's
+proprietary SMB protocol which spawned the Samba project. This project was
+created in an attempt to provide access to certain Windows services for
+Unix-like operating systems. It did this through protocol analysis; a process
+which took many years until most of the functionality of the SMB protocol had
+been implemented.
 
 Another area where the need for inferring the structures of closed protocols is
-in deep packet inspection (DPI). DPI...
+in \emph{deep packet inspection} (DPI). DPI is achieved by looking at the data
+of a passing IP packet and 
 
-DPI is used to classify traffic for quality of service (QoS) solutions. The QoS
-solutions can then provide prioritized traffic in order to meet the demands of
-real-time services.
-
-In this thesis we present a method for automatically inferring the structure of
-an unknown protocol. We further...
+quality of service (QoS)...
 
 \section{Related work}
-A popular approach to the problem of automatic inference of network protocols
-has been to draw a parallel to bioinformatics. Byte-streams have been
-processed using the same methodology as DNA sequence analysis in order
-to mine patterns in protocol messages. \citep{beddoe05} explores the
-possibilities of using bioinformatics methods such as multiple sequence
-alignment in order to find patterns in both textual and binary protocols. These
-principles have been applied in e.g. Netzob\footnote{http://www.netzob.org}, a
-tool for protocol analysis.
-
-Using techniques from bioinformatics in protocol analysis seems natural since
-the analysis of messages, which may be viewed as the analysis of byte-streams,
-is easily converted to the problem of sequence analysis. Methods such as
-multiple sequence alignment does provide an insight to the structure of
-protocols, but further analysis is needed in order to find semantic meaning in
-segments of bytes.
-
-Discoverer by \citeauthor{cui07} is an approach which is specifically modelled
-after the behavior of network protocols. Discoverer tokenizes
-network dumps into textual and binary tokens. From the tokens Discoverer
-attempts to group messages based on their true message type, such as requests
-or responses. After the grouping of messages, Discoverer seeks semantic meaning
-in the tokens in common for each group of messages, and classifies the tokens
-into a set of predefined classes. 
-
-\citet{caballero12} proposes a method where protocol specifications are
-constructed by monitoring the execution state of the client or server software
-which utilizes the protocol. This approach has the obvious benefit of mapping
-data stored in memory at one state to the data subsequently present in a
-protocol message. This requires access to the actual software which generates
-the messages. In many cases this may limit the analysis to the messages sent by
-the client. When the server software is unavailable for execution state
-monitoring, one must resort to other methods in order to further analyse the
-protocol.
+Here is a discussion about related work. We talk about different methodologies
+along with their respective advantages and disadvantages. As an example here
+is a citation \citep{cui07}.
 
 \chapter{Theory}
 
@@ -112,7 +77,6 @@ method that scales linearly. Another way is to reduce the dimensionality of the
 problem itself.
 
 \subsection{Principal component analysis}
-\label{sec:pca}
 One method to reduce the dimensionality of a problem is to use principal
 component analysis (PCA). PCA transforms the input data into another dataset
 where each dimension accounts for as much variance as possible while requiring
@@ -264,12 +228,11 @@ $N_{\varepsilon}(p)$ are given by the following condition:
     \label{eq:eps}
 \end{equation}
 
-The samples in $N_{\varepsilon}(p)$ are defined as
-\emph{directly density-reachable} from $p$. Given that
-$|N_{\varepsilon}(p)| \ge MinPts$, the samples in $N_{\varepsilon}(p)$ forms a
-cluster, and $p$ is a \emph{core point}. 
+The samples in $N_{\varepsilon}(p)$ are defined as \emph{directly density-
+reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge MinPts$, the samples
+in $N_{\varepsilon}(p)$ forms a cluster, and $p$ is a \emph{core point}. 
 
-A cluster is not limited to containing samples which are directly
+A cluster is not limited to containing samples which are direcly
 density-reachable. The DBSCAN algorithm also defines that samples which are
 not directly density-reachable may be \emph{density-reachable}.
 A sample $q$ is density-reachable from a sample $p$ if there is a set of samples
@@ -306,8 +269,7 @@ $MinPts = 200$.
 \begin{figure}[h]
     \includegraphics[width=\linewidth]{dbscan_dns}
     \caption{An example of clustering with DBSCAN running on samples generated
-    from 5000 packets of DNS data. The samples has been projected down to 
-    two dimensions using PCA (see section~\ref{sec:pca}).}
+    from 5000 packets of DNS data.}
     \label{fig:dbscan}
 \end{figure}
 
@@ -365,7 +327,7 @@ $\varepsilon$.
 
 From the ordering and reachability-distances, the cluster structure may be
 visualized in a \emph{reachability-plot}. The reachability-plot provides an
-overview of the output from OPTICS as a bar-plot where the bars represent
+overview of the output from OPTICS as a barplot where the bars represent
 reachability-distances in the ordering generated by OPTICS.
 
 An example of a reachability plot generated from 5000 DHCP-packets with 
@@ -374,27 +336,24 @@ reachability-plot represents samples which are close to each other. Spikes
 represents a large difference in distance between the samples to the left and
 right of the spike.
 
-The pseudocode for OPTICS is given in algorithm~\ref{alg:optics}.
-
 \begin{figure}[t]
     \centering
     \begin{subfigure}[b]{0.48\linewidth}
         \includegraphics[width=\linewidth]{rplot_dhcp}
-        \caption{Reachability-plot for 5000 DHCP-packets with $MinPts = 200$.}
+        \caption{Reachability-plot.}
         \label{fig:rplot}
     \end{subfigure}
-    \quad
+    %\quad
     \begin{subfigure}[b]{0.48\linewidth}
         \includegraphics[width=\linewidth]{hierextr}
-        \caption{Hierarchical extraction for 5000 DNS-packets with
-            $MinPts = 200$.}
+        \caption{Hierarchical extraction.}
         \label{fig:hierextr}
     \end{subfigure}
-    \caption{Reachability-plots generated from the ordering and
-        reachability-distances given by OPTICS.}
+    \caption{caption}
     \label{fig:rplots}
 \end{figure}
 
+\subsubsection{Algorithm}
 {
     \fontsize{10}{12}
     \selectfont
@@ -438,6 +397,8 @@ The pseudocode for OPTICS is given in algorithm~\ref{alg:optics}.
     \end{algorithm}
 }
 
+% The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
+
 \subsubsection{Cluster extraction}
 
 \citeauthor{ankerst99} describes the principles of the OPTICS algorithm as
@@ -448,25 +409,20 @@ a static reachability-distance threshold $\varepsilon_i$ gives a clustering
 which is roughly equivalent to the clustering obtained when running DBSCAN
 with the same $MinPts$ and $\varepsilon = \varepsilon_i$.
 
-\citet{sander03} describes a hierarchical cluster extraction algorithm for
+\citet{sander03} describes an hierarchical cluster extraction algorithm for
 OPTICS. As opposed to the DBSCAN-equivalent extraction approach, hierarchical
 cluster extraction retains many of the properties which comes with OPTICS,
 such as finding clusters with varying densities and subclusters nested in larger
 clusters.
 
-The algorithm takes an ordering and reachability-distances from OPTICS and
-builds a hierarchical representation of the clustering in the form of a tree,
-where the leaves are clusters.
+The algorithm builds an hierarchical representation of the clustering in the
+form of a tree, where the leaves are clusters. Below is the pseudocode for the
+algorithm described by \citeauthor{sander03} which takes an ordering and 
+reachability-distances from OPTICS and produces an hierarchical clustering.
 
-The pseudocode for hierarchical extraction is given in 
-algorithm~\ref{alg:hierextr}. Figure~\ref{fig:hierextr} is the result of
-the algorithm running on the same DNS dataset as figure~\ref{fig:dbscan}
-with $MinPts = 200$. The algorithm yields three clusters, each cluster
-distinguished by changing background color. The true types \emph{request} and
-\emph{response} are colored blue and green respectively in the reachability
-plot. Note that the algorithm is rather insensitive to the $MinPts$-parameter,
-and that the true types of DNS may be extended to different record types such
-as A/AAAA/CNAME-records.
+The pseudocode for hierarchical extraction is given in
+algorithm~\ref{alg:hierextr}. The results of the cluster extraction is
+visualized in figure~\ref{fig:hierextr}.
 
 {
     \fontsize{10}{12}
@@ -701,7 +657,7 @@ Explain why our method is not applicable to textual protocols.
 
 \subsection{Variable number of fields}
 Explain the problem with protocols that contain a variable number of fields and
-why our method does not accommodate for them. (Because we based our definition
+why our method does not accomodate for them. (Because we based our definition
 of protocols on a fixed number of fields?)
 
 \subsection{Non-aligned data}
