@@ -658,6 +658,39 @@ Explain our choice of features and clustering algorithm.
 Describe our FD clustering algorithm.
 
 \section{Field analysis}
+With our type inference complete we now have a number of clusters that contain
+similar messages. The next step in inferring the structure of the protocol is
+to identify field boundaries and their contents. This is a very complex
+problem, there can be as many fields as there are bits in the messages and
+the boundaries may lie in between any pair of adjacent bits. The number of
+possible combinations of fields that comprise the structure can easily become
+too large to handle. Fortunately, most protocols are not designed to utilize
+each and every bit and there are some common design principles that may be
+exploited.
+
+First of all we restrict where boundaries may lie. We require fields to be a
+certain number of bytes in length and also that they must be aligned. We define
+alignment as the offset of where a field starts being a multiple of the length
+of the field. That means that a four byte field may be located at offset 0, 4
+or 12 but not at offset 5 or 10. Most protocols follow this principle of bytes
+being used as the smallest component and aligning data...
+
+Another principle that is often used is that the message starts with a header
+where most of the fields are fixed.
+
+In order to accomodate for
+varying field lengths we start by aligning the data of the messages.
+
+We align the messages by doing pairwise global sequence alignment of each
+message with the longest message in the cluster. We have also restricted the
+insertion of gaps so that the longest message will not be expanded. This was
+done by modifying the Needleman-Wunsch algorithm at a few key places.
+
+The scoring matrix used is constructed...
+
+Our assumption here is that header fields are of fixed length and that the
+messages in each cluster share the same structure.
+
 Introduce the classes of fields that we have established as identifiable. Use
 plots of their byte distributions to motivate our decision.
 
