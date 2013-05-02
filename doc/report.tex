@@ -51,10 +51,22 @@ which took many years until most of the functionality of the SMB protocol had
 been implemented.
 
 Another area where the need for inferring the structures of closed protocols is
-in \emph{deep packet inspection} (DPI). DPI is achieved by looking at the data
-of a passing IP packet and 
+in \emph{deep packet inspection} (DPI). Messages sent over a network are
+usually constructed hierarchically. At the bottom there is only raw binary data
+and at the top there is the application data, e.g. an email or a video. There
+in between exists several layers that contain metadata which is used to make
+sure that the data reaches its target and that it does not get corrupted during
+transmission. As a message is sent from one party to another it traverses a
+series of nodes in the network. These nodes only needs to look at the lower
+parts of the hierarchical structure of the message in order to relay it. If a
+node wants to conduct DPI however, the higher levels of the hierarchy is looked
+at as well.
 
-quality of service (QoS)...
+There are many different reasons why one would want to perform DPI, one of
+which is to provide \emph{quality of service} (QoS). QoS is needed in order to
+gather statistics for Internet service providers that manage the networks. One
+company that delivers QoS solutions is Procera Networks on whose behalf we are
+writing this thesis.
 
 \section{Related work}
 Here is a discussion about related work. We talk about different methodologies
