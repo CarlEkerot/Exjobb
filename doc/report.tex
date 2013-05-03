@@ -64,13 +64,20 @@ transmission. As a message is sent from one party to another it traverses a
 series of nodes in the network. These nodes only needs to look at the lower
 parts of the hierarchical structure of the message in order to relay it. If a
 node wants to conduct DPI however, the higher levels of the hierarchy is looked
-at as well.
+at as well. To be able to do this the structure of the protocol needs to be
+known.
 
 There are many different reasons why one would want to perform DPI, one of
 which is to provide \emph{quality of service} (QoS). QoS is needed in order to
 gather statistics for Internet service providers that manage the networks. One
 company that delivers QoS solutions is Procera Networks on whose behalf we are
 writing this thesis.
+
+In this thesis we have focused on finding the structure of binary protocols as
+opposed to textual ones. The reason for this being that textual protocols are
+intrinsically simple to read and understand and therefore do not require
+advanced methods of analysis. Some of the methods described here are however
+also applicable to textual protocols.
 
 \section{Related work}
 A popular approach to the problem of automatic inference of network protocols
