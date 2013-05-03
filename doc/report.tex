@@ -10,8 +10,10 @@
 \usepackage[small]{caption}
 \usepackage{subcaption}
 \usepackage[table]{xcolor}
+\usepackage{hyperref}
 
 \newtheorem*{definition}{Definition}
+\defcitealias{intel12}{Intel\textsuperscript{\textregistered} 64 and IA-32 Architectures Optimization Reference Manual}
 
 \begin{document}
 
@@ -725,12 +727,13 @@ handle. Fortunately, most protocols are not designed to utilize each and every
 bit and instead focus on being extensible, thus there are some common design
 principles that may be exploited.
 
-First of all we restrict where boundaries may lie. We require fields to be a
-certain number of bytes in length and also that they must be aligned. We define
-alignment as the offset of where a field starts being a multiple of the length
-of the field. That means that a four byte field may be located at offset 0, 4
-or 12 but not at offset 5 or 10. Most protocols follow this principle of bytes
-being used as the smallest component and aligning data...
+First of all we restrict where boundaries may lie. We require fields to be $n$
+bytes in length where $n$ is a power of two and also that they must be aligned.
+We use the definition of \emph{$n$-byte alignment} which means that the offset
+at which the data is located must be a multiple of $n$. That means that a four
+byte field may be located at offset 0, 4 or 12 but not at offset 5 or 10. Most
+protocols follow these principle for optimization reasons. E.g. see
+Assembly/Compiler Coding Rule 46 in \citetalias{intel12}.
 
 Another principle that is often used is that the message starts with a header
 where most of the fields are fixed.
