@@ -665,7 +665,7 @@ message type may define if the message is a request or response. If so, it is
 fairly easy to determine which parts of the message that defines if the
 message is a request or a response. One may simply look for values in a
 message that depends on the direction of the message. However, most protocols
-are not limited to being categorized into requests and responses. Protocols
+are not limited to being classified as requests and responses. Protocols
 often define sets of control message types which changes the state of the
 protocol. Some protocols does not follow the request/response model, which
 is the case for many peer-to-peer protocols. 
@@ -675,26 +675,34 @@ distinguish the different types of the protocol. This is a necessary first
 step which enables us to infer the different states of the protocol and allows
 for type-specific field analysis. The type is commonly specified by some flag
 or a combination of flags. A type flag may be a byte, a bit subset of a byte,
-or spread out over multiple bytes where each byte defines some subtype to a
+or spread out over multiple bytes where each byte may define some subtype to a
 more general type.
 
-Messages which shares type flags are likely to have a distinguishable
-structure which differs from messages with other type flags. Some message
-types may introduce fields which are not present in other message types, and
-the fields which are global for the protocol are more likely to be identical
-within a type. A message that is used for binary data transmission is often
-longer than a control message.
+Messages that have the same value in their type flags are likely to have a
+distinguishable structure which differs from messages with other type flags.
+Some message types may introduce fields which are not present in other
+message types, and the fields which are global for the protocol are more
+likely to be identical within a type. A message that is used for binary data
+transmission is often longer than a control message.
 
-The first step in our approach is to group messages that are similar using
-cluster analysis. We then move on to analysing the grouped messages in an
-effort to discover the bytes which we rank the most probable to be
-responsible to the grouping we have found, and label these as the bytes
-which distinguishes a specific type. Once these bytes have been discovered,
-we may regroup the messages based on the value of that the byte takes.
+We group messages that are similar using cluster analysis. We then move on to
+analysing the grouped messages in an effort to discover the bytes which we
+rank the most probable to be responsible to the grouping we have found, and
+label these as the bytes which distinguishes a specific type. Once these bytes
+have been discovered, we may regroup the messages based on the value of that
+the byte takes.
 
 From the new grouping, we are able to analyse the type specific properties
-of the messages. We focus on determining the field structure of each type,
-and make an effort to determine the semantic...
+of messages of a certain type. We focus on determining the field structure of
+each type, and make an effort to determine the semantics of each field.
+From the byte value distribution at a certain byte range, we try to classify
+each field as one of our primitive field types: constant, flag, uniform,
+number, incremental or length. We do this analysis in global scope, cluster
+scope and session scope. We define the global scope to cover the fields that
+all messages have in common e.g. the protocol header. The cluster scope cover
+fields that are specific for a type. The session scope is a subscope to the
+global and cluster scopes, and cover fields that are constant or incremental
+within a session.
 
 \section{Type inference}
 Explain that our type inference step is actually two different clustering steps
