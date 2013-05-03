@@ -718,12 +718,12 @@ Describe our FD clustering algorithm.
 With our type inference complete we now have a number of clusters that contain
 similar messages. The next step in inferring the structure of the protocol is
 to identify field boundaries and their contents. This is a very complex
-problem, there can be as many fields as there are bits in the messages and
+problem as there can be as many fields as there are bits in the messages and
 the boundaries may lie in between any pair of adjacent bits. The number of
-possible combinations of fields that comprise the structure can easily become
-too large to handle. Fortunately, most protocols are not designed to utilize
-each and every bit and there are some common design principles that may be
-exploited.
+possible combinations of fields can therefore easily become too large to
+handle. Fortunately, most protocols are not designed to utilize each and every
+bit and instead focus on being extensible, thus there are some common design
+principles that may be exploited.
 
 First of all we restrict where boundaries may lie. We require fields to be a
 certain number of bytes in length and also that they must be aligned. We define
@@ -750,6 +750,9 @@ messages in each cluster share the same structure.
 
 Introduce the classes of fields that we have established as identifiable. Use
 plots of their byte distributions to motivate our decision.
+
+\subsection{Non-mutual sequence alignment}
+Describe our method for sequence alignment.
 
 \subsection{Byte distribution}
 Explain how we reached the decision to use byte distributions in our attempts
