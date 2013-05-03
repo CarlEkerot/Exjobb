@@ -705,14 +705,68 @@ global and cluster scopes, and cover fields that are constant or incremental
 within a session.
 
 \section{Type inference}
-Explain that our type inference step is actually two different clustering steps
-performed in sequence.
+When inferring the message types, we perform a two-pass clustering. In the 
+first pass, we use a clustering algorithm in order to statistically group
+messages that are similar according to the features we define. In the second
+pass, we utilise the assumption that there exists one or more bytes which
+distinguishes a specific type. 
+% Two different steps: statistical clustering with OPTICS and type 
+% distinguishing
 
 \subsection{Initial clustering}
 Explain our choice of features and clustering algorithm.
 
+The first step when performing cluster analysis is to define a set of features.
+The features which we have chosen are based on the byte value distribution at
+each offset for every message.
+
+We define a matrix $P$ where each element $P_{i,j}$ is the probability that
+the byte with the decimal value $j$ is present at the offset $i$ for all
+packets. Using $P$ we create the feature vector $\{f_1, f_2, ..., f_n\}$ for
+every message $m$ where $m$ is $n$ bytes long. We define each feature as
+$f_i = P_{i, m_i}$.
+
+Informally, this means that we create a feature vector consisting of $n$
+features for each message. Each element $f_i$ in the feature vector is the
+probability that the byte value $m_i$ occurs at offset $i$.
+
+The reason for having probability-based features is that density-based
+clustering algorithms such as OPTICS rely on distance measures. If we were to
+take the actual byte values at each offset as features, the difference between
+two byte values would represent a distance between the samples. In a flag byte
+this would introduce a great distance between a message where the most
+significant bit is set and when it is not set. Since nominal features are not
+an option due to difficulties with high dimensionalities, the probability
+measure is a compromise to having nominal features.
+
+Once the features have been calculated, we apply PCA transformation
+parame-trized to capture $80\%$ of the variance. This reduces the
+dimensionality of our feature vectors while conserving the most significant
+variance.
+
+% undvika distance för vanliga byte värden
+
+
+% Choice of features
+
+% Feature calculation
+
+% Parameter choice
+
+% Use of PCA
+
+% OPTICS
+
+% OPTICS results
+
 \subsection{Type distinguishers}
 Describe our FD clustering algorithm.
+
+% Explain why the OPTICS clustering is not good enough
+
+% Explain the bin concept, refer to Discoverer
+
+% Explain how we take x number of bytes to meat max_num_types  number of types
 
 \section{Field analysis}
 With our type inference complete we now have a number of clusters that contain
