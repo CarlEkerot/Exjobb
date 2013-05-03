@@ -647,11 +647,15 @@ and the resulting alignments in figure~\ref{fig:align}.
 % why we need to cluster our data and continue to explain what needs to be done
 % after the clustering step to actually achieve protocol inference.
 
-Protocols are generally made up of a predefined set of messages. These message
-types may be simple to distinguish, such as the response or request types in
-a request/response protocol, or they may be nested into several levels of
-types. Each type has a specific meaning and commonly changes the state of the
-protocol. 
+A protocol is generally made up of a predefined set of message types. A
+message type may define if the message is a request or response. If so, it is
+fairly easy to determine which parts of the message that defines if the
+message is a request or a response. One may simply look for values in a
+message that depends on the direction of the message. However, most protocols
+are not limited to being categorized into requests and responses. Protocols
+often define sets of control message types which changes the state of the
+protocol. Some protocols does not follow the request/response model, which
+is the case for many peer-to-peer protocols. 
 
 In order to thoroughly analyse a protocol, the first step is essentially to
 distinguish the different types of the protocol. This is a necessary first
@@ -661,11 +665,12 @@ or a combination of flags. A type flag may be a byte, a bit subset of a byte,
 or spread out over multiple bytes where each byte defines some subtype to a
 more general type.
 
-Messages which shares type flags are likely to have a
-distinguishable structure which differs from messages with other type flags.
-Some message type may introduce some fields which are not present in other
-message types, and the fields which are global for the protocol are more
-likely to be identical within a type.
+Messages which shares type flags are likely to have a distinguishable
+structure which differs from messages with other type flags. Some message
+types may introduce fields which are not present in other message types, and
+the fields which are global for the protocol are more likely to be identical
+within a type. A message that is used for binary data transmission is often
+longer than a control message.
 
 The first step in our approach is to group messages that are similar using
 cluster analysis. We then move on to analysing the grouped messages in an
@@ -676,7 +681,7 @@ we may regroup the messages based on the value of that the byte takes.
 
 From the new grouping, we are able to analyse the type specific properties
 of the messages. We focus on determining the field structure of each type,
-and make an effort to determine the semantic
+and make an effort to determine the semantic...
 
 \section{Type inference}
 Explain that our type inference step is actually two different clustering steps
