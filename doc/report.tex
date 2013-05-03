@@ -21,10 +21,14 @@
 \maketitle
 
 \begin{abstract}
-An abstract is a brief summary of a research article, thesis, review,
-conference proceeding or any in-depth analysis of a particular subject or
-discipline, and is often used to help the reader quickly ascertain the paper's
-purpose.
+Communication protocols are the foundation of everyday networking tasks but
+they are not always open in terms of available documentation. For reasons of
+interoperability or the collection of statistics some protocols need to be
+reverse engineered. This thesis presents a method based on density-based
+clustering and byte distribution classification for automatically inferring the
+structure of a protocol from a packet dump. We evaluate the precision of the
+method for finding different packet types and for finding fields, both globally
+across all packets and within the inferred packet types.
 \end{abstract}
 
 \tableofcontents
@@ -46,9 +50,11 @@ understand the inner workings of a certain protocol, e.g. when providing
 interoperability between services. One infamous example of this is Microsoft's
 proprietary SMB protocol which spawned the Samba project. This project was
 created in an attempt to provide access to certain Windows services for
-Unix-like operating systems. It did this through protocol analysis; a process
-which took many years until most of the functionality of the SMB protocol had
-been implemented.
+Unix-like operating systems. \citet{tridgell03} explains that the Samba project
+reversed the SMB specification using techniques like \emph{fuzzing}, a process
+where they inspect the response from a SMB server for a wide variety of
+generated requests. Using this approach, it took many years until most of the
+functionality of the SMB protocol had been implemented.
 
 Another area where the need for inferring the structures of closed protocols is
 in \emph{deep packet inspection} (DPI). Messages sent over a network are
@@ -60,13 +66,20 @@ transmission. As a message is sent from one party to another it traverses a
 series of nodes in the network. These nodes only needs to look at the lower
 parts of the hierarchical structure of the message in order to relay it. If a
 node wants to conduct DPI however, the higher levels of the hierarchy is looked
-at as well.
+at as well. To be able to do this the structure of the protocol needs to be
+known.
 
 There are many different reasons why one would want to perform DPI, one of
 which is to provide \emph{quality of service} (QoS). QoS is needed in order to
 gather statistics for Internet service providers that manage the networks. One
 company that delivers QoS solutions is Procera Networks on whose behalf we are
 writing this thesis.
+
+In this thesis we have focused on finding the structure of binary protocols as
+opposed to textual ones. The reason for this being that textual protocols are
+intrinsically simple to read and understand and therefore do not require
+advanced methods of analysis. Some of the methods described here are however
+also applicable to textual protocols.
 
 \section{Related work}
 A popular approach to the problem of automatic inference of network protocols
