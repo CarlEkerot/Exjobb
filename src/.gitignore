@@ -1,5 +1,3 @@
 *.pyc
 *.pyo
 *.png
-src/model
-cap/
