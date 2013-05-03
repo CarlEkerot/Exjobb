@@ -36,10 +36,10 @@ class Clustering(object):
         P = P / len(self.msgs)
 
         samples = []
-        for (i, msg) in enumerate(self.msgs):
+        for msg in self.msgs:
             features = np.zeros(max_length)
-            for (j, byte) in enumerate(msg):
-                features[j] = P[j,ord(byte)]
+            for (i, byte) in enumerate(msg):
+                features[i] = P[i,ord(byte)]
             samples.append(features)
 
         # Decrease dimensionality
