@@ -646,10 +646,41 @@ and the resulting alignments in figure~\ref{fig:align}.
 \chapter{Method}
 
 \section{Approach}
-Here we will write how we approached the problem of network protocol inference
-and the different components that comprise our method. Start with explaining
-why we need to cluster our data and continue to explain what needs to be done
-after the clustering step to actually achieve protocol inference.
+% Here we will write how we approached the problem of network protocol inference
+% and the different components that comprise our method. Start with explaining
+% why we need to cluster our data and continue to explain what needs to be done
+% after the clustering step to actually achieve protocol inference.
+
+Protocols are generally made up of a predefined set of messages. These message
+types may be simple to distinguish, such as the response or request types in
+a request/response protocol, or they may be nested into several levels of
+types. Each type has a specific meaning and commonly changes the state of the
+protocol. 
+
+In order to thoroughly analyse a protocol, the first step is essentially to
+distinguish the different types of the protocol. This is a necessary first
+step which enables us to infer the different states of the protocol and allows
+for type-specific field analysis. The type is commonly specified by some flag
+or a combination of flags. A type flag may be a byte, a bit subset of a byte,
+or spread out over multiple bytes where each byte defines some subtype to a
+more general type.
+
+Messages which shares type flags are likely to have a
+distinguishable structure which differs from messages with other type flags.
+Some message type may introduce some fields which are not present in other
+message types, and the fields which are global for the protocol are more
+likely to be identical within a type.
+
+The first step in our approach is to group messages that are similar using
+cluster analysis. We then move on to analysing the grouped messages in an
+effort to discover the bytes which we rank the most probable to be
+responsible to the grouping we have found, and label these as the bytes
+which distinguishes a specific type. Once these bytes have been discovered,
+we may regroup the messages based on the value of that the byte takes.
+
+From the new grouping, we are able to analyse the type specific properties
+of the messages. We focus on determining the field structure of each type,
+and make an effort to determine the semantic
 
 \section{Type inference}
 Explain that our type inference step is actually two different clustering steps
