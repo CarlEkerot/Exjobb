@@ -664,13 +664,12 @@ and the resulting alignments in figure~\ref{fig:align}.
 
 A protocol is generally made up of a predefined set of message types. A
 message type may define if the message is a request or response. If so, it is
-fairly easy to determine which parts of the message that defines if the
-message is a request or a response. One may simply look for values in a
-message that depends on the direction of the message. However, most protocols
-are not limited to being classified as requests and responses. Protocols
-often define sets of control message types which changes the state of the
-protocol. Some protocols does not follow the request/response model, which
-is the case for many peer-to-peer protocols. 
+fairly easy to determine which parts of the message that defines if it is a
+request or a response. One may simply look for values in a message that depends
+on the direction of the message. However, most protocols are not limited to
+being classified as requests and responses. Protocols often define sets of
+control message types which changes the state of the protocol. Some protocols
+does not follow the request/response model, which is the case for many peer-to-peer protocols.
 
 In order to thoroughly analyse a protocol, the first step is essentially to
 distinguish the different types of the protocol. This is a necessary first
@@ -738,7 +737,7 @@ Assembly/Compiler Coding Rule 46 in \citetalias{intel12}.
 Another principle that is often used is that the message starts with a header
 where most of the fields are fixed.
 
-In order to accomodate for
+In order to accommodate for
 varying field lengths we start by aligning the data of the messages.
 
 We align the messages by doing pairwise global sequence alignment of each
