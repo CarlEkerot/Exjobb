@@ -503,7 +503,7 @@ as A/AAAA/CNAME-records.
 
         $R \gets reachability$-$distances$ arranged according to $ordering$\;
         $n \gets$ number of samples\;
-        $L \gets$ indices of local maximas in $R$\;
+        $L \gets$ indices of local maxima in $R$\;
         Sort $L$ on $R[L_i]$\;
         $R_{max} \gets$ $R[L.last]$\;
         $leaves \gets \varnothing$\;
@@ -519,8 +519,8 @@ as A/AAAA/CNAME-records.
             Create two new nodes, $N1$ and $N2$\;
             $N1.samples \gets$ samples left of $s$\;
             $N2.samples \gets$ samples right of $s$\;
-            $L1 \gets $ local maximas left of $s$\;
-            $L2 \gets $ local maximas right of $s$\;
+            $L1 \gets $ local maxima left of $s$\;
+            $L2 \gets $ local maxima right of $s$\;
             \If{$N1$ and $N2$ has average reachability $<$ $sign\_thres$}{
                 \If{$|N1| > MinPts$}{
                     $children.add(\{N1, L1\})$\;
@@ -739,11 +739,11 @@ take the actual byte values at each offset as features, the difference between
 two byte values would represent a distance between the samples. In a flag byte
 this would introduce a great distance between a message where the most
 significant bit is set and when it is not set. Since nominal features are not
-an option due to difficulties with high dimensionalities, the probability
+an option due to difficulties with high dimensionality, the probability
 measure is a compromise to having nominal features.
 
 Once the features have been calculated, we apply PCA transformation
-parame-trized to capture $80\%$ of the variance. This reduces the
+parametrized to capture $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
 variance.
 
@@ -782,6 +782,7 @@ handle. Fortunately, most protocols are not designed to utilize each and every
 bit and instead focus on being extensible, thus there are some common design
 principles that may be exploited.
 
+\subsection{Simplifications}
 First of all we restrict where boundaries may lie. We require fields to be $n$
 bytes in length where $n$ is a power of two and also that they must be aligned.
 We use the definition of \emph{$n$-byte alignment} which means that the offset
@@ -792,30 +793,57 @@ will reside in a byte buffer in memory and accessing misaligned data can be
 expensive; see e.g. Assembly/Compiler Coding Rule 46 in \citetalias{intel12}.
 
 Another principle that is often used is that messages start with a
-\emph{header} where most of the fields are fixed.
-
-In order to accommodate for
-varying field lengths we start by aligning the data of the messages.
-
-We align the messages by doing pairwise global sequence alignment of each
-message with the longest message in the cluster. We have also restricted the
-insertion of gaps so that the longest message will not be expanded. This was
-done by modifying the Needleman-Wunsch algorithm at a few key places.
-
-The scoring matrix used is constructed...
-
-Our assumption here is that header fields are of fixed length and that the
-messages in each cluster share the same structure.
-
-Introduce the classes of fields that we have established as identifiable. Use
-plots of their byte distributions to motivate our decision.
+\emph{header}, a collection of fields of fixed length that is located before
+the data part of the message. Most protocols need a header if they send
+messages of different types or messages with variable length, or both. In those
+cases the header will include at least one type flag or length field
+respectively. A type flag can be a single bit or a collection of bits that
+indicate what type the current message is so that it can be parsed correctly. A
+length field is a numerical field that contains metadata on how long a
+following part of the message is, also for parsing purposes. As the header
+itself usually does not contain any variable length fields no preprocessing is
+needed to identify them, however for the rest of the message, which is usually
+type specific, the data needs to be aligned. For this purpose we have created
+a modified version of the Needleman-Wunsch algorithm that does
+\emph{non-mutual} sequence alignment.
 
 \subsection{Non-mutual sequence alignment}
 Describe our method for sequence alignment.
 
+\subsection{Preprocessing}
+Using this method of non-mutual sequence alignment we align each message within
+each cluster with the longest message in that cluster. This way we get an
+effective method for doing multiple sequence alignment of all messages in a
+cluster in a linear number of alignments. To model that variable length data
+pushes the next field boundary forward we also enforce gap insertion from the
+right instead of from the left by simply reversing the messages before aligning
+them and then reversing them back again after the alignment is complete. During
+the alignment we also use a somewhat complex $256 \times 256$ scoring matrix to
+get a good result. It is constructed to provide the following scores:
+
+\begin{itemize}
+    \item Identical byte values: 2
+    \item Alphanumeric ASCII characters: 2
+    \item Non-alphanumeric ASCII characters: 1
+    \item Numerical distance $\le 10$: 1
+    \item Numerical distance $\le 20$: 0
+    \item Anything else: -1
+\end{itemize}
+
+In addition to aligning the messages for the cluster scope of the analysis we
+also group messages by stream and connection. These groups are then used when
+attempting to find fields that are constant in the stream or connection scope.
+This is accomplished by looking at each message at the IP level and grouping
+them together depending on their combination of addresses and ports. After this
+preprocessing of the messages has been done we are now ready to start
+classifying fields.
+
 \subsection{Byte distribution}
 Explain how we reached the decision to use byte distributions in our attempts
 to find structures in protocols.
+
+Introduce the classes of fields that we have established as identifiable. Use
+plots of their byte distributions to motivate our decision.
 
 \subsection{Constant fields}
 
