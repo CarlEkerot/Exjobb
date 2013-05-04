@@ -744,25 +744,55 @@ measure is a compromise to having nominal features.
 Once the features have been calculated, we apply PCA transformation
 parame-trized to capture $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
-variance.
+variance. We use these new feature vectors as input to OPTICS.
 
-% undvika distance för vanliga byte värden
+OPTICS works well for our application since it is insensitive to the parameters
+selected. We require an estimate $MinPts$ parameter. The distance parameter
+has the default value $\varepsilon = \infty$.
 
+% Skrivan ågot om övriga parametrar?
 
-% Choice of features
-
-% Feature calculation
-
-% Parameter choice
-
-% Use of PCA
-
-% OPTICS
-
-% OPTICS results
+The resulting clustering from OPTICS may have far more clusters than the number
+of real types in the protocol. This is expected, since messages that are
+identical on large partitions of the data will induce a low distance when
+running the OPTICS algorithm, which in its turn will result in high-density
+areas within the real types. Having more clusters than the number of real
+types are not a problem however. In the next step of the clustering, we make
+use of the fact that the clusters are very homogenous, i.e. each cluster mainly
+contains messages of one real type.
 
 \subsection{Type distinguishers}
-Describe our FD clustering algorithm.
+Once we have obtained the OPTICS clustering our goal is to reduce the number of
+clusters to match the actual number of real types. We do this under the
+assumption that there is some byte or a number of bytes that define the type of
+each message. We call these bytes \emph{type distinguishers}. 
+
+A type distinguisher is not limited to an explicit type flag, which is present
+in many protocols. It may be a number of bytes that when combined gives a
+reasonable indication of what messages with high similarity have incommon.
+In order to find these bytes we use an approach similar to the recursive
+clustering described by \citeauthor{cui07} in Discoverer. Our approach is as
+follows:
+
+\begin{enumerate}
+    \item For every byte offset we 
+\end{enumerate}
+
+For every byte offset from the beginning of all messages up to a ceratin limit
+we calculate how many values the byte takes. This is equivalent to how many
+real types that would be present if the chosen byte was a type flag. We
+introduce two criterions when considering a byte as a type distinguisher.
+The first criterion is $MaxNumTypes$ which decides the maximum number of types
+the protocol is assumed to have. The second criterion is $MaxTypeRatio$ which
+decides the maximum ratio between the number of packets with a certain value
+for the considered byte and the total number of packets.
+
+Now that we have the possible type distinguishers we rank the type
+distinguishers based on \emph{completeness score} as defined by
+\citet{rosenberg07}.
+
+% Fortsätt här 
+
 
 % Explain why the OPTICS clustering is not good enough
 
