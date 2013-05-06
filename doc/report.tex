@@ -642,7 +642,7 @@ symbols is seen in figure~\ref{fig:simmatrix}.
             T & -4 & -1 & 2 &\cellcolor[gray]{0.9}5 &\cellcolor[gray]{0.9}4 & 3
             & 2 & 4 \\ \hline
             G & -5 & -2 & 1 & 4 & 6 &\cellcolor[gray]{0.9}6 & 5 & 4 \\ \hline
-            C & -5 & -3 & 0 & 3 & 6 & 7 &\cellcolor[gray]{0.9}8 &
+            C & -6 & -3 & 0 & 3 & 6 & 7 &\cellcolor[gray]{0.9}8 &
             \cellcolor[gray]{0.9}7 \\ \hline
         \end{tabular}
         \caption{The alignment matrix for the two sequences
@@ -872,6 +872,41 @@ needed to identify them, however for the rest of the message, which is usually
 type specific, the data needs to be aligned.
 
 \subsection{Non-mutual sequence alignment}
+
+\begin{figure}[t]
+    \begin{subfigure}[b]{0.55\textwidth}
+        \centering
+        \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
+            \hline
+            & & A & T & T & C & G & C & T \\ \hline
+            &\cellcolor[gray]{0.9}0 & -1 & -2 & -3 & -4 & -5 & -6 & -7 \\
+            \hline
+            A & &\cellcolor[gray]{0.9}2 & 1 & 0 & -1 & -2 & -3 & -4 \\
+            \hline
+            C & & &\cellcolor[gray]{0.9}1 & 0 & 2 & 1 & 0 & -1 \\ \hline
+            T & & & &\cellcolor[gray]{0.9}3 & 2 & 3 & 2 & 2 \\ \hline
+            T & & & & &\cellcolor[gray]{0.9}2 & 3 & 2 & 4 \\ \hline
+            G & & & & & &\cellcolor[gray]{0.9}4 & 4 & 3 \\ \hline
+            C & & & & & & &\cellcolor[gray]{0.9}6 &
+            \cellcolor[gray]{0.9}5 \\ \hline
+        \end{tabular}
+        \caption{The alignment matrix for sequences using non-mutual sequence
+        alignment.}
+        \label{fig:nonmutmatrix}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \texttt{ATTCGCT\\ACTTGC-}
+        \caption{The resulting alignment of the sequences.}
+        \label{fig:nonmutalign}
+    \end{subfigure}
+    \caption{An example of our non-mutual sequence alignment algorithm run on
+    the two sequences \texttt{ATTCGCT} and \texttt{ACTTGC} using the same
+    parameters as in figure~\ref{fig:nwtables}.}
+    \label{fig:nonmuttables}
+\end{figure}
+
 For our purposes we have introduced the term \emph{mutual} sequence alignment
 to refer to traditional sequence alignment via the Needleman-Wunsch algorithm.
 Furthermore, we have developed a modified version of the Needleman-Wunsch
@@ -882,13 +917,20 @@ gap insertion is allowed for shorter one of the two sequences; otherwise the
 algorithm will never be able to reach the top left element during the
 backtracking. For simplicity let us assume that the longer sequence will always
 be supplied in $S$, therefore gaps may only be inserted into $T$. The
-non-mutual property is achieved by doing the following modifications:
+non-mutual property is achieved by the following modifications:
 
 \begin{enumerate}
-    \item After the first row and the first column has been filled with gap
-        penalties also fill the diagonal with matches: $a_{j,j} \gets
-        a_{j - 1, j - 1} + C_{S_j,T_j}$ where $1 \le j \le n$
+    \item After the first row has been filled with gap penalties, fill the
+        diagonal with matches: $a_{j,j} \gets a_{j - 1, j - 1} + C_{S_j,T_j}$
+        where $1 \le j \le n$
+    \item Do not fill the first column with gap penalties.
+    \item During the filling phase, only allow the match and insert actions,
+        i.e. remove the delete action, and only fill the upper part of the
+        matrix (above the diagonal).
 \end{enumerate}
+
+If we run this algorithm on the same example as in figure~\ref{fig:nwtables}
+we get the result shown in figure~\ref{fig:nonmuttables}..
 
 \subsection{Preprocessing}
 Using this method of non-mutual sequence alignment we align each message within
