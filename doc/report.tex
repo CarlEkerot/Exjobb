@@ -750,8 +750,6 @@ distinguishes a specific type.
 % distinguishing
 
 \subsection{Initial clustering}
-Explain our choice of features and clustering algorithm.
-
 The first step when performing cluster analysis is to define a set of features.
 The features which we have chosen are based on the byte value distribution at
 each offset for every message.
@@ -775,16 +773,16 @@ significant bit is set and when it is not set. Since nominal features are not
 an option due to difficulties with high dimensionality, the probability
 measure is a compromise to having nominal features.
 
+% Latex does not know how to split parametrized -> badboxes if splitpoint
+% not manually defined.
 Once the features have been calculated, we apply PCA transformation
-parametrized to capture $80\%$ of the variance. This reduces the
+param-etrized to capture $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
 variance. We use these new feature vectors as input to OPTICS.
 
 OPTICS works well for our application since it is insensitive to the parameters
 selected. We require an estimate $MinPts$ parameter. The distance parameter
 has the default value $\varepsilon = \infty$.
-
-% Skrivan ågot om övriga parametrar?
 
 The resulting clustering from OPTICS may have far more clusters than the number
 of real types in the protocol. This is expected, since messages that are
@@ -809,29 +807,29 @@ clustering described by \citeauthor{cui07} in Discoverer. Our approach is as
 follows:
 
 \begin{enumerate}
-    \item For every byte offset we 
+    \item For every byte offset from the beginning of all messages up to a ceratin limit
+    we calculate how many values the byte takes. This is equivalent to how many
+    real types that would be present if the chosen byte was a type flag. We
+    introduce two criterions when considering a byte as a type distinguisher.
+    The first criterion is $MaxNumTypes$ which decides the maximum number of types
+    the protocol is assumed to have. The second criterion is $MaxTypeRatio$ which
+    decides the maximum ratio between the number of packets with a certain value
+    for the considered byte and the total number of packets.
+
+    \item Now that we have the possible type distinguishers we rank the type
+    distinguishers based on completeness score. For each possible type distinguisher
+    byte we divide all messages on every value which the byte takes. This gives us
+    a new clustering. We measure the quality of each type distinguisher byte by
+    comparing it to the OPTICS clustering. This is achieved using completeness
+    score with the OPTICS clustering as our truth. 
+
+    \item Once our type distinguisher bytes have been scored, we take the bytes with the
+    highest completeness score. For every byte we take, we calculate how many
+    clusters this would yield if we were to cluster all messages on the distinct
+    values that the combination of bytes takes. This process goes on until we reach
+    the point that we can take no more type distinguisher bytes without exceeding
+    $MaxNumTypes$.
 \end{enumerate}
-
-For every byte offset from the beginning of all messages up to a ceratin limit
-we calculate how many values the byte takes. This is equivalent to how many
-real types that would be present if the chosen byte was a type flag. We
-introduce two criterions when considering a byte as a type distinguisher.
-The first criterion is $MaxNumTypes$ which decides the maximum number of types
-the protocol is assumed to have. The second criterion is $MaxTypeRatio$ which
-decides the maximum ratio between the number of packets with a certain value
-for the considered byte and the total number of packets.
-
-Now that we have the possible type distinguishers we rank the type
-distinguishers based on completeness score
-
-% Fortsätt här 
-
-
-% Explain why the OPTICS clustering is not good enough
-
-% Explain the bin concept, refer to Discoverer
-
-% Explain how we take x number of bytes to meat max_num_types  number of types
 
 \section{Field analysis}
 With our type inference complete we now have a number of clusters that contain
