@@ -645,8 +645,8 @@ symbols is seen in figure~\ref{fig:simmatrix}.
             C & -5 & -3 & 0 & 3 & 6 & 7 &\cellcolor[gray]{0.9}8 &
             \cellcolor[gray]{0.9}7 \\ \hline
         \end{tabular}
-        \caption{The alignment matrix for the two sequences ACTTGC and
-        ATTCGCT.}
+        \caption{The alignment matrix for the two sequences
+            $S = \texttt{ATTCGCT}$ and $T = \texttt{ACTTGC}$.}
         \label{fig:nwmatrix}
     \end{subfigure}
     \caption{An example of the Needleman-Wunsch algorithm run on two sequences
@@ -661,22 +661,22 @@ Given two sequences, $S$ and $T$, of length $m$ and $n$ respectively, a scoring
 matrix $C$ and a gap penalty $d$ the algorithm does the following:
 
 \begin{enumerate}
-    \item Construct an $(m + 1) \times (n + 1)$ alignment matrix $A$
+    \item Construct an $(n + 1) \times (m + 1)$ alignment matrix $A$
     \item Fill the first row of $A$ with gap penalties: $a_{0,j} \gets j \cdot
-        d$ where $0 \le j \le n$
+        d$ where $0 \le j \le m$
     \item Fill the first column of $A$ with gap penalties: $a_{i,0} \gets i
-        \cdot d$ where $0 \le i \le m$
+        \cdot d$ where $0 \le i \le n$
     \item Fill the rest of $A$ by doing one of the following actions for each
         element $a_{i,j}$:
         \begin{itemize}
-            \item Match - $a_{i,j} \gets a_{i - 1, j - 1} + C_{S_j,T_i}$
-            \item Delete - $a_{i,j} \gets a_{i - 1, j} + d$
-            \item Insert - $a_{i,j} \gets a_{i, j - 1} + d$
+            \item Match: $a_{i,j} \gets a_{i - 1, j - 1} + C_{S_j,T_i}$
+            \item Delete: $a_{i,j} \gets a_{i - 1, j} + d$
+            \item Insert: $a_{i,j} \gets a_{i, j - 1} + d$
         \end{itemize}
         The action that is chosen is the one that results in the largest score
         where, in the case of a tie, match is given priority. The priority of
         delete and insert can be chosen arbitrarily.
-    \item Backtrack through the matrix from $a_{m,n}$ to build the alignments
+    \item Backtrack through the matrix from $a_{n,m}$ to build the alignments
         in reverse order. Choose the path that was used to construct the score
         at the current element. The algorithm finishes when element $a_{0,0}$
         is reached.
@@ -687,8 +687,9 @@ and the resulting alignments in figure~\ref{fig:align}.
 
 \begin{figure}[h]
     \centering
-    \texttt{ACTT-GC-\\A-TTCGCT}
-    \caption{The resulting alignment of the sequences ACTTGC and ATTCGCT.}
+    \texttt{A-TTCGCT\\ACTT-GC-}
+    \caption{The resulting alignment of the sequences \texttt{ATTCGCT} and
+    \texttt{ACTTGC}.}
     \label{fig:align}
 \end{figure}
 
