@@ -13,7 +13,8 @@
 \usepackage{hyperref}
 
 \newtheorem*{definition}{Definition}
-\defcitealias{intel12}{Intel\textsuperscript{\textregistered} 64 and IA-32 Architectures Optimization Reference Manual}
+\defcitealias{intel12}{Intel\textsuperscript{\textregistered} 64 and IA-32
+Architectures Optimization Reference Manual}
 
 \begin{document}
 
@@ -359,7 +360,8 @@ $\varepsilon$ which satisfies $|N_{\varepsilon}(p)| = MinPts$.
 \[
     \begin{cases}
         \text{UNDEFINED}, & \text{if $|N_{\varepsilon}(p)| < MinPts$}\\
-        \text{Min $\varepsilon$ which satisfies  $|N_{\varepsilon}(p)| = MinPts$}(p), & \text{otherwise}
+        \text{Min $\varepsilon$ which satisfies  $|N_{\varepsilon}(p)| =
+        MinPts$}(p), & \text{otherwise}
     \end{cases}
 \]
 \end{definition}
@@ -630,18 +632,21 @@ symbols is seen in figure~\ref{fig:simmatrix}.
     \begin{subfigure}[b]{0.55\textwidth}
         \begin{tabular}{| c | c | c | c | c | c | c | c | c |}
             \hline
-            & & A & A & T & G & C & A & G \\ \hline
-            &\cellcolor[gray]{0.9}0 &\cellcolor[gray]{0.9}-1 & -2 & -3 & -4 &
-            -5 & -6 & -7 \\ \hline
-            A & -1 & 2 &\cellcolor[gray]{0.9}1 & 0 & -1 & -2 & -3 & -4 \\
+            & & A & T & T & C & G & C & T \\ \hline
+            &\cellcolor[gray]{0.9}0 & -1 & -2 & -3 & -4 & -5 & -6 & -7 \\
             \hline
-            T & -2 & 1 & 3 &\cellcolor[gray]{0.9}3 &\cellcolor[gray]{0.9}2 & 1
-            & 0 & -1 \\ \hline
-            C & -3 & 0 & 2 & 2 & 4 &\cellcolor[gray]{0.9}4 & 3 & 2 \\ \hline
-            G & -4 & -1 & 1 & 3 & 4 & 5 &\cellcolor[gray]{0.9}4 & 5 \\ \hline
-            G & -5 & -2 & 0 & 2 & 5 & 5 & 5 &\cellcolor[gray]{0.9}6 \\ \hline
+            A & -1 &\cellcolor[gray]{0.9}2 & 1 & 0 & -1 & -2 & -3 & -4 \\
+            \hline
+            C & -2 &\cellcolor[gray]{0.9}1 & 1 & 0 & 2 & 1 & 0 & -1 \\ \hline
+            T & -3 & 0 &\cellcolor[gray]{0.9}3 & 3 & 2 & 3 & 2 & 2 \\ \hline
+            T & -4 & -1 & 2 &\cellcolor[gray]{0.9}5 &\cellcolor[gray]{0.9}4 & 3
+            & 2 & 4 \\ \hline
+            G & -5 & -2 & 1 & 4 & 6 &\cellcolor[gray]{0.9}6 & 5 & 4 \\ \hline
+            C & -5 & -3 & 0 & 3 & 6 & 7 &\cellcolor[gray]{0.9}8 &
+            \cellcolor[gray]{0.9}7 \\ \hline
         \end{tabular}
-        \caption{The alignment matrix for the two sequences ATCGG and AATGCAG.}
+        \caption{The alignment matrix for the two sequences ACTTGC and
+        ATTCGCT.}
         \label{fig:nwmatrix}
     \end{subfigure}
     \caption{An example of the Needleman-Wunsch algorithm run on two sequences
@@ -682,8 +687,8 @@ and the resulting alignments in figure~\ref{fig:align}.
 
 \begin{figure}[h]
     \centering
-    \texttt{AATGCAG\\-AT-CGG}
-    \caption{The resulting alignment of the sequences AATGCAG and ATCGG.}
+    \texttt{ACTT-GC-\\A-TTCGCT}
+    \caption{The resulting alignment of the sequences ACTTGC and ATTCGCT.}
     \label{fig:align}
 \end{figure}
 
@@ -823,12 +828,12 @@ follows:
     comparing it to the OPTICS clustering. This is achieved using completeness
     score with the OPTICS clustering as our truth. 
 
-    \item Once our type distinguisher bytes have been scored, we take the bytes with the
-    highest completeness score. For every byte we take, we calculate how many
-    clusters this would yield if we were to cluster all messages on the distinct
-    values that the combination of bytes takes. This process goes on until we reach
-    the point that we can take no more type distinguisher bytes without exceeding
-    $MaxNumTypes$.
+    \item Once our type distinguisher bytes have been scored, we take the bytes
+    with the highest completeness score. For every byte we take, we calculate
+    how many clusters this would yield if we were to cluster all messages on
+    the distinct values that the combination of bytes takes. This process goes
+    on until we reach the point that we can take no more type distinguisher
+    bytes without exceeding $MaxNumTypes$.
 \end{enumerate}
 
 \section{Field analysis}
