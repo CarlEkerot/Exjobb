@@ -40,23 +40,31 @@ class Clustering(object):
         # Constant
         plt.bar(range(256), P_norm[5], color='b', edgecolor='b')
         plt.xlim(0, 256)
+        plt.xlabel("Byte value")
+        plt.ylabel("Probability of occurrence")
         plt.show()
 
         # Zero
         plt.bar(range(256), P_norm[4], color='b', edgecolor='b')
         plt.xlim(0, 256)
+        plt.xlabel("Byte value")
+        plt.ylabel("Probability of occurrence")
         plt.show()
 
         # Flag
         plt.bar(range(256), P_norm[3], color='b', edgecolor='b')
         plt.xlim(0, 256)
+        plt.xlabel("Byte value")
+        plt.ylabel("Probability of occurrence")
         plt.show()
 
         # Uniform
         med = np.median(P_norm[1])
         plt.bar(range(256), P_norm[1], color='b', edgecolor='b')
-        plt.axhline(med, color='k')
+        plt.axhline(med, color='k', linewidth=2)
         plt.xlim(0, 256)
+        plt.xlabel("Byte value")
+        plt.ylabel("Probability of occurrence")
         plt.show()
 
         # Number
@@ -70,8 +78,10 @@ class Clustering(object):
         plt.bar(range(256), P_norm[12], color='b', edgecolor='b')
         x = np.linspace(0, 256, 1000)
         y = [norm.pdf(i, loc=mu, scale=sigma) for i in x]
-        plt.plot(x, y, 'k-')
+        plt.plot(x, y, 'k-', linewidth=2)
         plt.xlim(0, 256)
+        plt.xlabel("Byte value")
+        plt.ylabel("Probability of occurrence")
         plt.show()
 
         #samples = []
