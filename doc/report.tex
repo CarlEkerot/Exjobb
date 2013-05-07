@@ -805,29 +805,34 @@ clusters to match the actual number of real types. We do this under the
 assumption that there is some byte or a number of bytes that define the type of
 each message. We call these bytes \emph{type distinguishers}. 
 
-A type distinguisher is not limited to an explicit type flag, which is present
-in many protocols. It may be a number of bytes that when combined gives a
-reasonable indication of what messages with high similarity have incommon.
-In order to find these bytes we use an approach similar to the recursive
-clustering described by \citeauthor{cui07} in Discoverer. Our approach is as
-follows:
+Many protocols define an explicit type flag in the form of a single byte. The
+type distinguishers which fit our definition may consist of a number of bytes.
+When combined, these bytes gives a reasonable indication of what messages with
+high similarity have incommon. In order to find these bytes we use an approach
+similar to the recursive clustering described by \citeauthor{cui07} in
+Discoverer. Our approach is as follows:
 
 \begin{enumerate}
     \item For every byte offset from the beginning of all messages up to a ceratin limit
     we calculate how many values the byte takes. This is equivalent to how many
-    real types that would be present if the chosen byte was a type flag. We
-    introduce two criterions when considering a byte as a type distinguisher.
-    The first criterion is $MaxNumTypes$ which decides the maximum number of types
-    the protocol is assumed to have. The second criterion is $MaxTypeRatio$ which
-    decides the maximum ratio between the number of packets with a certain value
-    for the considered byte and the total number of packets.
+    real types that would be present if the chosen byte was a real type flag.
+    
+    We introduce two criterions when considering a byte as a type distinguisher.
+    The first criterion is $MaxNumTypes$ which decides the maximum number of
+    types the protocol is assumed to have. The second criterion is
+    $MaxTypeRatio$ which decides the maximum ratio between the number of packets
+    with a certain value for the considered byte and the total number of
+    packets. If $MaxTypeRatio = 0.6$, it prevents a byte from being considered
+    a possible type distinguisher if it assumes the same value in more than
+    $60\%$ of all messages.
 
     \item Now that we have the possible type distinguishers we rank the type
-    distinguishers based on completeness score. For each possible type distinguisher
-    byte we divide all messages on every value which the byte takes. This gives us
-    a new clustering. We measure the quality of each type distinguisher byte by
-    comparing it to the OPTICS clustering. This is achieved using completeness
-    score with the OPTICS clustering as our truth. 
+    distinguishers based on completeness score. For each possible type
+    distinguisher byte we group the messages on every value which the byte
+    takes. This gives us a new clustering. We measure the quality of each type
+    distinguisher byte by comparing its clustering to the OPTICS clustering.
+    This is achieved using completeness score with the OPTICS clustering as our
+    truth. 
 
     \item Once our type distinguisher bytes have been scored, we take the bytes
     with the highest completeness score. For every byte we take, we calculate
