@@ -973,16 +973,62 @@ Introduce the classes of fields that we have established as identifiable. Use
 plots of their byte distributions to motivate our decision.
 
 \subsection{Constant fields}
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{const_one}
+    \caption{Byte value distribution of the 6th byte in the DNS header. This
+        byte is the least significant byte of the two-byte query count field.
+        In our dump its value is constantly one.}
+    \label{fig:const_one}
+\end{figure}
+We define a constant field as a field that only assumes a single value in all
+the messages we observe. By looking at the byte value probability
+distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
+some $v$, $0 \le v \le 255$.
+
+Constant fields may be interpreted as one of the following:
+\begin{enumerate}
+    \item A true protocol constant. These are fields that are defined to be
+        constant in the protocol specification. An example of such a field is
+        the protocol field in SMB2, which is a four-byte constant field with
+        the value \verb+SMB2+.
+    \item A reserved field. Reserved fields are specified in case there is need
+        for future additional information in a fixed-sized header. Reserved
+        fields are commonly set to zero.
+    \item A field which is constant in the dump scope. For example, if a dump
+        only contains a single connection, then a session ID field may be
+        interpreted as a constant. 
+\end{enumerate}
 
 \subsection{Flag fields}
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{flag}
+    \caption{Caption.}
+    \label{fig:flag}
+\end{figure}
 
 \subsection{Uniform fields}
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{uniform}
+    \caption{Caption.}
+    \label{fig:uniform}
+\end{figure}
 
 \subsection{Number fields}
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{number}
+    \caption{Caption.}
+    \label{fig:number}
+\end{figure}
 
 \subsection{Incremental fields}
 
 \subsection{Length fields}
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{length}
+    \caption{Caption.}
+    \label{fig:length}
+\end{figure}
+
 Explain how we use a linear model to model the relationship between length
 fields and message lengths.
 
