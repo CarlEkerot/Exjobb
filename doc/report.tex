@@ -244,7 +244,9 @@ some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
 
 \begin{figure}[t]
-    \includegraphics[width=\linewidth]{ransac}
+    \centering
+    \includegraphics[width=0.8\textwidth]{ransac}
+    \captionsetup{width=0.8\textwidth}
     \caption{A comparison between OLS and RANSAC on a dataset containing
     outliers.}
     \label{fig:ransac}
@@ -328,7 +330,9 @@ data. The parameters are manually selected to $\varepsilon = 0.085$ and
 $MinPts = 200$.
 
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{dbscan_dns}
+    \centering
+    \includegraphics[width=0.8\textwidth]{dbscan_dns}
+    \captionsetup{width=0.8\textwidth}
     \caption{An example of clustering with DBSCAN running on samples generated
     from 5000 packets of DNS data. The samples has been projected down to two
     dimensions using PCA (see section~\ref{sec:pca}).}
@@ -403,14 +407,14 @@ The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
 
 \begin{figure}[t]
     \centering
-    \begin{subfigure}[b]{0.48\linewidth}
-        \includegraphics[width=\linewidth]{rplot_dhcp}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{rplot_dhcp}
         \caption{Reachability-plot for 5000 DHCP-packets with $MinPts = 200$.}
         \label{fig:rplot}
     \end{subfigure}
     \quad
-    \begin{subfigure}[b]{0.48\linewidth}
-        \includegraphics[width=\linewidth]{hierextr}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{hierextr}
         \caption{Hierarchical extraction for 5000 DNS-packets with
         $MinPts = 200$.}
         \label{fig:hierextr}
@@ -689,6 +693,7 @@ and the resulting alignments in figure~\ref{fig:align}.
 \begin{figure}[h]
     \centering
     \texttt{A-TTCGCT\\ACTT-GC-}
+    \captionsetup{width=0.8\textwidth}
     \caption{The resulting alignment of the sequences \texttt{ATTCGCT} and
     \texttt{ACTTGC}.}
     \label{fig:align}
@@ -806,29 +811,34 @@ clusters to match the actual number of real types. We do this under the
 assumption that there is some byte or a number of bytes that define the type of
 each message. We call these bytes \emph{type distinguishers}. 
 
-A type distinguisher is not limited to an explicit type flag, which is present
-in many protocols. It may be a number of bytes that when combined gives a
-reasonable indication of what messages with high similarity have incommon.
-In order to find these bytes we use an approach similar to the recursive
-clustering described by \citeauthor{cui07} in Discoverer. Our approach is as
-follows:
+Many protocols define an explicit type flag in the form of a single byte. The
+type distinguishers which fit our definition may consist of a number of bytes.
+When combined, these bytes gives a reasonable indication of what messages with
+high similarity have incommon. In order to find these bytes we use an approach
+similar to the recursive clustering described by \citeauthor{cui07} in
+Discoverer. Our approach is as follows:
 
 \begin{enumerate}
     \item For every byte offset from the beginning of all messages up to a ceratin limit
     we calculate how many values the byte takes. This is equivalent to how many
-    real types that would be present if the chosen byte was a type flag. We
-    introduce two criterions when considering a byte as a type distinguisher.
-    The first criterion is $MaxNumTypes$ which decides the maximum number of types
-    the protocol is assumed to have. The second criterion is $MaxTypeRatio$ which
-    decides the maximum ratio between the number of packets with a certain value
-    for the considered byte and the total number of packets.
+    real types that would be present if the chosen byte was a real type flag.
+    
+    We introduce two criterions when considering a byte as a type distinguisher.
+    The first criterion is $MaxNumTypes$ which decides the maximum number of
+    types the protocol is assumed to have. The second criterion is
+    $MaxTypeRatio$ which decides the maximum ratio between the number of packets
+    with a certain value for the considered byte and the total number of
+    packets. If $MaxTypeRatio = 0.6$, it prevents a byte from being considered
+    a possible type distinguisher if it assumes the same value in more than
+    $60\%$ of all messages.
 
     \item Now that we have the possible type distinguishers we rank the type
-    distinguishers based on completeness score. For each possible type distinguisher
-    byte we divide all messages on every value which the byte takes. This gives us
-    a new clustering. We measure the quality of each type distinguisher byte by
-    comparing it to the OPTICS clustering. This is achieved using completeness
-    score with the OPTICS clustering as our truth. 
+    distinguishers based on completeness score. For each possible type
+    distinguisher byte we group the messages on every value which the byte
+    takes. This gives us a new clustering. We measure the quality of each type
+    distinguisher byte by comparing its clustering to the OPTICS clustering.
+    This is achieved using completeness score with the OPTICS clustering as our
+    truth. 
 
     \item Once our type distinguisher bytes have been scored, we take the bytes
     with the highest completeness score. For every byte we take, we calculate
@@ -991,16 +1001,75 @@ while for the bottom three we need to resort to more advanced analytical
 techniques on the data of each individual message.
 
 \subsection{Constant fields}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{const_one}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Byte value distribution of the 6th byte in the DNS header. This
+        byte is the least significant byte of the two-byte query count field.
+        In our dump its value is constantly one.}
+    \label{fig:const_one}
+\end{figure}
+We define a constant field as a field that only assumes a single value in all
+the messages we observe. By looking at the byte value probability
+distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
+some $v$, $0 \le v \le 255$.
+
+Constant fields may be interpreted as one of the following:
+\begin{enumerate}
+    \item A true protocol constant. These are fields that are defined to be
+        constant in the protocol specification. An example of such a field is
+        the protocol field in SMB2, which is a four-byte constant field with
+        the value \verb+SMB2+.
+    \item A reserved field. Reserved fields are specified in case there is need
+        for future additional information in a fixed-sized header. Reserved
+        fields are commonly set to zero.
+    \item A field which is constant in the dump scope. For example, if a dump
+        only contains a single connection, then a session ID field may be
+        interpreted as a constant. 
+\end{enumerate}
 
 \subsection{Flag fields}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{flag}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Caption.}
+    \label{fig:flag}
+\end{figure}
+
 
 \subsection{Uniform fields}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{uniform}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Caption.}
+    \label{fig:uniform}
+\end{figure}
 
 \subsection{Number fields}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{number}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Caption.}
+    \label{fig:number}
+\end{figure}
 
 \subsection{Incremental fields}
 
 \subsection{Length fields}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{length}
+    \captionsetup{width=0.8\textwidth}
+    \caption{RANSAC fit of the WC field in the SMB protocol. The resulting
+    parameters are $\alpha = 39$ and $\beta = 2$.}
+    \label{fig:length}
+\end{figure}
+
 Length fields require the most analysis to identify but also gives a very
 confident estimation because of the depth of the analysis. As mentioned in
 section~\ref{sec:simplifications}, length fields relate to how long a part of
