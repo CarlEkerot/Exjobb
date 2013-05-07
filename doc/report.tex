@@ -243,7 +243,8 @@ some samples have been replaced by random noise can be seen in
 figure~\ref{fig:ransac}.
 
 \begin{figure}[t]
-    \includegraphics[width=\linewidth]{ransac}
+    \centering
+    \includegraphics[width=0.8\linewidth]{ransac}
     \caption{A comparison between OLS and RANSAC on a dataset containing
     outliers.}
     \label{fig:ransac}
@@ -327,7 +328,8 @@ data. The parameters are manually selected to $\varepsilon = 0.085$ and
 $MinPts = 200$.
 
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{dbscan_dns}
+    \centering
+    \includegraphics[width=0.8\linewidth]{dbscan_dns}
     \caption{An example of clustering with DBSCAN running on samples generated
     from 5000 packets of DNS data. The samples has been projected down to two
     dimensions using PCA (see section~\ref{sec:pca}).}
@@ -974,7 +976,8 @@ plots of their byte distributions to motivate our decision.
 
 \subsection{Constant fields}
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{const_one}
+    \centering
+    \includegraphics[width=0.8\linewidth]{const_one}
     \caption{Byte value distribution of the 6th byte in the DNS header. This
         byte is the least significant byte of the two-byte query count field.
         In our dump its value is constantly one.}
@@ -1001,21 +1004,25 @@ Constant fields may be interpreted as one of the following:
 
 \subsection{Flag fields}
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{flag}
+    \centering
+    \includegraphics[width=0.8\linewidth]{flag}
     \caption{Caption.}
     \label{fig:flag}
 \end{figure}
 
+
 \subsection{Uniform fields}
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{uniform}
+    \centering
+    \includegraphics[width=0.8\linewidth]{uniform}
     \caption{Caption.}
     \label{fig:uniform}
 \end{figure}
 
 \subsection{Number fields}
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{number}
+    \centering
+    \includegraphics[width=0.8\linewidth]{number}
     \caption{Caption.}
     \label{fig:number}
 \end{figure}
@@ -1024,7 +1031,8 @@ Constant fields may be interpreted as one of the following:
 
 \subsection{Length fields}
 \begin{figure}[h]
-    \includegraphics[width=\linewidth]{length}
+    \centering
+    \includegraphics[width=0.8\linewidth]{length}
     \caption{Caption.}
     \label{fig:length}
 \end{figure}
