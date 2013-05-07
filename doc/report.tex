@@ -209,6 +209,7 @@ to outliers.
 }
 
 \subsection{RANSAC}
+\label{sec:ransac}
 Random Sample Consensus (RANSAC) \citep{fischler81} is a \emph{robust} method
 for fitting a dataset to a model and was originally intended for image
 analysis. The robustness of the method allows it to avoid the influence of
@@ -849,6 +850,7 @@ bit and instead focus on being extensible, thus there are some common design
 principles that may be exploited.
 
 \subsection{Simplifications}
+\label{sec:simplifications}
 First of all we restrict where boundaries may lie. We require fields to be $n$
 bytes in length where $n$ is a power of two and also that they must be aligned.
 We use the definition of \emph{$n$-byte alignment} which means that the offset
@@ -865,11 +867,11 @@ messages of different types or messages with variable length, or both. In those
 cases the header will include at least one type flag or length field
 respectively. A type flag can be a single bit or a collection of bits that
 indicate what type the current message is so that it can be parsed correctly. A
-length field is a numerical field that contains metadata on how long a
-following part of the message is, also for parsing purposes. As the header
-itself usually does not contain any variable length fields no preprocessing is
-needed to identify them, however for the rest of the message, which is usually
-type specific, the data needs to be aligned.
+length field is a numerical field that contains metadata on how long a part of
+the message is, also for parsing purposes. As the header itself usually does
+not contain any variable length fields no preprocessing is needed to identify
+them, however for the rest of the message, which is usually type specific, the
+data needs to be aligned.
 
 \subsection{Non-mutual sequence alignment}
 
@@ -960,12 +962,33 @@ them together depending on their combination of addresses and ports. After this
 preprocessing of the messages has been done we are now ready to start
 classifying fields.
 
-\subsection{Byte distribution}
-Explain how we reached the decision to use byte distributions in our attempts
-to find structures in protocols.
+\subsection{Field classification}
+Now that we have limited our possible field locations and prepared our data for
+searching in different scopes, we try to classify our data into a predefined
+set of field types. This is done by iterating through all possible aligned
+locations of a set of field sizes, typically $\{2^n~|~0 \le n \le 2\}$, and
+testing if the data at that location may belong to any of the predefined field
+types. We will then get a number of different possible types for each byte
+position, possibly of different sizes that might be overlapping. This is our
+estimate of the field types. To get the most likely candidate we can then give
+precedence to different sizes and types, favoring larger sizes and more complex
+types. The field types we have identified are the following:
 
-Introduce the classes of fields that we have established as identifiable. Use
-plots of their byte distributions to motivate our decision.
+\begin{itemize}
+    \item Constant
+    \item Flag
+    \item Uniform
+    \item Number
+    \item Incremental
+    \item Length
+\end{itemize}
+
+These field types have been chosen because they are commonly used in the
+construction of protocols and because they exhibit some degree of
+identifiability. For the top three types we use simple techniques on the
+distributions of the individual bytes of all the messages in the current scope
+while for the bottom three we need to resort to more advanced analytical
+techniques on the data of each individual message.
 
 \subsection{Constant fields}
 
@@ -978,8 +1001,45 @@ plots of their byte distributions to motivate our decision.
 \subsection{Incremental fields}
 
 \subsection{Length fields}
-Explain how we use a linear model to model the relationship between length
-fields and message lengths.
+Length fields require the most analysis to identify but also gives a very
+confident estimation because of the depth of the analysis. As mentioned in
+section~\ref{sec:simplifications}, length fields relate to how long a part of
+the message is. This part can be the entire message, the part following the
+header or just the next field. For a single message all these types of length
+fields can be found, as long as there is only one variable length part in the
+message. For the first case the length of the message will be a multiple of the
+numerical value in the field. Likewise, in the two last cases, the length will
+be a multiple of the numerical value in the field plus an offset equal to the
+length of the parts not covered by the field.
+
+Unfortunately, if a message contains multiple parts of variable length the
+problem becomes more difficult and cannot be solved by looking at individual
+messages anymore. There is however a better way to approach this problem. We
+have already seen that the value of the length field multiplied by some scalar
+plus an offset (which may be zero) is equal to the length of the message. If
+$x$ is the value of the field, $y$ is the length of the message, $\alpha$ is the
+offset and $\beta$ is the multiple then this can be written as
+
+\[
+    y = \alpha + \beta x
+    \label{eq:linlength}
+\]
+
+which means that this can be modeled with a linear model. We can then attempt
+to solve this with simple linear regression for several messages at once. If
+the samples are diverse enough there should be a linear relationship between
+the minimum size of all messages with a specific field value and the value
+itself. This represents the case of the other variable fields being minimized.
+The samples that are not of minimal size for the specific field value will then
+be seen as noise. Because of this noise, which normally is the dominant part of
+all samples, we need a robust method for fitting our linear model. We therefore
+use the RANSAC method as described in section~\ref{sec:ransac} for this
+purpose.
+
+One added advantage of using the RANSAC method is that it also handles other
+situations where noise appears. This can be if the protocol handles its own
+fragmentation or some other form of imperfect parsing that affects the length
+of the messages.
 
 \section{Protocol state inference}
 Explain how we build a state machine from our clusters.
