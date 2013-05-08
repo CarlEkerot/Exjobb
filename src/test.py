@@ -46,6 +46,7 @@ m = params[1]
 plt.scatter(X, Y, s=30, facecolor='b', lw=0)
 X = np.asarray([0, max(X)])
 Y = params[0] * X + params[1]
+print params
 plt.plot(X, Y, 'k-', linewidth=2)
 plt.xlim(0, 50)
 plt.ylim(39, 139)
