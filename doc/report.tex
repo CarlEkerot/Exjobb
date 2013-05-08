@@ -1001,6 +1001,7 @@ while for the bottom three we need to resort to more advanced analytical
 techniques on the data of each individual message.
 
 \subsection{Constant fields}
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{const_one}
@@ -1010,13 +1011,14 @@ techniques on the data of each individual message.
         In our dump its value is constantly one.}
     \label{fig:const_one}
 \end{figure}
+
 We define a constant field as a field that only assumes a single value in all
 the messages in the current scope. By looking at the byte value probability
 distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
 some $v$, $0 \le v \le 255$.
 
 Constant fields may be interpreted as one of the following:
-\begin{enumerate}
+\begin{itemize}
     \item A true protocol constant. These are fields that are defined to be
         constant in the protocol specification. An example of such a field is
         the protocol field in SMB, which is a four-byte constant field with
@@ -1027,7 +1029,7 @@ Constant fields may be interpreted as one of the following:
     \item A field which is constant in the current scope. For example, if a dump
         only contains a single connection, then a session ID field may be
         interpreted as a constant. 
-\end{enumerate}
+\end{itemize}
 
 \subsection{Flag fields}
 \begin{figure}[h]
