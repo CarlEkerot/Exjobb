@@ -1034,10 +1034,31 @@ Constant fields may be interpreted as one of the following:
     \centering
     \includegraphics[width=0.8\textwidth]{flag}
     \captionsetup{width=0.8\textwidth}
-    \caption{Caption.}
+    \caption{Byte value distribution for hte 3rd byte in the DNS header.
+    From this byte it may be determined if the message is a query or a
+    response.}
     \label{fig:flag}
 \end{figure}
 
+A flag field is a field that defines some property of a message. Typically,
+it assumes a very limited number of values and may be used for representing
+a message type, an error code, a status code and so on.
+
+Flag fields may be interpreted as real numbers where each number represents a numbered entity, such as a
+type identifier. It may also represent a set of binary values where each bit
+is a flag itself, and is interpreted using a bitmask. An example of such a
+field is the DNS flags field. The flag field in DNS is two bytes long, where
+the first bit of the field indicates if it is a query (0) or response (1).
+
+The first byte of the DNS flag field is depicted in figure~\ref{fig:flag}.
+The amount of queries and responses are relatively equally distributed. The
+bar at byte value 0 = \underline{0}0000000 represent the queries. The bar at
+byte value 128 = \underline{1}0000000 represent the responses.
+
+When classifying flag fields, we constrain the amount of values that a
+certain byte may assume. This is decided in the parameter $MaxNumVals$. If
+a byte at some position assumes $x$ values where $2 \le x \le MaxNumVals$,
+we classify the byte as a flag.
 
 \subsection{Uniform fields}
 \begin{figure}[h]
