@@ -1078,9 +1078,22 @@ types of these fields are normally some randomly generated value, such as
 a generated session identifier or a nonce.
 
 When classifying fields as uniform, we compare the distribution of the byte
-values to the uniform distribution over the considered bytes. The uniform
-distribution is $\frac{1}{256}$. If two or four consecutive bytes are
-classified as uniform, we merge them into a single uniform field.
+values to the uniform probability distribution for each byte. If we assume the
+observed byte value is a random variable $X$ and the expected value the scalar
+$x$ then the uniform probability distribution for a byte is
+
+\[
+    Pr[X = x] = \left\{
+        \begin{array}{l l}
+            \frac{1}{256} & \quad 0 \le x \le 255 \\
+            0 & \quad \text{otherwise}
+        \end{array}
+    \right.
+\]
+
+If the sum of the deviations from this distribution is below a certain
+threshold then the byte is classified as being uniform. If all bytes are
+classified as uniform then the field is classified as uniform as well.
 
 In figure~\ref{fig:uniform} the value distribution for the first byte of the
 DNS header is displayed. This byte is the first byte of a two-byte identifier.
