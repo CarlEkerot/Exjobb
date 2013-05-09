@@ -703,11 +703,6 @@ and the resulting alignments in figure~\ref{fig:align}.
 \chapter{Method}
 
 \section{Approach}
-% Here we will write how we approached the problem of network protocol inference
-% and the different components that comprise our method. Start with explaining
-% why we need to cluster our data and continue to explain what needs to be done
-% after the clustering step to actually achieve protocol inference.
-
 A protocol is generally made up of a predefined set of message types. A
 message type may define if the message is a request or response. If so, it is
 fairly easy to determine which parts of the message that defines if it is a
@@ -816,16 +811,16 @@ each message. We call these bytes \emph{type distinguishers}.
 Many protocols define an explicit type flag in the form of a single byte. The
 type distinguishers which fit our definition may consist of a number of bytes.
 When combined, these bytes gives a reasonable indication of what messages with
-high similarity have incommon. In order to find these bytes we use an approach
+high similarity have in common. In order to find these bytes we use an approach
 similar to the recursive clustering described by \citeauthor{cui07} in
 Discoverer. Our approach is as follows:
 
 \begin{enumerate}
-    \item For every byte offset from the beginning of all messages up to a ceratin limit
+    \item For every byte offset from the beginning of all messages up to a certain limit
     we calculate how many values the byte takes. This is equivalent to how many
     real types that would be present if the chosen byte was a real type flag.
     
-    We introduce two criterions when considering a byte as a type distinguisher.
+    We introduce two criteria when considering a byte as a type distinguisher.
     The first criterion is $MaxNumTypes$ which decides the maximum number of
     types the protocol is assumed to have. The second criterion is
     $MaxTypeRatio$ which decides the maximum ratio between the number of packets
@@ -1039,7 +1034,7 @@ Constant fields may be interpreted as one of the following:
     \centering
     \includegraphics[width=0.8\textwidth]{flag}
     \captionsetup{width=0.8\textwidth}
-    \caption{Byte value distribution for hte 3rd byte in the DNS header.
+    \caption{Byte value distribution for the 3rd byte in the DNS header.
     From this byte it may be determined if the message is a query or a
     response.}
     \label{fig:flag}
