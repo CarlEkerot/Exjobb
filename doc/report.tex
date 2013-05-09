@@ -763,6 +763,7 @@ distinguishes a specific type.
 % distinguishing
 
 \subsection{Initial clustering}
+\label{sec:init_clust}
 The first step when performing cluster analysis is to define a set of features.
 The features which we have chosen are based on the byte value distribution at
 each offset for every message.
@@ -1016,7 +1017,8 @@ techniques on the data of each individual message.
 We define a constant field as a field that only assumes a single value in all
 the messages in the current scope. By looking at the byte value probability
 distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
-some $v$, $0 \le v \le 255$.
+some $v$, $0 \le v \le 255$. $P_{i,v}$ is an element in the probability
+matrix $P$ which is defined in section~\ref{sec:init_clust}.
 
 Constant fields may be interpreted as one of the following:
 \begin{itemize}
@@ -1059,9 +1061,9 @@ bar at byte value 0 = \underline{0}0000000 represent the queries. The bar at
 byte value 128 = \underline{1}0000000 represent the responses.
 
 When classifying flag fields, we constrain the amount of values that a
-certain byte may assume. This is decided in the parameter $MaxNumVals$. If
-a byte at some position assumes $x$ values where $2 \le x \le MaxNumVals$,
-we classify the byte as a flag.
+certain byte may assume. We classify a field as a flag if the total amount
+of values the field takes is greater than one single value and less than
+some upper bound.
 
 \subsection{Uniform fields}
 \begin{figure}[h]
