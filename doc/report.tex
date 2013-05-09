@@ -1001,6 +1001,7 @@ while for the bottom three we need to resort to more advanced analytical
 techniques on the data of each individual message.
 
 \subsection{Constant fields}
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{const_one}
@@ -1010,13 +1011,14 @@ techniques on the data of each individual message.
         In our dump its value is constantly one.}
     \label{fig:const_one}
 \end{figure}
+
 We define a constant field as a field that only assumes a single value in all
-the messages in a scope. By looking at the byte value probability
+the messages in the current scope. By looking at the byte value probability
 distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
 some $v$, $0 \le v \le 255$.
 
 Constant fields may be interpreted as one of the following:
-\begin{enumerate}
+\begin{itemize}
     \item A true protocol constant. These are fields that are defined to be
         constant in the protocol specification. An example of such a field is
         the protocol field in SMB, which is a four-byte constant field with
@@ -1027,7 +1029,7 @@ Constant fields may be interpreted as one of the following:
     \item A field which is constant in the current scope. For example, if a dump
         only contains a single connection, then a session ID field may be
         interpreted as a constant. 
-\end{enumerate}
+\end{itemize}
 
 \subsection{Flag fields}
 \begin{figure}[h]
@@ -1070,6 +1072,7 @@ we classify the byte as a flag.
 \end{figure}
 
 \subsection{Number fields}
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{number}
@@ -1078,7 +1081,27 @@ we classify the byte as a flag.
     \label{fig:number}
 \end{figure}
 
+While every field in a binary protocol actually contains numbers, some exhibit
+a more natural distribution of these numbers than others. We define number
+fields as those that can be closely fitted to a normal distribution with
+constraints on the standard deviation. We set these constraints so that the
+distribution will not collide with our definitions for constant or uniform
+fields. This captures the behavior of a random variable $X$ with mean $\mu$ and
+standard deviation $\sigma$. This behavior can be seen in fields that contains
+a count even if they do not directly affect the length of the messages, e.g.
+the QDCOUNT or ANCOUNT fields of the DNS protocols that refer to how many
+questions and answers respectively the message contains.
+
 \subsection{Incremental fields}
+Some protocols contain fields where the value increases for each message in the
+scope. It can be a sequence number for each packet or a timestamp of when a
+certain action was performed. We define these as incremental fields. These can
+be identified by looking at all the messages within a scope and counting how
+many of them contain a value that is greater than the previous encountered
+value. We then compare this count to the total number of messages in the scope
+and if it is above a certain threshold we accept it as being incremental. The
+threshold value is used to allow for some amount of wrap-around of the values
+in the field.
 
 \subsection{Length fields}
 
@@ -1124,7 +1147,8 @@ The samples that are not of minimal size for the specific field value will then
 be seen as noise. Because of this noise, which normally is the dominant part of
 all samples, we need a robust method for fitting our linear model. We therefore
 use the RANSAC method as described in section~\ref{sec:ransac} for this
-purpose.
+purpose. A real world example of this for the SMB protocol can be seen in
+figure~\ref{fig:length}.
 
 One added advantage of using the RANSAC method is that it also handles other
 situations where noise appears. This can be if the protocol handles its own
