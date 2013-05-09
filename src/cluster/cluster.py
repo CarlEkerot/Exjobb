@@ -59,9 +59,9 @@ class Clustering(object):
         plt.show()
 
         # Uniform
-        med = np.median(P_norm[1])
+        uni = 1.0/256
         plt.bar(range(256), P_norm[1], color='b', edgecolor='b')
-        plt.axhline(med, color='k', linewidth=2)
+        plt.axhline(uni, color='k', linewidth=2)
         plt.xlim(0, 256)
         plt.xlabel("Byte value")
         plt.ylabel("Probability of occurrence")
