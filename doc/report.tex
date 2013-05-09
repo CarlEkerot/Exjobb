@@ -1077,7 +1077,8 @@ we classify the byte as a flag.
     \centering
     \includegraphics[width=0.8\textwidth]{number}
     \captionsetup{width=0.8\textwidth}
-    \caption{Caption.}
+    \caption{A fitted normal distribution to the distribution of values of the
+    13th byte in DNS.}
     \label{fig:number}
 \end{figure}
 
@@ -1087,10 +1088,11 @@ fields as those that can be closely fitted to a normal distribution with
 constraints on the standard deviation. We set these constraints so that the
 distribution will not collide with our definitions for constant or uniform
 fields. This captures the behavior of a random variable $X$ with mean $\mu$ and
-standard deviation $\sigma$. This behavior can be seen in fields that contains
-a count even if they do not directly affect the length of the messages, e.g.
-the QDCOUNT or ANCOUNT fields of the DNS protocols that refer to how many
-questions and answers respectively the message contains.
+standard deviation $\sigma$. Typically, values that represent a count behave
+this way, e.g. the QDCOUNT or ANCOUNT fields of the DNS protocols that refer to
+how many questions or answers respectively the message contains. This behavior
+can also been seen in length fields as they represent a byte count. An example
+of such a byte count can be seen in figure~\ref{fig:number}.
 
 \subsection{Incremental fields}
 Some protocols contain fields where the value increases for each message in the
