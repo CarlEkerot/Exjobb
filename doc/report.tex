@@ -137,12 +137,13 @@ problem itself.
 \subsection{Principal component analysis}
 \label{sec:pca}
 One method to reduce the dimensionality of a problem is to use principal
-component analysis (PCA). PCA transforms the input data into another dataset
-where each dimension accounts for as much variance as possible while requiring
-it to maintain orthogonality to the other dimensions. The new dataset can be
-constructed to contain fewer dimensions than the original data and will then
-capture as much variance as possible in the given number of dimensions. PCA can
-be accomplished through singular value decomposition of a matrix.
+component analysis (PCA). PCA is defined by \citet{jolliffe86} and transforms
+the input data into another dataset where each dimension accounts for as much
+variance as possible while requiring it to maintain orthogonality to the other
+dimensions. The new dataset can be constructed to contain fewer dimensions than
+the original data and will then capture as much variance as possible in the
+given number of dimensions. PCA can be accomplished through singular value
+decomposition of a matrix.
 
 \section{Simple linear regression}
 In statistics, a response variable $Y_i$ that is linearly dependent on an
@@ -702,11 +703,6 @@ and the resulting alignments in figure~\ref{fig:align}.
 \chapter{Method}
 
 \section{Approach}
-% Here we will write how we approached the problem of network protocol inference
-% and the different components that comprise our method. Start with explaining
-% why we need to cluster our data and continue to explain what needs to be done
-% after the clustering step to actually achieve protocol inference.
-
 A protocol is generally made up of a predefined set of message types. A
 message type may define if the message is a request or response. If so, it is
 fairly easy to determine which parts of the message that defines if it is a
@@ -762,6 +758,7 @@ distinguishes a specific type.
 % distinguishing
 
 \subsection{Initial clustering}
+\label{sec:init_clust}
 The first step when performing cluster analysis is to define a set of features.
 The features which we have chosen are based on the byte value distribution at
 each offset for every message.
@@ -814,16 +811,16 @@ each message. We call these bytes \emph{type distinguishers}.
 Many protocols define an explicit type flag in the form of a single byte. The
 type distinguishers which fit our definition may consist of a number of bytes.
 When combined, these bytes gives a reasonable indication of what messages with
-high similarity have incommon. In order to find these bytes we use an approach
+high similarity have in common. In order to find these bytes we use an approach
 similar to the recursive clustering described by \citeauthor{cui07} in
 Discoverer. Our approach is as follows:
 
 \begin{enumerate}
-    \item For every byte offset from the beginning of all messages up to a ceratin limit
+    \item For every byte offset from the beginning of all messages up to a certain limit
     we calculate how many values the byte takes. This is equivalent to how many
     real types that would be present if the chosen byte was a real type flag.
     
-    We introduce two criterions when considering a byte as a type distinguisher.
+    We introduce two criteria when considering a byte as a type distinguisher.
     The first criterion is $MaxNumTypes$ which decides the maximum number of
     types the protocol is assumed to have. The second criterion is
     $MaxTypeRatio$ which decides the maximum ratio between the number of packets
@@ -1015,7 +1012,8 @@ techniques on the data of each individual message.
 We define a constant field as a field that only assumes a single value in all
 the messages in the current scope. By looking at the byte value probability
 distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
-some $v$, $0 \le v \le 255$.
+some $v$, $0 \le v \le 255$. $P_{i,v}$ is an element in the probability
+matrix $P$ which is defined in section~\ref{sec:init_clust}.
 
 Constant fields may be interpreted as one of the following:
 \begin{itemize}
@@ -1036,7 +1034,7 @@ Constant fields may be interpreted as one of the following:
     \centering
     \includegraphics[width=0.8\textwidth]{flag}
     \captionsetup{width=0.8\textwidth}
-    \caption{Byte value distribution for hte 3rd byte in the DNS header.
+    \caption{Byte value distribution for the 3rd byte in the DNS header.
     From this byte it may be determined if the message is a query or a
     response.}
     \label{fig:flag}
@@ -1058,9 +1056,9 @@ bar at byte value 0 = \underline{0}0000000 represent the queries. The bar at
 byte value 128 = \underline{1}0000000 represent the responses.
 
 When classifying flag fields, we constrain the amount of values that a
-certain byte may assume. This is decided in the parameter $MaxNumVals$. If
-a byte at some position assumes $x$ values where $2 \le x \le MaxNumVals$,
-we classify the byte as a flag.
+certain byte may assume. We classify a field as a flag if the total amount
+of values the field takes is greater than one single value and less than
+some upper bound.
 
 \subsection{Uniform fields}
 \begin{figure}[h]
