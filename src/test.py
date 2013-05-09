@@ -17,5 +17,5 @@ msgs = pcap_glue.build_messages('../cap/dns-30628-packets.pcap')
 an = protocol_analyser.ProtocolAnalyser(msgs[:20000], 100, truth)
 an.cluster(200, max_num_types=10)
 #an.state_inference('dns-state_diagram.png', 5)
-#an.classify_fields()
+an.classify_fields()
 

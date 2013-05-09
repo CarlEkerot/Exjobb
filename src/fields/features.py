@@ -40,8 +40,9 @@ class UniformFeature(Feature):
     def get_value(self, dist):
         dist = copy.deepcopy(dist)
         dist /= np.linalg.norm(dist, ord=1)
-        med = np.median(dist)
-        deviation = sum([abs(f - med) for f in dist])
+        uni = 1/256
+        deviation = sum([abs(f - uni) for f in dist])
+        print "Deviation: ", deviation
         return deviation
 
 feature_functions = [

@@ -56,6 +56,7 @@ def render_state_diagram(C_M, S_M, filename, depth=None):
     nodes = [Node(str(i), shape='circle') for i in range(len(tot_M) + 1)]
     nodes[-2].set_shape('point')
     nodes[-1].set_shape('doublecircle')
+    nodes[-1].set_label(' ')
 
     for i in reachable_states:
         graph.add_node(nodes[i])
