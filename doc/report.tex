@@ -137,12 +137,13 @@ problem itself.
 \subsection{Principal component analysis}
 \label{sec:pca}
 One method to reduce the dimensionality of a problem is to use principal
-component analysis (PCA). PCA transforms the input data into another dataset
-where each dimension accounts for as much variance as possible while requiring
-it to maintain orthogonality to the other dimensions. The new dataset can be
-constructed to contain fewer dimensions than the original data and will then
-capture as much variance as possible in the given number of dimensions. PCA can
-be accomplished through singular value decomposition of a matrix.
+component analysis (PCA). PCA is defined by \citet{jolliffe86} and transforms
+the input data into another dataset where each dimension accounts for as much
+variance as possible while requiring it to maintain orthogonality to the other
+dimensions. The new dataset can be constructed to contain fewer dimensions than
+the original data and will then capture as much variance as possible in the
+given number of dimensions. PCA can be accomplished through singular value
+decomposition of a matrix.
 
 \section{Simple linear regression}
 In statistics, a response variable $Y_i$ that is linearly dependent on an
@@ -1079,8 +1080,8 @@ a generated session identifier or a nonce.
 
 When classifying fields as uniform, we compare the distribution of the byte
 values to the uniform distribution over the considered bytes. The uniform
-distribution is $\frac{1}{256}$. If two or four consecutive bytes are
-classified as uniform, we merge them into a single uniform field.
+distribution is $\frac{1}{256}$. We classify a two-byte or four-byte field
+as uniform if all bytes in the field are classified as uniform.
 
 In figure~\ref{fig:uniform} the value distribution for the first byte of the
 DNS header is displayed. This byte is the first byte of a two-byte identifier.
