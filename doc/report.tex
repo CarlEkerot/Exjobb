@@ -1178,13 +1178,46 @@ Explain how we build a state machine from our clusters.
 \section{Data sets}
 Provide information about the data used to produce the results.
 
-\section{Metrics}
-Explain what metrics we use to measure our results.
+% SMB
+% SMB Command (byte 8), response/request flag (byte 13, bit 0)
+
+% DNS
+% QR OPCODE AA RCODE
+
+% TFTP
+% OPCODE (byte 0-1)
+
+% RTP
+% Payload Type (byte 1, bit 1-7)
+
+% DHCP
+% Message type (byte 0), DHCP Message Type (byte 242)
+
+\begin{center}
+    \begin{tabular}{ | l | l | l | l |}
+        \hline
+        \textbf{Protocol}&\textbf{\# Messages}&\textbf{\# Connections}&\textbf{\# Types}\\ \hline
+        SMB         & 27938         & 213           & 117       \\ \hline
+        DNS         & 30628         & 10935         & 6         \\ \hline
+        TFTP        & 6492          & 6             & 3         \\ \hline
+        RTP         & 20179         & 5             & 1         \\ \hline
+        DHCP        & 13014         & 376           & 11        \\ \hline
+    \end{tabular}
+\end{center}
 
 \section{Clustering performance}
 Display the results of applying our method to different data sets.
+% Metrics: homogenity, completeness, V-Measure
+% Improvement over dump size; all metrics
+%   Before type distinguisher clustering
+%   After type distringuisher clustering
 
 \section{Field inference performance}
+% Compare each byte to annotation. Measure is the percentage of correctly
+% inferred bytes. Perform for both cluster and header (two different 
+% subsections?)
+%
+% Field boundaries: Check false positives/negatives
 
 \chapter{Discussion}
 
