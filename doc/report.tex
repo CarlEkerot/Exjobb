@@ -1076,9 +1076,22 @@ types of these fields are normally some randomly generated value, such as
 a generated session identifier or a nonce.
 
 When classifying fields as uniform, we compare the distribution of the byte
-values to the uniform distribution over the considered bytes. The uniform
-distribution is $\frac{1}{256}$. We classify a two-byte or four-byte field
-as uniform if all bytes in the field are classified as uniform.
+values to the uniform probability distribution for each byte. If we assume the
+observed byte value is a random variable $X$ and the expected value the scalar
+$x$ then the uniform probability distribution for a byte is
+
+\[
+    Pr[X = x] = \left\{
+        \begin{array}{l l}
+            \frac{1}{256} & \quad 0 \le x \le 255 \\
+            0 & \quad \text{otherwise}
+        \end{array}
+    \right.
+\]
+
+If the sum of the deviations from this distribution is below a certain
+threshold then the byte is classified as being uniform. If all bytes are
+classified as uniform then the field is classified as uniform as well.
 
 In figure~\ref{fig:uniform} the value distribution for the first byte of the
 DNS header is displayed. This byte is the first byte of a two-byte identifier.
@@ -1092,7 +1105,8 @@ uniform distribution; a horizontal line at $\frac{1}{256}$.
     \centering
     \includegraphics[width=0.8\textwidth]{number}
     \captionsetup{width=0.8\textwidth}
-    \caption{Caption.}
+    \caption{A fitted normal distribution to the distribution of values of the
+    13th byte in DNS.}
     \label{fig:number}
 \end{figure}
 
@@ -1102,10 +1116,11 @@ fields as those that can be closely fitted to a normal distribution with
 constraints on the standard deviation. We set these constraints so that the
 distribution will not collide with our definitions for constant or uniform
 fields. This captures the behavior of a random variable $X$ with mean $\mu$ and
-standard deviation $\sigma$. This behavior can be seen in fields that contains
-a count even if they do not directly affect the length of the messages, e.g.
-the QDCOUNT or ANCOUNT fields of the DNS protocols that refer to how many
-questions and answers respectively the message contains.
+standard deviation $\sigma$. Typically, values that represent a count behave
+this way, e.g. the QDCOUNT or ANCOUNT fields of the DNS protocols that refer to
+how many questions or answers respectively the message contains. This behavior
+can also been seen in length fields as they represent a byte count. An example
+of such a byte count can be seen in figure~\ref{fig:number}.
 
 \subsection{Incremental fields}
 Some protocols contain fields where the value increases for each message in the
@@ -1224,8 +1239,17 @@ Display the results of applying our method to different data sets.
 \section{Conclusions}
 Draw conclusions about our method and compare it to the related methods.
 
+Is sequence alignment necessary? We could iteratively find length fields to get
+perfect alignments. Delimiters might be a problem
+
 \section{Limitations}
 Give a short introduction to the different limitations of our method.
+
+Mention that the scoring matrix could be improved to use a normal distribution
+for scoring numerical differences.
+
+Mention the problem with our restricted version of multiple sequence alignment
+that it the longest message could optimally need gap insertion as well.
 
 \subsection{Textual protocols}
 Explain why our method is not applicable to textual protocols.
