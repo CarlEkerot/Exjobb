@@ -1186,7 +1186,47 @@ fragmentation or some other form of imperfect parsing that affects the length
 of the messages.
 
 \section{Protocol state inference}
-Explain how we build a state machine from our clusters.
+Many protocols may be described using a state diagram. Some handshake phase
+between the peers is common when a conversation is initialized. There might
+also be some teardown phase, and phases for transmitting data etc.
+Inferring the states of the protocol is an important task when trying to
+figure out the semantics of the protocol. Modelling the protocol states as
+a state diagram provides a readable representation of the inner workings
+of the protocol, and might simplify the analysis of the fields of the
+different message types.
+
+When a reasonable partitioning into types has been achieved, finding the
+protocol state diagram is trivial. We simply partition the set of messages
+into connections, where connections are tuples of client and server sockets.
+From each connection, we define each message in the connection as a change
+of state. Each state has a set of probabilities for transitioning to
+all other states we've defined. The cumulative sum of these probabilities 
+sums up to 1. 
+
+We represent the states as two $n \times n$-matrices, $C$ and  $S$, where 
+$n$ is the number of types, which will be the same as the number of states.
+Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the numer of times
+we observe a transition by the client or server from state $i$ to state $j$.
+We define the client as the peer initiating the connection. Once we have our
+two matrices, we may calculate the probabilities for the state transitions by
+dividing the total number of transitions between two states with the total
+number of messages.
+
+% Add info on how rendering a state diagram for some protocols is not
+% a good idea, and how we limit it to the handshake-phase
+
+In figure~\ref{fig:dnsstate} the state diagram generated from a DNS stream
+capture with $MaxNumTypes = 3$ is shown.State 0 represents queries and state 1
+represent responses. Blue edges represent messages sent by the client. Red
+edges represent messages sent by the client.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{dnsstate}
+    \captionsetup{width=0.8\textwidth}
+    \caption{State diagram for the DNS protocol.}
+    \label{fig:dnsstate}
+\end{figure}
 
 \chapter{Results}
 
