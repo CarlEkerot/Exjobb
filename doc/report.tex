@@ -1235,6 +1235,7 @@ Provide information about the data used to produce the results.
 
 % SMB
 % SMB Command (byte 8), response/request flag (byte 13, bit 0)
+% All things with SMB is done on filtered data!
 
 % DNS
 % QR OPCODE AA RCODE
@@ -1248,17 +1249,19 @@ Provide information about the data used to produce the results.
 % DHCP
 % Message type (byte 0), DHCP Message Type (byte 242)
 
-\begin{center}
-    \begin{tabular}{ | l | l | l | l |}
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{\# Messages}&\textbf{\# Connections}&\textbf{\# Types}\\ \hline
-        SMB         & 27938         & 213           & 117       \\ \hline
         DNS         & 30628         & 10935         & 6         \\ \hline
+        SMB         & 27906         & 212           & 93        \\ \hline
         TFTP        & 6492          & 6             & 3         \\ \hline
         RTP         & 20179         & 5             & 1         \\ \hline
         DHCP        & 13014         & 376           & 11        \\ \hline
     \end{tabular}
-\end{center}
+    \caption{Datasets.}
+\end{figure}
 
 \section{Clustering performance}
 Display the results of applying our method to different data sets.
@@ -1266,6 +1269,48 @@ Display the results of applying our method to different data sets.
 % Improvement over dump size; all metrics
 %   Before type distinguisher clustering
 %   After type distringuisher clustering
+
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{minSamples}&\textbf{maxNumTypes}&\textbf{Limit} \\ \hline
+        DNS & 200 & 10 & 100 \\ \hline
+        SMB & 50 & 150 & 100 \\ \hline
+        TFTP & 1 & 1 & 100 \\ \hline
+        RTP & 200 & 10 & 100 \\ \hline
+        DHCP & 1 & 1 & 100 \\ \hline
+    \end{tabular}
+    \caption{Clustering parameters.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
+        DNS & 0.1642 & 0.9078 & 0.2781 \\ \hline
+        SMB & 0.8581 & 0.8559 & 0.8570 \\ \hline
+        TFTP & 1 & 1 & 1 \\ \hline
+        RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
+        DHCP & 1 & 1 & 1 \\ \hline
+    \end{tabular}
+    \caption{Before type distinguisher clustering.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
+        DNS & 0.9534 & 0.9999 & 0.9761 \\ \hline
+        SMB & 0.9914 & 0.9880 & 0.9897 \\ \hline
+        TFTP & 1 & 1 & 1 \\ \hline
+        RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
+        DHCP & 1 & 1 & 1 \\ \hline
+    \end{tabular}
+    \caption{After type distinguisher clustering.}
+\end{figure}
 
 \section{Field inference performance}
 % Compare each byte to annotation. Measure is the percentage of correctly
