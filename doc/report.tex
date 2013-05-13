@@ -1238,7 +1238,8 @@ five transitions. This shows the handshake used by the protocol.
 Table~\ref{tbl:smb} below lists the true types of the messages in a
 left-to-right order with respect to the state diagram.
 
-\begin{center}
+\begin{figure}
+    \centering
     \begin{tabular}{ | l | l |}
         \hline
         \textbf{State}&\textbf{Type}\\ \hline
@@ -1251,8 +1252,9 @@ left-to-right order with respect to the state diagram.
         20          & NT Create AndX Request        \\ \hline
         24          & Delete Request                \\ \hline
     \end{tabular}
+    \caption{SMB states.}
     \label{tbl:smb}
-\end{center}
+\end{figure}
 
 \begin{figure}[h]
     \centering
@@ -1280,6 +1282,7 @@ Provide information about the data used to produce the results.
 
 % SMB
 % SMB Command (byte 8), response/request flag (byte 13, bit 0)
+% All things with SMB is done on filtered data!
 
 % DNS
 % QR OPCODE AA RCODE
@@ -1293,17 +1296,19 @@ Provide information about the data used to produce the results.
 % DHCP
 % Message type (byte 0), DHCP Message Type (byte 242)
 
-\begin{center}
-    \begin{tabular}{ | l | l | l | l |}
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{\# Messages}&\textbf{\# Connections}&\textbf{\# Types}\\ \hline
-        SMB         & 27906         & 212           & 93        \\ \hline
         DNS         & 30628         & 10935         & 6         \\ \hline
+        SMB         & 27906         & 212           & 93        \\ \hline
         TFTP        & 6492          & 6             & 3         \\ \hline
         RTP         & 20179         & 5             & 1         \\ \hline
         DHCP        & 13014         & 376           & 11        \\ \hline
     \end{tabular}
-\end{center}
+    \caption{Datasets.}
+\end{figure}
 
 \section{Clustering performance}
 Display the results of applying our method to different data sets.
@@ -1311,6 +1316,48 @@ Display the results of applying our method to different data sets.
 % Improvement over dump size; all metrics
 %   Before type distinguisher clustering
 %   After type distringuisher clustering
+
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{minSamples}&\textbf{maxNumTypes}&\textbf{Limit} \\ \hline
+        DNS & 200 & 10 & 200 \\ \hline
+        SMB & 50 & 100 & 200 \\ \hline
+        TFTP & 50 & 10 & 200 \\ \hline
+        RTP & 200 & 10 & 200 \\ \hline
+        DHCP & 50 & 20 & 400 \\ \hline
+    \end{tabular}
+    \caption{Clustering parameters.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
+        DNS & 0.1982 & 0.9550 & 0.3282 \\ \hline
+        SMB & 0.8480 & 0.8632 & 0.8555 \\ \hline
+        TFTP & 0.3015 & 0.9449 & 0.4571 \\ \hline
+        RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
+        DHCP & 0.3492 & 0.1224 & 0.1813 \\ \hline
+    \end{tabular}
+    \caption{Before type distinguisher clustering.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r | r | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
+        DNS & 0.9534 & 0.9999 & 0.9761 \\ \hline
+        SMB & 0.9914 & 0.9880 & 0.9897 \\ \hline
+        TFTP & 1.0000 & 1.000 & 1.000 \\ \hline
+        RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
+        DHCP & 1.0000 & 0.4428 & 0.6138 \\ \hline
+    \end{tabular}
+    \caption{After type distinguisher clustering.}
+\end{figure}
 
 \section{Field inference performance}
 % Compare each byte to annotation. Measure is the percentage of correctly
