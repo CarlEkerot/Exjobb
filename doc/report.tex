@@ -1318,11 +1318,11 @@ Display the results of applying our method to different data sets.
     \begin{tabular}{| l | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{minSamples}&\textbf{maxNumTypes}&\textbf{Limit} \\ \hline
-        DNS & 200 & 10 & 100 \\ \hline
-        SMB & 50 & 150 & 100 \\ \hline
-        TFTP & 1 & 1 & 100 \\ \hline
-        RTP & 200 & 10 & 100 \\ \hline
-        DHCP & 1 & 1 & 100 \\ \hline
+        DNS & 200 & 10 & 200 \\ \hline
+        SMB & 50 & 100 & 200 \\ \hline
+        TFTP & 50 & 10 & 200 \\ \hline
+        RTP & 200 & 10 & 200 \\ \hline
+        DHCP & 50 & 20 & 400 \\ \hline
     \end{tabular}
     \caption{Clustering parameters.}
 \end{figure}
@@ -1332,11 +1332,11 @@ Display the results of applying our method to different data sets.
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
-        DNS & 0.1642 & 0.9078 & 0.2781 \\ \hline
-        SMB & 0.8581 & 0.8559 & 0.8570 \\ \hline
-        TFTP & 1 & 1 & 1 \\ \hline
+        DNS & 0.1982 & 0.9550 & 0.3282 \\ \hline
+        SMB & 0.8480 & 0.8632 & 0.8555 \\ \hline
+        TFTP & 0.3015 & 0.9449 & 0.4571 \\ \hline
         RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
-        DHCP & 1 & 1 & 1 \\ \hline
+        DHCP & 0.3492 & 0.1224 & 0.1813 \\ \hline
     \end{tabular}
     \caption{Before type distinguisher clustering.}
 \end{figure}
@@ -1348,9 +1348,9 @@ Display the results of applying our method to different data sets.
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
         DNS & 0.9534 & 0.9999 & 0.9761 \\ \hline
         SMB & 0.9914 & 0.9880 & 0.9897 \\ \hline
-        TFTP & 1 & 1 & 1 \\ \hline
+        TFTP & 1.0000 & 1.000 & 1.000 \\ \hline
         RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
-        DHCP & 1 & 1 & 1 \\ \hline
+        DHCP & 1.0000 & 0.4428 & 0.6138 \\ \hline
     \end{tabular}
     \caption{After type distinguisher clustering.}
 \end{figure}
