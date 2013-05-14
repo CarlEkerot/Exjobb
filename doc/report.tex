@@ -1235,7 +1235,7 @@ edges represent messages sent by the client.
 
 Figure~\ref{fig:smbstate} shows the state diagram fom SMB with a depth of
 five transitions. This shows the handshake used by the protocol.
-Table~\ref{tbl:smb} below lists the true types of the messages in a
+Table~\ref{table:smb} below lists the true types of the messages in a
 left-to-right order with respect to the state diagram.
 
 \begin{figure}
@@ -1253,7 +1253,7 @@ left-to-right order with respect to the state diagram.
         24          & Delete Request                \\ \hline
     \end{tabular}
     \caption{SMB states.}
-    \label{tbl:smb}
+    \label{table:smb}
 \end{figure}
 
 \begin{figure}[h]
@@ -1276,9 +1276,46 @@ left-to-right order with respect to the state diagram.
 \end{figure}
 
 \chapter{Results}
+We measure the performance of our method by comparing the results from the
+type inference and field inference to hand-annotated data from a variety of
+network captures for binary protocols.
+
+In common for all the data sets we've analysed are that they do not explore
+the entire protocol. If some field in a protocol is constant most of the time,
+but is set to a certain value in special cases we will have difficulties
+finding it. Such fields may be flags that denotes some error code or some
+uncommon state of the protocol. If some type is never present in the dump,
+we won't be able to predict its existance.
+
+These difficulties emphasize the importance of diverse network captures.
 
 \section{Data sets}
-Provide information about the data used to produce the results.
+We have chosen five different data sets for our performance analysis. Each
+data set contains messages from a single protocol. All the protocols vary
+in complexity, header size and area of usage. The protocols are the following:
+
+\begin{itemize}
+    \item \textbf{SMB}: A protocol mainly used by Microsoft Windows for 
+        file-sharing, printer-sharing and access control. The protocol
+        has a wide variety of types and a fairly complex header. The protocol
+        messages are generally wrapped in a NetBIOS-message.
+    \item \textbf{DNS}: \emph{Domain Name System}, a system for resolving
+        hostnames and addresses to IP-addresses. The DNS header is simple,
+        but its payload contains a variable number of fields. Each of these
+        fields denote a subdomain or domain to some URL.
+    \item \textbf{TFTP}: \emph{Trivial File Transfer Protocol}, a very simple
+        file transfer protocol. It defines a very limited number of types
+        and a very simple header.
+    \item \textbf{RTP}: \emph{Real-Time Transport Protocol}, a protocol for
+        transporting audio and video. Its header is fairly simple, but our
+        dump is has no diversity in the payload type. This makes type
+        inference difficult.
+    \item \textbf{DHCP}: \emph{Dynamic Host Configuration Protocol}, a
+        protocol for obtaining network configuration information such as
+        IP adresses in a network. The protocol is an extension to the
+        \emph{Bootstrap Protocol}, BOOTP. Combined with BOOTP, it has a large
+        header and a number of extension headers to BOOTP.
+\end{itemize}
 
 % SMB
 % SMB Command (byte 8), response/request flag (byte 13, bit 0)
