@@ -575,6 +575,7 @@ as A/AAAA/CNAME-records.
 }
 
 \subsection{Clustering metrics}
+\label{sec:metrics}
 When measuring the quality of a clustering from a clustering algorithm, a
 number of metrics are defined. These metrics reflects the quality of the
 features as well as the clustering algorithm. The metrics requires labels
@@ -1317,6 +1318,8 @@ in complexity, header size and area of usage. The protocols are the following:
         header and a number of extension headers to BOOTP.
 \end{itemize}
 
+In the table below we list the properties of our different data-sets.
+
 % SMB
 % SMB Command (byte 8), response/request flag (byte 13, bit 0)
 % All things with SMB is done on filtered data!
@@ -1333,7 +1336,7 @@ in complexity, header size and area of usage. The protocols are the following:
 % DHCP
 % Message type (byte 0), DHCP Message Type (byte 242)
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{tabular}{| l | r | r | r |}
         \hline
@@ -1348,17 +1351,26 @@ in complexity, header size and area of usage. The protocols are the following:
 \end{figure}
 
 \section{Clustering performance}
-Display the results of applying our method to different data sets.
+We measure the performance of our clustering using the metrics described in
+section~\ref{sec:metrics}: homogenity, completeness and V-Measure. The truth we
+use when calculating the metrics is based on the protocol definition in
+Wireshark.
+
+In table~\ref{table:clusterparams} we list the parameters we use on the
+different data-sets. The initial clustering, which uses OPTICS, uses only the
+Limit and MinSamples parameters. The type distinguisher clustering uses only
+the results from the OPTICS clustering and the MaxNumTypes parameter. All of
+these parameters are rather insensitive to change.
 % Metrics: homogenity, completeness, V-Measure
 % Improvement over dump size; all metrics
 %   Before type distinguisher clustering
 %   After type distringuisher clustering
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{tabular}{| l | r | r | r |}
         \hline
-        \textbf{Protocol}&\textbf{minSamples}&\textbf{maxNumTypes}&\textbf{Limit} \\ \hline
+        \textbf{Protocol}&\textbf{MinSamples}&\textbf{MaxNumTypes}&\textbf{Limit} \\ \hline
         DNS & 200 & 10 & 200 \\ \hline
         SMB & 50 & 100 & 200 \\ \hline
         TFTP & 50 & 10 & 200 \\ \hline
@@ -1366,9 +1378,28 @@ Display the results of applying our method to different data sets.
         DHCP & 50 & 20 & 400 \\ \hline
     \end{tabular}
     \caption{Clustering parameters.}
+    \label{table:clusterparams}
 \end{figure}
 
-\begin{figure}
+Table~\ref{table:initclusterresults} shows the performance of our OPTICS
+implementation. Like the clustering in Discoverer by \citeauthor{cui07} we
+are most concerned with achieving high homogenity. A high homogenity assures
+that each cluster mainly contains messages from one true type. A high
+completeness is not as important in our initial clustering. A high completeness
+gives us a small number of clusters for each true type, ideally a single
+cluster.
+
+The performance for the RTP and DHCP data sets are inferor to the other
+protocols. OPTICS has bad performance on RTP since our dump contains messages
+from a single message type. Instead of clustering on type-specific data, it
+proceeds to cluster the messages on the protocol payload. Since the payload
+data is very specific for each connection, each cluster mainly contains
+messages from a single connection. The DHCP dump is difficult for the
+clustering due to the size of the header. The BOOTP header is over 200 bytes
+long. All DHCP-specific data is located as extensions to BOOTP, and these
+extensions are located at the end of the header.
+
+\begin{figure}[h]
     \centering
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
@@ -1380,9 +1411,16 @@ Display the results of applying our method to different data sets.
         DHCP & 0.3492 & 0.1224 & 0.1813 \\ \hline
     \end{tabular}
     \caption{Before type distinguisher clustering.}
+    \label{table:initclusterresults}
 \end{figure}
 
-\begin{figure}
+After the intial clustering, we perform type distinguisher clustering in order
+to refine the clustering. The results from this process is shown intial
+table~\ref{table:tdclusterresults}. Since this method is dependent on some
+type distinguisher, it does not perform well on the RTP data-set. On the
+other data-sets, the results are close to ideal.
+
+\begin{figure}[h]
     \centering
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
@@ -1394,6 +1432,7 @@ Display the results of applying our method to different data sets.
         DHCP & 1.0000 & 0.4428 & 0.6138 \\ \hline
     \end{tabular}
     \caption{After type distinguisher clustering.}
+    \label{table:tdclusterresults}
 \end{figure}
 
 \section{Field inference performance}
