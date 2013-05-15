@@ -1467,6 +1467,10 @@ other data-sets, the results are close to ideal.
     \label{bf:dns}
 \end{figure}
 
+% Comment that a stream constant (such as security features) is classified
+% as a global constant if it is the same constant in all streams in the 
+% dump.
+
 % SMB header
 \newcommand{\colorbitbox}[3]{%
     \rlap{\bitbox{#2}{\color{#1}\rule{\width}{\height}}}%
@@ -1488,9 +1492,9 @@ other data-sets, the results are close to ideal.
         \wordbox{1}{...}\\  % (continuation)
         \bitbox{16}{...}    % (continuation)
         \bitbox{16}{C}\\    % Reserved
-        \bitbox{16}{?}      % Tree ID
+        \bitbox{16}{D}      % Tree ID
         \bitbox{16}{SC}\\   % PID Low
-        \bitbox{16}{?}      % User ID
+        \bitbox{16}{D}      % User ID
         \bitbox{16}{SI}     % Multiplex ID
     \end{bytefield}
     \captionsetup{width=0.8\textwidth}
