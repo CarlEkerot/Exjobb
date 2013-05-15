@@ -43,8 +43,9 @@ class ProtocolAnalyser(object):
         print ' GLOBAL '.center(33, '=')
         fields = create_global_fields(self.global_est, ordered_sizes)
         print_fields(fields, global_limit)
-        for label in self.cluster_est:
-            print (' CLUSTER %d (%d) ' % (label, len(self.clusters[label]))).center(33, '=')
-            fields = create_cluster_fields(self.cluster_est, ordered_sizes, label)
-            print_fields(fields)
+        return fields
+        #for label in self.cluster_est:
+        #    print (' CLUSTER %d (%d) ' % (label, len(self.clusters[label]))).center(33, '=')
+        #    fields = create_cluster_fields(self.cluster_est, ordered_sizes, label)
+        #    print_fields(fields)
 

@@ -21,9 +21,11 @@ class Clustering(object):
     def cluster(self, min_samples, optics_args, max_num_types, header_limit,
             max_type_ratio):
         self.labels = self._optics_clustering(min_samples, optics_args)
+        print self.get_metrics()
         scores = self._format_distinguisher_score(max_num_types, header_limit,
                 max_type_ratio)
         self.labels = self._format_distinguisher_clustering(scores, max_num_types)
+        print self.get_metrics()
 
     def _optics_clustering(self, min_samples, args):
         max_length = max(map(len, self.msgs))
