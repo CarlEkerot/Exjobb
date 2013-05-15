@@ -1513,6 +1513,10 @@ other data-sets, the results are close to ideal.
     \label{bf:tftp}
 \end{figure}
 
+% Comment for RTP: One stream messed up the incremental in sequence number.
+% Comment on how consensus of all streams may not be optimal for finding 
+% correct semantics.
+
 % RTP header
 \begin{figure}
     \centering
@@ -1612,12 +1616,30 @@ extended fields. This type of analysis has not been taken into account as we
 deem it out of the scope for this theses.
 
 \subsection{Non-aligned data}
-Explain why we only try to find aligned fields and the problem with complexity
-if we were to relax this requirement.
+In our appproach, we assume that each field is aligned to one, two, or four
+bytes. This is somewhat of a standard as explained in
+section~\ref{sec:simplifications}. Although there are obvious benefits to
+aligning the fields in a protocol, not every protocol follows the field
+alignment concept. SMB is one of those protocols.
+
+If some field is six bytes long, our method will at best detect it as a
+two-byte field and a four-byte field. If we were to look for fields with
+all possible alignments, we would have to use a sliding window approach where
+we would have to test a six-byte window for every possible offset in order
+to find a six-byte field. This would increase the complexity of the field
+inference immensely, since we would have to try $length - n$ possible fields
+for every length $n$. With our approach, we try at most
+$\lfloor \frac{length}{n} \rfloor$ possible fields for every length $n$.
 
 \subsection{Bit precision}
-Talk a little bit about how some protocols do not use entire bytes as the sizes
-of their fields and that we will not find exact boundaries for them.
+It's not uncommon for fields to have a higher resolution than one byte. In
+the RTP header visualized in figure~\ref{bf:rtp} there is a four-byte length
+field between flag-bits in the first byte. In order to find these features,
+we would have to introduce bit precision in our analysis. Bit precision
+analysis would introduce the same complexity issues as non-aligned data
+analysis. 
+
+% Skriv mer här
 
 \section{Future work}
 Mention the ideas that has come up during the thesis work that we have not had
@@ -1627,8 +1649,17 @@ time to investigate further.
 Explain how correspondence analysis could give a better result than PCA.
 
 \subsection{Timestamp identification}
-Explain how timestamps could potentially be identified from their distinguished
-byte distribution pattern.
+From our analysis, we've seen that timestamps have a potentially
+distinguishable byte distribution. This distribution could perhaps be analysed
+in order to classify a field as a timestamp. The distribution reveals a number
+of spikes we assume to be dependent on the time resolution. This is most
+visible in the least significant byte of the timestamp field. Using frequency
+analysis, it should be possible to determine the time resolution. This could
+be applicable for media streaming protocols.
+
+For general timestamps, we could compare the packet delivery timestamp from
+the data-set with the value difference in a field. If this difference is
+consistent enough, we could classify the field as a timestamp.
 
 \bibliographystyle{plainnat}
 \bibliography{thesis}
