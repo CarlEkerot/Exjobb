@@ -1521,7 +1521,7 @@ other data-sets, the results are close to ideal.
         \bitbox{2}{F}       % Ver
         \bitbox{1}{F}       % P
         \bitbox{1}{F}       % X
-        \bitbox{4}{F}       % CC
+        \bitbox{4}{L}       % CC
         \bitbox{1}{F}       % M
         \bitbox{7}{F}       % PT
         \bitbox{16}{SI}\\   % Seq. nbr
@@ -1580,12 +1580,36 @@ Mention the problem with our restricted version of multiple sequence alignment
 that it the longest message could optimally need gap insertion as well.
 
 \subsection{Textual protocols}
-Explain why our method is not applicable to textual protocols.
+Our method attempts to find structure and semantics in binary protocols.
+By nature, binary protocols are hard to read and it may be impossible to
+uncover the exact meaning of every field. Textual protocols, on the other
+hand, are often self-explanatory. Often they are designed to be read by
+humans. Textual protocols work well in applications which have no constraint
+on message size or parsing performance. Notations commonly used in textual
+protocols such as JSON and XML are more complex to parse than binary protocols,
+and introduces features where our approach is not feasible.
+
+In Discoverer by \citeauthor{cui07} an attempt to infer the structure of
+the HTTP protocol was made. The HTTP header contains a set of unordered
+key-value pairs delimited by line breaks. Due to the pairs being unordered,
+the method yielded an immense number of possible types.
+
+For the type inference, our method could be able to find some type 
+distinguisher, perhaps the first three ASCII characters of each HTTP method.
+Our field inference would however not work, since we're assuming aligned
+data in a specific ordering.
 
 \subsection{Variable number of fields}
-Explain the problem with protocols that contain a variable number of fields and
-why our method does not accommodate for them. (Because we based our definition
-of protocols on a fixed number of fields?)
+A variable number of fields may be useful in a protocol specification. BOOTP,
+which is the parent protocol to DHCP, has a variable number of header extensions.
+DNS has a variable number of queries or answers. How the exsistence of a variable
+number of fields is specified is protocol specific, thus hard to determine
+analytically. 
+
+There are byte patterns which could be analysed in order to infer optional
+fields, such as length fields or some byte value that decides the number of
+extended fields. This type of analysis has not been taken into account as we
+deem it out of the scope for this theses.
 
 \subsection{Non-aligned data}
 Explain why we only try to find aligned fields and the problem with complexity
