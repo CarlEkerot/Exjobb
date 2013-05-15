@@ -14,6 +14,7 @@
     pdftitle={Automatic Structural Inference of Binary Protocols},
     pdfauthor={Fredrik Appelros, Carl Ekerot}
 ]{hyperref}
+\usepackage{bytefield}
 
 
 \newtheorem*{definition}{Definition}
@@ -1402,6 +1403,125 @@ Display the results of applying our method to different data sets.
 % subsections?)
 %
 % Field boundaries: Check false positives/negatives
+
+% DNS header
+\begin{figure}
+    \centering
+    \begin{bytefield}{16}
+        \bitheader{0, 15, 16, 31}\\
+        \bitbox{16}{U}\\
+        \bitbox{1}{F}
+        \bitbox{4}{F}
+        \bitbox{1}{F}
+        \bitbox{1}{F}
+        \bitbox{1}{F}
+        \bitbox{1}{F}
+        \bitbox{3}{C}
+        \bitbox{4}{F}\\
+        \bitbox{16}{N}\\
+        \bitbox{16}{N}\\
+        \bitbox{16}{N}\\
+        \bitbox{16}{N}\\
+    \end{bytefield}
+    \captionsetup{width=0.8\textwidth}
+    \caption{DNS header.}
+    \label{bf:dns}
+\end{figure}
+
+% SMB header
+\newcommand{\colorbitbox}[3]{%
+    \rlap{\bitbox{#2}{\color{#1}\rule{\width}{\height}}}%
+    \bitbox{#2}{#3}}
+\definecolor{lightgray}{gray}{0.9}
+\begin{figure}
+    \centering
+    \begin{bytefield}[bitwidth=0.7em]{32}
+        \bitheader{0, 15, 16, 31}\\
+        \colorbitbox{lightgray}{8}{F} & \colorbitbox{lightgray}{24}{L}\\
+        \wordbox{1}{C}\\    % 0xffSMB
+        \bitbox{8}{F}       % Command
+        \bitbox{24}{F}\\    % Status
+        \bitbox{8}{...}     % (continuation)
+        \bitbox{8}{F}       % Flags
+        \bitbox{16}{F}\\    % Flags2
+        \bitbox{16}{SC}     % PID High
+        \bitbox{16}{SC}\\   % SecurityFeatures
+        \wordbox{1}{...}\\  % (continuation)
+        \bitbox{16}{...}    % (continuation)
+        \bitbox{16}{C}\\    % Reserved
+        \bitbox{16}{?}      % Tree ID
+        \bitbox{16}{SC}\\   % PID Low
+        \bitbox{16}{?}      % User ID
+        \bitbox{16}{SI}     % Multiplex ID
+    \end{bytefield}
+    \captionsetup{width=0.8\textwidth}
+    \caption{The SMB header. Fields which belong to the NetBIOS-header
+        are marked with a gray background. Dots denote continuation of
+        the previous field.}
+    \label{bf:smb}
+\end{figure}
+
+% TFTP header
+\begin{figure}
+    \centering
+    \begin{bytefield}{16}
+        \bitheader{0, 15}\\
+        \wordbox{1}{F}\\    % OPCode
+    \end{bytefield}
+    \captionsetup{width=0.8\textwidth}
+    \caption{The TFTP header. The header only consist of a two-byte 
+    OP-code. Additional fields are type-dependent.}
+    \label{bf:tftp}
+\end{figure}
+
+% RTP header
+\begin{figure}
+    \centering
+    \begin{bytefield}{32}
+        \bitheader{0, 15, 16, 31}\\
+        \bitbox{2}{F}       % Ver
+        \bitbox{1}{F}       % P
+        \bitbox{1}{F}       % X
+        \bitbox{4}{F}       % CC
+        \bitbox{1}{F}       % M
+        \bitbox{7}{F}       % PT
+        \bitbox{16}{SI}\\   % Seq. nbr
+        \wordbox{1}{SI}\\   % Timestamp
+        \wordbox{1}{SC}\\   % SSRC
+    \end{bytefield}
+    \captionsetup{width=0.8\textwidth}
+    \caption{The RTP header with bit-resolution flag-fields.}
+    \label{bf:rtp}
+\end{figure}
+
+% DHCP header
+\begin{figure}
+    \centering
+    \begin{bytefield}{32}
+        \bitheader{0, 15, 16, 31}\\
+        \bitbox{8}{F}       % OPCode
+        \bitbox{8}{SC}      % HWType
+        \bitbox{8}{?}       % HW addr. len
+        \bitbox{8}{N}\\     % Hop-count
+        \wordbox{1}{U}\\    % Transaction ID
+        \bitbox{16}{N}      % Num seconds
+        \bitbox{16}{F}\\    % Flags
+        \wordbox{1}{D}\\    % Client IP
+        \wordbox{1}{D}\\    % Your IP
+        \wordbox{1}{D}\\    % Server IP
+        \wordbox{1}{D}\\    % Gateway IP
+        \wordbox{1}{D}\\    % Client HW Addr
+        \bitbox{16}{...}    % (continuation)
+        \bitbox{16}{C}\\    % Padding
+        \wordbox{1}{C}\\    % Padding
+        \wordbox{1}{C}\\    % Padding
+        \wordbox[]{1}{\vdots}\\    % Padding
+        \wordbox{1}{C}\\    % Padding
+    \end{bytefield}
+    \captionsetup{width=0.8\textwidth}
+    \caption{The DHCP header.}
+    \label{bf:dhcp}
+\end{figure}
 
 \chapter{Discussion}
 
