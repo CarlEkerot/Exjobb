@@ -1478,30 +1478,58 @@ other data-sets, the results are close to ideal.
 \definecolor{lightgray}{gray}{0.9}
 \begin{figure}
     \centering
-    \begin{bytefield}[bitwidth=0.7em]{32}
-        \bitheader{0, 15, 16, 31}\\
-        \colorbitbox{lightgray}{8}{F} & \colorbitbox{lightgray}{24}{L}\\
-        \wordbox{1}{C}\\    % 0xffSMB
-        \bitbox{8}{F}       % Command
-        \bitbox{24}{F}\\    % Status
-        \bitbox{8}{...}     % (continuation)
-        \bitbox{8}{F}       % Flags
-        \bitbox{16}{F}\\    % Flags2
-        \bitbox{16}{SC}     % PID High
-        \bitbox{16}{SC}\\   % SecurityFeatures
-        \wordbox{1}{...}\\  % (continuation)
-        \bitbox{16}{...}    % (continuation)
-        \bitbox{16}{C}\\    % Reserved
-        \bitbox{16}{D}      % Tree ID
-        \bitbox{16}{SC}\\   % PID Low
-        \bitbox{16}{D}      % User ID
-        \bitbox{16}{SI}     % Multiplex ID
-    \end{bytefield}
-    \captionsetup{width=0.8\textwidth}
-    \caption{The SMB header. Fields which belong to the NetBIOS-header
-        are marked with a gray background. Dots denote continuation of
-        the previous field.}
-    \label{bf:smb}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \begin{bytefield}[bitwidth=0.5em]{32}
+            \bitheader{0, 31}\\
+            \colorbitbox{lightgray}{8}{F} & \colorbitbox{lightgray}{24}{L}\\
+            \wordbox{1}{C}\\    % 0xffSMB
+            \bitbox{8}{F}       % Command
+            \bitbox{24}{F}\\    % Status
+            \bitbox{8}{...}     % (continuation)
+            \bitbox{8}{F}       % Flags
+            \bitbox{16}{F}\\    % Flags2
+            \bitbox{16}{SC}     % PID High
+            \bitbox{16}{SC}\\   % SecurityFeatures
+            \wordbox{1}{...}\\  % (continuation)
+            \bitbox{16}{...}    % (continuation)
+            \bitbox{16}{C}\\    % Reserved
+            \bitbox{16}{D}      % Tree ID
+            \bitbox{16}{SC}\\   % PID Low
+            \bitbox{16}{D}      % User ID
+            \bitbox{16}{SI}     % Multiplex ID
+        \end{bytefield}
+        \caption{The SMB header. Fields which belong to the NetBIOS-header
+            are marked with a gray background. Dots denote continuation of
+            the previous field.}
+        \label{bf:smb}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[t]{0.48\textwidth}
+        \begin{bytefield}[bitwidth=0.5em]{32}
+            \bitheader{0, 31}\\
+            \colorbitbox{lightgray}{8}{C}
+            \colorbitbox{lightgray}{8}{F}
+            \colorbitbox{lightgray}{16}{L}\\
+            \wordbox{1}{C}\\    % 0xffSMB
+            \bitbox{8}{UNK}     % Command
+            \bitbox{8}{UNK}     % Command
+            \bitbox{16}{F}\\    % Status
+            \wordbox{1}{F}\\    
+            \bitbox{8}{N}     % PID High
+            \bitbox{8}{C}   % SecurityFeatures
+            \bitbox{16}{C}\\   % SecurityFeatures
+            \wordbox{1}{C}\\  % (continuation)
+            \wordbox{1}{C}\\  % (continuation)
+            \wordbox{1}{N}\\  % (continuation)
+            \bitbox{8}{UNK}      % Tree ID
+            \bitbox{8}{F}   % PID Low
+            \bitbox{8}{U}      % User ID
+            \bitbox{8}{N}     % Multiplex ID
+        \end{bytefield}
+        \caption{Our inference of the SMB header.}
+        \label{bf:smb}
+    \end{subfigure}
+
 \end{figure}
 
 % TFTP header
