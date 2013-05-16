@@ -1812,10 +1812,28 @@ time to investigate further.
 \subsection{Correspondence analysis}
 Explain how correspondence analysis could give a better result than PCA.
 
+In section~\ref{sec:pca} we describe how we use PCA in order to reduce the
+dimensionality of our features while preserving the components that contribute
+with the most variance. Another method which falls under the same category is
+correspondence analysis. Correspondence analysis is very similar to PCA, but
+it is applied to nominal data instead of continous data.
+
+% Need more paragraphz!
+
 \subsection{Machine learning for field inference}
-Explain how linear regresseion and support vector machines could be useful
-tools to infer field types, with the assumption that the test set is
-good enough.
+Our methods use statistical heuristics when inferring fields. Each heuristic
+is designed for a certain type of field class based on the characteristics we
+have seen from its byte value distribution. A possible alternative to these
+heuristics would be to use classification concepts from machine learning such
+as linear regression or support vector machines.
+
+In our research we considered using these methods when classifying fields.
+The main complication with this approach was the difficulty in building the
+training set. Each field in a protocol yields a single sample. In order to
+build a good training set we would have to annotate and process a large
+amount of binary protocols. Using these techniques could possibly lead to
+more robust field classification. Building the training set however is out
+of the scope for this thesis.
 
 \subsection{Timestamp identification}
 From our analysis, we've seen that timestamps have a potentially
