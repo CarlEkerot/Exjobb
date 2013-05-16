@@ -1538,7 +1538,7 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{UNK}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{DNS header.}
+        \caption{The result from our inference of the DNS header.}
         \label{fig:dnsres}
     \end{subfigure}
     \caption{Caption.}
@@ -1606,7 +1606,7 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{U}      % User ID
             \bitbox{8}{N}     % Multiplex ID
         \end{bytefield}
-        \caption{Our inference of the SMB header.}
+        \caption{The result from our inference of the SMB header.}
         \label{fig:smbres}
     \end{subfigure}
     \caption{Caption.}
@@ -1635,8 +1635,7 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{SC}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{The TFTP header. The header only consist of a two-byte 
-        OP-code. Additional fields are type-dependent.}
+        \caption{The result from our inference of the TFTP header.}
         \label{fig:tftpres}
     \end{subfigure}
     \caption{Caption.}
@@ -1682,7 +1681,7 @@ table~\ref{tab:accuracy}.
             \wordbox{1}{SC}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{The RTP header with bit-resolution flag-fields.}
+        \caption{The result from our inference of the RTP header.}
         \label{fig:rtpres}
     \end{subfigure}
     \caption{Caption.}
@@ -1694,12 +1693,12 @@ table~\ref{tab:accuracy}.
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
-            \bitheader{0, 15, 16, 31}\\
+            \bitheader{0, 31}\\
             \bitbox{8}{F}       % OPCode
-            \bitbox{8}{SC}      % HWType
-            \bitbox{8}{?}       % HW addr. len
+            \bitbox{8}{F}       % HWType
+            \bitbox{8}{F}       % HW addr. len
             \bitbox{8}{N}\\     % Hop-count
-            \wordbox{1}{U}\\   % Transaction ID
+            \wordbox{1}{U}\\    % Transaction ID
             \bitbox{16}{I}      % Num seconds
             \bitbox{16}{F}\\    % Flags
             \wordbox{1}{D}\\    % Client IP
@@ -1717,7 +1716,7 @@ table~\ref{tab:accuracy}.
     \end{subfigure}
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
-            \bitheader{0, 15, 16, 31}\\
+            \bitheader{0, 31}\\
             \bitbox{8}{SC}       % OPCode
             \bitbox{8}{F}      % HWType
             \bitbox{8}{F}       % HW addr. len
@@ -1755,7 +1754,10 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{F}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{The DHCP header.}
+        \caption{The result from our inference of the DHCP header. Note that
+            fields specified as data (D) have a distribution which is
+            undefined in the protocol specification. The actual distribution
+            may be the type we've inferred.}
         \label{fig:dhcpres}
     \end{subfigure}
     \caption{Caption.}
@@ -1769,6 +1771,30 @@ Draw conclusions about our method and compare it to the related methods.
 
 Is sequence alignment necessary? We could iteratively find length fields to get
 perfect alignments. Delimiters might be a problem
+
+% Explain the excellent results from OPTICS clustering
+
+% Discuss the problems with type distinguisher clustering for protocols that
+% have only one type
+
+% Emphasize the importance of diverse dumps (many different types, edge cases,
+% sessions etc.)
+
+% Compare type inference with related methods
+
+% Explain why the field inferences areactually pretty good, and why it is hard
+% to define a metric which is suitable.
+
+% (Try to) compare the results with other methods. Emphasize that unlike the
+% other methods we've reviewed, we seek semantics in fields (other than
+% just constant or variable)
+
+% Talk about time complexity for the process?
+
+% Give a short description on field inference in clusters and in what situations
+% it yields usable results
+
+% Explain why alignment might be unnecessary and discuss alternative solutions.
 
 \section{Limitations}
 Give a short introduction to the different limitations of our method.
@@ -1842,12 +1868,30 @@ Mention the ideas that has come up during the thesis work that we have not had
 time to investigate further.
 
 \subsection{Correspondence analysis}
-Explain how correspondence analysis could give a better result than PCA.
+In section~\ref{sec:pca} we describe how we use PCA in order to reduce the
+dimensionality of our features while preserving the components that contribute
+with the most variance. Another method which falls under the same category is
+correspondence analysis. Correspondence analysis is very similar to PCA, but
+it is applied to nominal data instead of continous data.
+
+Due to the lack of good correspondence analysis libraries we have been unable
+to evaluate its performance on our feature vectors. By definition it should
+be more suitable than PCA in our field of application.
 
 \subsection{Machine learning for field inference}
-Explain how linear regression and support vector machines could be useful
-tools to infer field types, with the assumption that the test set is
-good enough.
+Our methods use statistical heuristics when inferring fields. Each heuristic
+is designed for a certain type of field class based on the characteristics we
+have seen from its byte value distribution. A possible alternative to these
+heuristics would be to use classification concepts from machine learning such
+as linear regression or support vector machines.
+
+In our research we considered using these methods when classifying fields.
+The main complication with this approach was the difficulty in building the
+training set. Each field in a protocol yields a single sample. In order to
+build a good training set we would have to annotate and process a large
+amount of binary protocols. Using these techniques could possibly lead to
+more robust field classification. Building the training set however is out
+of the scope for this thesis.
 
 \subsection{Timestamp identification}
 From our analysis, we've seen that timestamps have a potentially
