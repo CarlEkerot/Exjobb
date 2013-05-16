@@ -1493,7 +1493,7 @@ other data-sets, the results are close to ideal.
             \wordbox{1}{N}\\
             \wordbox{1}{N}\\
             \wordbox{1}{N}\\
-            \wordbox{1}{N}\\
+            \wordbox{1}{N}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{DNS header.}
@@ -1512,7 +1512,7 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{C}
             \bitbox{8}{N}\\
             \bitbox{8}{C}
-            \bitbox{8}{UNK}\\
+            \bitbox{8}{UNK}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{DNS header.}
@@ -1594,7 +1594,7 @@ other data-sets, the results are close to ideal.
         \centering
         \begin{bytefield}{16}
             \bitheader{0, 15}\\
-            \wordbox{1}{F}\\    % OPCode
+            \wordbox{1}{F}    % OPCode
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The TFTP header. The header only consist of a two-byte 
@@ -1606,7 +1606,7 @@ other data-sets, the results are close to ideal.
         \begin{bytefield}{16}
             \bitheader{0, 15}\\
             \bitbox{8}{C}
-            \bitbox{8}{SC}\\
+            \bitbox{8}{SC}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The TFTP header. The header only consist of a two-byte 
@@ -1634,7 +1634,7 @@ other data-sets, the results are close to ideal.
             \bitbox{7}{F}       % PT
             \bitbox{16}{SI}\\   % Seq. nbr
             \wordbox{1}{SI}\\   % Timestamp
-            \wordbox{1}{SC}\\   % SSRC
+            \wordbox{1}{SC}   % SSRC
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The RTP header with bit-resolution flag-fields.}
@@ -1651,7 +1651,7 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{UNK}
             \bitbox{8}{U}
             \bitbox{8}{UNK}\\
-            \wordbox{1}{SC}\\
+            \wordbox{1}{SC}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The RTP header with bit-resolution flag-fields.}
@@ -1679,7 +1679,7 @@ other data-sets, the results are close to ideal.
             \wordbox{1}{D (16 bytes)}\\  % Client HW Addr
             \wordbox{1}{D (64 bytes)}\\  % Client HW Addr
             \wordbox{1}{D (128 bytes)}\\  % Client HW Addr
-            \wordbox[]{9}{}\\
+            \wordbox[]{9}{}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The DHCP header.}
@@ -1722,7 +1722,7 @@ other data-sets, the results are close to ideal.
             \wordbox{1}{C (92 bytes)}\\
             \bitbox{16}{C}
             \bitbox{8}{C}
-            \bitbox{8}{F}\\
+            \bitbox{8}{F}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The DHCP header.}
