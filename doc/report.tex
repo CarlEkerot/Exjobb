@@ -1515,7 +1515,7 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{UNK}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{DNS header.}
+        \caption{The result from our inference of the DNS header.}
         \label{bf:dnsresult}
     \end{subfigure}
 \end{figure}
@@ -1581,7 +1581,7 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{U}      % User ID
             \bitbox{8}{N}     % Multiplex ID
         \end{bytefield}
-        \caption{Our inference of the SMB header.}
+        \caption{The result from our inference of the SMB header.}
         \label{bf:smbresult}
     \end{subfigure}
 
@@ -1609,9 +1609,8 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{SC}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{The TFTP header. The header only consist of a two-byte 
-        OP-code. Additional fields are type-dependent.}
-        \label{bf:tftp}
+        \caption{The result from our inference of the TFTP header.}
+        \label{bf:tftpres}
     \end{subfigure}
 \end{figure}
 
@@ -1654,8 +1653,8 @@ other data-sets, the results are close to ideal.
             \wordbox{1}{SC}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{The RTP header with bit-resolution flag-fields.}
-        \label{bf:rtp}
+        \caption{The result from our inference of the RTP header.}
+        \label{bf:rtpres}
     \end{subfigure}
 \end{figure}
 
@@ -1664,12 +1663,12 @@ other data-sets, the results are close to ideal.
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
-            \bitheader{0, 15, 16, 31}\\
+            \bitheader{0, 31}\\
             \bitbox{8}{F}       % OPCode
-            \bitbox{8}{SC}      % HWType
-            \bitbox{8}{?}       % HW addr. len
+            \bitbox{8}{F}       % HWType
+            \bitbox{8}{F}       % HW addr. len
             \bitbox{8}{N}\\     % Hop-count
-            \wordbox{1}{U}\\   % Transaction ID
+            \wordbox{1}{U}\\    % Transaction ID
             \bitbox{16}{I}      % Num seconds
             \bitbox{16}{F}\\    % Flags
             \wordbox{1}{D}\\    % Client IP
@@ -1687,7 +1686,7 @@ other data-sets, the results are close to ideal.
     \end{subfigure}
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
-            \bitheader{0, 15, 16, 31}\\
+            \bitheader{0, 31}\\
             \bitbox{8}{SC}       % OPCode
             \bitbox{8}{F}      % HWType
             \bitbox{8}{F}       % HW addr. len
@@ -1725,8 +1724,11 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{F}
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
-        \caption{The DHCP header.}
-        \label{bf:dhcp}
+        \caption{The result from our inference of the DHCP header. Note that
+            fields specified as data (D) have a distribution which is
+            undefined in the protocol specification. The actual distribution
+            may be the type we've inferred.}
+        \label{bf:dhcpres}
     \end{subfigure}
 \end{figure}
 
@@ -1818,7 +1820,9 @@ with the most variance. Another method which falls under the same category is
 correspondence analysis. Correspondence analysis is very similar to PCA, but
 it is applied to nominal data instead of continous data.
 
-% Need more paragraphz!
+Due to the lack of good correspondence analysis libraries we have been unable
+to evaluate its performance on our feature vectors. By definition it should
+be more suitable than PCA in our field of application.
 
 \subsection{Machine learning for field inference}
 Our methods use statistical heuristics when inferring fields. Each heuristic
