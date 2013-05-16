@@ -1215,8 +1215,7 @@ Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the numer of times
 we observe a transition by the client or server from state $i$ to state $j$.
 We define the client as the peer initiating the connection. Once we have our
 two matrices, we may calculate the probabilities for the state transitions by
-dividing the total number of transitions between two states with the total
-number of messages.
+normalizing each row.
 
 A state diagram of all protocol states and transitions may not always be
 feasible. Some protocols does not follow the state model which we're 
@@ -1233,7 +1232,7 @@ procedure will be much more readable.
 In figure~\ref{fig:dnsstate} the state diagram generated from a DNS stream
 capture with $MaxNumTypes = 3$ is shown. State 0 represents queries and state 1
 represent responses. Blue edges represent messages sent by the client. Red
-edges represent messages sent by the client.
+edges represent messages sent by the server.
 
 Figure~\ref{fig:smbstate} shows the state diagram fom SMB with a depth of
 five transitions. This shows the handshake used by the protocol.
@@ -1461,6 +1460,19 @@ other data-sets, the results are close to ideal.
     \end{tabular}
 \end{figure}
 
+\begin{figure}
+    \centering
+    \begin{tabular}{| l | r | r |}
+        \hline
+        \textbf{Protocol}&\textbf{Correct bits}&\textbf{Correct \%} \\ \hline
+        DNS & 37 & 38.5 \\ \hline
+        SMB & 112 & 38.9 \\ \hline
+        TFTP & 0 & 0.0 \\ \hline
+        RTP & 40 & 41.7 \\ \hline
+        DHCP & 64 & 3.4 \\ \hline
+    \end{tabular}
+    \caption{Field performance.}
+\end{figure}
 
 % DNS header
 \begin{figure}
