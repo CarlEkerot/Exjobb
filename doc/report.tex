@@ -1443,28 +1443,69 @@ other data-sets, the results are close to ideal.
 %
 % Field boundaries: Check false positives/negatives
 
+\begin{figure}[h]
+    \centering
+    \begin{tabular}{| l | l |}
+        \hline
+        \textbf{Symbol}&\textbf{Description} \\ \hline
+        C   & Global constant \\ \hline
+        F   & Global flag \\ \hline
+        N   & Global number \\ \hline
+        U   & Global uniform \\ \hline
+        L   & Global length \\ \hline
+        CC  & Connection constant \\ \hline
+        SC  & Stream constant \\ \hline
+        SI  & Stream incremental \\ \hline
+        D   & Data \\ \hline
+        UNK & Unknown \\ \hline
+    \end{tabular}
+\end{figure}
+
+
 % DNS header
 \begin{figure}
     \centering
-    \begin{bytefield}{16}
-        \bitheader{0, 15, 16, 31}\\
-        \bitbox{16}{U}\\
-        \bitbox{1}{F}
-        \bitbox{4}{F}
-        \bitbox{1}{F}
-        \bitbox{1}{F}
-        \bitbox{1}{F}
-        \bitbox{1}{F}
-        \bitbox{3}{C}
-        \bitbox{4}{F}\\
-        \bitbox{16}{N}\\
-        \bitbox{16}{N}\\
-        \bitbox{16}{N}\\
-        \bitbox{16}{N}\\
-    \end{bytefield}
-    \captionsetup{width=0.8\textwidth}
-    \caption{DNS header.}
-    \label{bf:dns}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{bytefield}{16}
+            \bitheader{0, 16}\\
+            \wordbox{1}{U}\\
+            \bitbox{1}{F}
+            \bitbox{4}{F}
+            \bitbox{1}{F}
+            \bitbox{1}{F}
+            \bitbox{1}{F}
+            \bitbox{1}{F}
+            \bitbox{3}{C}
+            \bitbox{4}{F}\\
+            \wordbox{1}{N}\\
+            \wordbox{1}{N}\\
+            \wordbox{1}{N}\\
+            \wordbox{1}{N}\\
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{DNS header.}
+        \label{bf:dns}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{bytefield}{16}
+            \bitheader{0, 16}\\
+            \wordbox{1}{U}\\
+            \bitbox{8}{SC}
+            \bitbox{8}{F}\\
+            \wordbox{1}{C}\\
+            \bitbox{8}{C}
+            \bitbox{8}{N}\\
+            \bitbox{8}{C}
+            \bitbox{8}{N}\\
+            \bitbox{8}{C}
+            \bitbox{8}{UNK}\\
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{DNS header.}
+        \label{bf:dnsresult}
+    \end{subfigure}
 \end{figure}
 
 % Comment that a stream constant (such as security features) is classified
@@ -1479,6 +1520,7 @@ other data-sets, the results are close to ideal.
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
+        \centering
         \begin{bytefield}[bitwidth=0.5em]{32}
             \bitheader{0, 31}\\
             \colorbitbox{lightgray}{8}{F} & \colorbitbox{lightgray}{24}{L}\\
@@ -1488,15 +1530,15 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{...}     % (continuation)
             \bitbox{8}{F}       % Flags
             \bitbox{16}{F}\\    % Flags2
-            \bitbox{16}{SC}     % PID High
-            \bitbox{16}{SC}\\   % SecurityFeatures
+            \bitbox{16}{D}     % PID High
+            \bitbox{16}{D}\\   % SecurityFeatures
             \wordbox{1}{...}\\  % (continuation)
             \bitbox{16}{...}    % (continuation)
             \bitbox{16}{C}\\    % Reserved
             \bitbox{16}{D}      % Tree ID
-            \bitbox{16}{SC}\\   % PID Low
+            \bitbox{16}{D}\\   % PID Low
             \bitbox{16}{D}      % User ID
-            \bitbox{16}{SI}     % Multiplex ID
+            \bitbox{16}{D}     % Multiplex ID
         \end{bytefield}
         \caption{The SMB header. Fields which belong to the NetBIOS-header
             are marked with a gray background. Dots denote continuation of
@@ -1505,6 +1547,7 @@ other data-sets, the results are close to ideal.
     \end{subfigure}
     \quad
     \begin{subfigure}[t]{0.48\textwidth}
+        \centering
         \begin{bytefield}[bitwidth=0.5em]{32}
             \bitheader{0, 31}\\
             \colorbitbox{lightgray}{8}{C}
@@ -1527,7 +1570,7 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{N}     % Multiplex ID
         \end{bytefield}
         \caption{Our inference of the SMB header.}
-        \label{bf:smb}
+        \label{bf:smbresult}
     \end{subfigure}
 
 \end{figure}
@@ -1535,14 +1578,29 @@ other data-sets, the results are close to ideal.
 % TFTP header
 \begin{figure}
     \centering
-    \begin{bytefield}{16}
-        \bitheader{0, 15}\\
-        \wordbox{1}{F}\\    % OPCode
-    \end{bytefield}
-    \captionsetup{width=0.8\textwidth}
-    \caption{The TFTP header. The header only consist of a two-byte 
-    OP-code. Additional fields are type-dependent.}
-    \label{bf:tftp}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{bytefield}{16}
+            \bitheader{0, 15}\\
+            \wordbox{1}{F}\\    % OPCode
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{The TFTP header. The header only consist of a two-byte 
+        OP-code. Additional fields are type-dependent.}
+        \label{bf:tftp}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{bytefield}{16}
+            \bitheader{0, 15}\\
+            \bitbox{8}{C}
+            \bitbox{8}{SC}\\
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{The TFTP header. The header only consist of a two-byte 
+        OP-code. Additional fields are type-dependent.}
+        \label{bf:tftp}
+    \end{subfigure}
 \end{figure}
 
 % Comment for RTP: One stream messed up the incremental in sequence number.
@@ -1552,50 +1610,112 @@ other data-sets, the results are close to ideal.
 % RTP header
 \begin{figure}
     \centering
-    \begin{bytefield}{32}
-        \bitheader{0, 15, 16, 31}\\
-        \bitbox{2}{F}       % Ver
-        \bitbox{1}{F}       % P
-        \bitbox{1}{F}       % X
-        \bitbox{4}{L}       % CC
-        \bitbox{1}{F}       % M
-        \bitbox{7}{F}       % PT
-        \bitbox{16}{SI}\\   % Seq. nbr
-        \wordbox{1}{SI}\\   % Timestamp
-        \wordbox{1}{SC}\\   % SSRC
-    \end{bytefield}
-    \captionsetup{width=0.8\textwidth}
-    \caption{The RTP header with bit-resolution flag-fields.}
-    \label{bf:rtp}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{bytefield}[bitwidth=0.5em]{32}
+            \bitheader{0, 15, 16, 31}\\
+            \bitbox{2}{\tiny{F}}       % Ver
+            \bitbox{1}{\tiny{F}}       % P
+            \bitbox{1}{\tiny{F}}       % X
+            \bitbox{4}{L}       % CC
+            \bitbox{1}{\tiny{F}}       % M
+            \bitbox{7}{F}       % PT
+            \bitbox{16}{SI}\\   % Seq. nbr
+            \wordbox{1}{SI}\\   % Timestamp
+            \wordbox{1}{SC}\\   % SSRC
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{The RTP header with bit-resolution flag-fields.}
+        \label{bf:rtp}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \centering
+        \begin{bytefield}[bitwidth=0.5em]{32}
+            \bitheader{0, 15, 16, 31}\\
+            \bitbox{8}{C}
+            \bitbox{8}{F}
+            \bitbox{16}{N}\\
+            \bitbox{8}{C}
+            \bitbox{8}{UNK}
+            \bitbox{8}{U}
+            \bitbox{8}{UNK}\\
+            \wordbox{1}{SC}\\
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{The RTP header with bit-resolution flag-fields.}
+        \label{bf:rtp}
+    \end{subfigure}
 \end{figure}
 
 % DHCP header
 \begin{figure}
     \centering
-    \begin{bytefield}{32}
-        \bitheader{0, 15, 16, 31}\\
-        \bitbox{8}{F}       % OPCode
-        \bitbox{8}{SC}      % HWType
-        \bitbox{8}{?}       % HW addr. len
-        \bitbox{8}{N}\\     % Hop-count
-        \wordbox{1}{U}\\    % Transaction ID
-        \bitbox{16}{N}      % Num seconds
-        \bitbox{16}{F}\\    % Flags
-        \wordbox{1}{D}\\    % Client IP
-        \wordbox{1}{D}\\    % Your IP
-        \wordbox{1}{D}\\    % Server IP
-        \wordbox{1}{D}\\    % Gateway IP
-        \wordbox{1}{D}\\    % Client HW Addr
-        \bitbox{16}{...}    % (continuation)
-        \bitbox{16}{C}\\    % Padding
-        \wordbox{1}{C}\\    % Padding
-        \wordbox{1}{C}\\    % Padding
-        \wordbox[]{1}{\vdots}\\    % Padding
-        \wordbox{1}{C}\\    % Padding
-    \end{bytefield}
-    \captionsetup{width=0.8\textwidth}
-    \caption{The DHCP header.}
-    \label{bf:dhcp}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \begin{bytefield}[bitwidth=0.5em]{32}
+            \bitheader{0, 15, 16, 31}\\
+            \bitbox{8}{F}       % OPCode
+            \bitbox{8}{SC}      % HWType
+            \bitbox{8}{?}       % HW addr. len
+            \bitbox{8}{N}\\     % Hop-count
+            \wordbox{1}{U}\\   % Transaction ID
+            \bitbox{16}{I}      % Num seconds
+            \bitbox{16}{F}\\    % Flags
+            \wordbox{1}{D}\\    % Client IP
+            \wordbox{1}{D}\\    % Your IP
+            \wordbox{1}{D}\\    % Server IP
+            \wordbox{1}{D}\\    % Gateway IP
+            \wordbox{1}{D (16 bytes)}\\  % Client HW Addr
+            \wordbox{1}{D (64 bytes)}\\  % Client HW Addr
+            \wordbox{1}{D (128 bytes)}\\  % Client HW Addr
+            \wordbox[]{9}{}\\
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{The DHCP header.}
+        \label{bf:dhcp}
+    \end{subfigure}
+    \begin{subfigure}[t]{0.48\textwidth}
+        \begin{bytefield}[bitwidth=0.5em]{32}
+            \bitheader{0, 15, 16, 31}\\
+            \bitbox{8}{SC}       % OPCode
+            \bitbox{8}{F}      % HWType
+            \bitbox{8}{F}       % HW addr. len
+            \bitbox{8}{N}\\     % Hop-count
+            \wordbox{1}{U}\\   % Transaction ID
+            \bitbox{16}{UNK}       % HW addr. len
+            \bitbox{8}{F}       % HW addr. len
+            \bitbox{8}{C}\\       % HW addr. len
+            \wordbox{1}{UNK (8 bytes)}\\
+            \bitbox{8}{F}       % HW addr. len
+            \bitbox{24}{UNK}\\       % HW addr. len
+            \bitbox{8}{F}       % HW addr. len
+            \bitbox{16}{UNK}       % HW addr. len
+            \bitbox{8}{F}\\       % HW addr. len
+            \wordbox{1}{UNK}\\
+            \bitbox{16}{UNK}       % HW addr. len
+            \bitbox{16}{C}\\       % HW addr. len
+            \wordbox{1}{C (8 bytes)}\\
+            \wordbox{1}{SC (8 bytes)}\\
+            \bitbox{16}{SC}
+            \bitbox{8}{SC}
+            \bitbox{8}{CC}\\
+            \wordbox{1}{CC (12 bytes)}\\
+            \wordbox{1}{C (40 bytes)}\\
+            \wordbox{1}{UNK (12 bytes)}\\
+            \bitbox{24}{UNK}
+            \bitbox{8}{F}\\
+            \wordbox{1}{F (12 bytes)}\\
+            \bitbox{16}{F}
+            \bitbox{8}{F}
+            \bitbox{8}{C}\\
+            \wordbox{1}{C (92 bytes)}\\
+            \bitbox{16}{C}
+            \bitbox{8}{C}
+            \bitbox{8}{F}\\
+        \end{bytefield}
+        \captionsetup{width=0.8\textwidth}
+        \caption{The DHCP header.}
+        \label{bf:dhcp}
+    \end{subfigure}
 \end{figure}
 
 \chapter{Discussion}
@@ -1679,6 +1799,11 @@ time to investigate further.
 
 \subsection{Correspondence analysis}
 Explain how correspondence analysis could give a better result than PCA.
+
+\subsection{Machine learning for field inference}
+Explain how linear regresseion and support vector machines could be useful
+tools to infer field types, with the assumption that the test set is
+good enough.
 
 \subsection{Timestamp identification}
 From our analysis, we've seen that timestamps have a potentially
