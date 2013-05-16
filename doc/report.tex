@@ -1196,7 +1196,7 @@ Many protocols may be described using a state diagram. Some handshake phase
 between the peers is common when a conversation is initialized. There might
 also be some teardown phase, and phases for transmitting data etc.
 Inferring the states of the protocol is an important task when trying to
-figure out the semantics of the protocol. Modelling the protocol states as
+figure out the semantics of the protocol. Modeling the protocol states as
 a state diagram provides a readable representation of the inner workings
 of the protocol, and might simplify the analysis of the fields of the
 different message types.
@@ -1211,7 +1211,7 @@ sums up to 1.
 
 We represent the states as two $n \times n$-matrices, $C$ and  $S$, where 
 $n$ is the number of types, which will be the same as the number of states.
-Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the numer of times
+Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the number of times
 we observe a transition by the client or server from state $i$ to state $j$.
 We define the client as the peer initiating the connection. Once we have our
 two matrices, we may calculate the probabilities for the state transitions by
@@ -1223,7 +1223,7 @@ trying to model with our approach. They may allow some message types to
 be sent from all states, and may only be represented with a state diagram
 during some phases such as the handshake phase. We handle this problem by
 allowing the user to define the depth for which the analysis is performed.
-If depth is set to 5, we only analyse which states the protocol may be in
+If depth is set to 5, we only analyze which states the protocol may be in
 after five transitions. From this restricted state diagram a handshake
 procedure will be much more readable.
 
@@ -1234,7 +1234,7 @@ capture with $MaxNumTypes = 3$ is shown. State 0 represents queries and state 1
 represent responses. Blue edges represent messages sent by the client. Red
 edges represent messages sent by the server.
 
-Figure~\ref{fig:smbstate} shows the state diagram fom SMB with a depth of
+Figure~\ref{fig:smbstate} shows the state diagram for SMB with a depth of
 five transitions. This shows the handshake used by the protocol.
 Table~\ref{table:smb} below lists the true types of the messages in a
 left-to-right order with respect to the state diagram.
@@ -1278,15 +1278,15 @@ left-to-right order with respect to the state diagram.
 
 \chapter{Results}
 We measure the performance of our method by comparing the results from the
-type inference and field inference to hand-annotated data from a variety of
-network captures for binary protocols.
+type inference and field inference to annotated data from a variety of network
+captures for binary protocols.
 
-In common for all the data sets we've analysed are that they do not explore
+In common for all the data sets we have analyzed are that they do not explore
 the entire protocol. If some field in a protocol is constant most of the time,
 but is set to a certain value in special cases we will have difficulties
 finding it. Such fields may be flags that denotes some error code or some
 uncommon state of the protocol. If some type is never present in the dump,
-we won't be able to predict its existance.
+we will not be able to predict its existence.
 
 These difficulties emphasize the importance of diverse network captures.
 
@@ -1308,8 +1308,8 @@ in complexity, header size and area of usage. The protocols are the following:
         file transfer protocol. It defines a very limited number of types
         and a very simple header.
     \item \textbf{RTP}: \emph{Real-Time Transport Protocol}, a protocol for
-        transporting audio and video. Its header is fairly simple, but our
-        dump is has no diversity in the payload type. This makes type
+        transporting audio and video. Its header is fairly simple, but in our
+        dump it has no diversity in the payload type. This makes type
         inference difficult.
     \item \textbf{DHCP}: \emph{Dynamic Host Configuration Protocol}, a
         protocol for obtaining network configuration information such as
@@ -1389,7 +1389,7 @@ completeness is not as important in our initial clustering. A high completeness
 gives us a small number of clusters for each true type, ideally a single
 cluster.
 
-The performance for the RTP and DHCP data sets are inferor to the other
+The performance for the RTP and DHCP data sets are inferior to the other
 protocols. OPTICS has bad performance on RTP since our dump contains messages
 from a single message type. Instead of clustering on type-specific data, it
 proceeds to cluster the messages on the protocol payload. Since the payload
@@ -1414,11 +1414,11 @@ extensions are located at the end of the header.
     \label{table:initclusterresults}
 \end{figure}
 
-After the intial clustering, we perform type distinguisher clustering in order
-to refine the clustering. The results from this process is shown intial
+After the initial clustering, we perform type distinguisher clustering in order
+to refine the clustering. The results from this process is shown initial
 table~\ref{table:tdclusterresults}. Since this method is dependent on some
-type distinguisher, it does not perform well on the RTP data-set. On the
-other data-sets, the results are close to ideal.
+type distinguisher, it does not perform well on the RTP dataset. On the
+other datasets, the results are close to ideal.
 
 \begin{figure}[h]
     \centering
