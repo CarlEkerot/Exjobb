@@ -19,6 +19,11 @@
 \newtheorem*{definition}{Definition}
 \defcitealias{intel12}{Intel\textsuperscript{\textregistered} 64 and IA-32
 Architectures Optimization Reference Manual}
+\defcitealias{droms97}{RFC 2131}
+\defcitealias{sollins92}{RFC 1350}
+\defcitealias{mockapetris87}{RFC 1035}
+\defcitealias{schulzrinne03}{RFC 3550}
+\defcitealias{microsoft13}{[MS-SMB]: Server Message Block (SMB) Protocol}
 
 \begin{document}
 
@@ -693,7 +698,7 @@ matrix $C$ and a gap penalty $d$ the algorithm does the following:
         is reached.
 \end{enumerate}
 
-An example of applying the algorithm can be seen in figure~\ref{fig:nwtables}
+An example of applying the algorithm can be seen in table~\ref{fig:nwtables}
 and the resulting alignments in figure~\ref{fig:align}.
 
 \begin{figure}[h]
@@ -790,7 +795,7 @@ measure is a compromise to having nominal features.
 % Latex does not know how to split parametrized -> badboxes if splitpoint
 % not manually defined.
 Once the features have been calculated, we apply PCA transformation
-param-etrized to capture $80\%$ of the variance. This reduces the
+parametrized to capture $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
 variance. We use these new feature vectors as input to OPTICS.
 
@@ -829,7 +834,7 @@ contains messages of one real type.
 Once we have obtained the OPTICS clustering our goal is to reduce the number of
 clusters to match the actual number of real types. We do this under the
 assumption that there is some byte or a number of bytes that define the type of
-each message. We call these bytes \emph{type distinguishers}. 
+each message. We call these bytes \emph{type distinguishers}.
 
 Many protocols define an explicit type flag in the form of a single byte. The
 type distinguishers which fit our definition may consist of a number of bytes.
@@ -842,7 +847,7 @@ Discoverer. Our approach is as follows:
     \item For every byte offset from the beginning of all messages up to a certain limit
     we calculate how many values the byte takes. This is equivalent to how many
     real types that would be present if the chosen byte was a real type flag.
-    
+
     We introduce two criteria when considering a byte as a type distinguisher.
     The first criterion is $MaxNumTypes$ which decides the maximum number of
     types the protocol is assumed to have. The second criterion is
@@ -1233,7 +1238,7 @@ Many protocols may be described using a state diagram. Some handshake phase
 between the peers is common when a conversation is initialized. There might
 also be some teardown phase, and phases for transmitting data etc.
 Inferring the states of the protocol is an important task when trying to
-figure out the semantics of the protocol. Modelling the protocol states as
+figure out the semantics of the protocol. Modeling the protocol states as
 a state diagram provides a readable representation of the inner workings
 of the protocol, and might simplify the analysis of the fields of the
 different message types.
@@ -1248,7 +1253,7 @@ sums up to 1.
 
 We represent the states as two $n \times n$-matrices, $C$ and  $S$, where 
 $n$ is the number of types, which will be the same as the number of states.
-Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the numer of times
+Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the number of times
 we observe a transition by the client or server from state $i$ to state $j$.
 We define the client as the peer initiating the connection. Once we have our
 two matrices, we may calculate the probabilities for the state transitions by
@@ -1260,7 +1265,7 @@ trying to model with our approach. They may allow some message types to
 be sent from all states, and may only be represented with a state diagram
 during some phases such as the handshake phase. We handle this problem by
 allowing the user to define the depth for which the analysis is performed.
-If depth is set to 5, we only analyse which states the protocol may be in
+If depth is set to 5, we only analyze which states the protocol may be in
 after five transitions. From this restricted state diagram a handshake
 procedure will be much more readable.
 
@@ -1271,12 +1276,12 @@ capture with $MaxNumTypes = 3$ is shown. State 0 represents queries and state 1
 represent responses. Blue edges represent messages sent by the client. Red
 edges represent messages sent by the server.
 
-Figure~\ref{fig:smbstate} shows the state diagram fom SMB with a depth of
+Figure~\ref{fig:smbstate} shows the state diagram for SMB with a depth of
 five transitions. This shows the handshake used by the protocol.
-Table~\ref{table:smb} below lists the true types of the messages in a
-left-to-right order with respect to the state diagram.
+Table~\ref{tab:smb} lists the true types of the messages in a left-to-right
+order with respect to the state diagram.
 
-\begin{figure}
+\begin{table}
     \centering
     \caption{SMB states.}
     \begin{tabular}{ | l | l |}
@@ -1291,8 +1296,8 @@ left-to-right order with respect to the state diagram.
         20          & NT Create AndX Request        \\ \hline
         24          & Delete Request                \\ \hline
     \end{tabular}
-    \label{table:smb}
-\end{figure}
+    \label{tab:smb}
+\end{table}
 
 \begin{figure}[h]
     \centering
@@ -1315,19 +1320,19 @@ left-to-right order with respect to the state diagram.
 
 \chapter{Results}
 We measure the performance of our method by comparing the results from the
-type inference and field inference to hand-annotated data from a variety of
-network captures for binary protocols.
+type inference and field inference to annotated data from a variety of network
+captures for binary protocols.
 
-In common for all the data sets we've analysed are that they do not explore
+In common for all the data sets we have analyzed are that they do not explore
 the entire protocol. If some field in a protocol is constant most of the time,
 but is set to a certain value in special cases we will have difficulties
 finding it. Such fields may be flags that denotes some error code or some
 uncommon state of the protocol. If some type is never present in the dump,
-we won't be able to predict its existance.
+we will not be able to predict its existence.
 
 These difficulties emphasize the importance of diverse network captures.
 
-\section{Data sets}
+\section{Datasets}
 We have chosen five different data sets for our performance analysis. Each
 data set contains messages from a single protocol. All the protocols vary
 in complexity, header size and area of usage. The protocols are the following:
@@ -1345,8 +1350,8 @@ in complexity, header size and area of usage. The protocols are the following:
         file transfer protocol. It defines a very limited number of types
         and a very simple header.
     \item \textbf{RTP}: \emph{Real-Time Transport Protocol}, a protocol for
-        transporting audio and video. Its header is fairly simple, but our
-        dump is has no diversity in the payload type. This makes type
+        transporting audio and video. Its header is fairly simple, but in our
+        dump it has no diversity in the payload type. This makes type
         inference difficult.
     \item \textbf{DHCP}: \emph{Dynamic Host Configuration Protocol}, a
         protocol for obtaining network configuration information such as
@@ -1355,7 +1360,7 @@ in complexity, header size and area of usage. The protocols are the following:
         header and a number of extension headers to BOOTP.
 \end{itemize}
 
-In the table below we list the properties of our different data-sets.
+In table~\ref{tab:datasets} we list the properties of our different datasets.
 
 % SMB
 % SMB Command (byte 8), response/request flag (byte 13, bit 0)
@@ -1373,8 +1378,9 @@ In the table below we list the properties of our different data-sets.
 % DHCP
 % Message type (byte 0), DHCP Message Type (byte 242)
 
-\begin{figure}[h]
+\begin{table}[h]
     \centering
+    \caption{Datasets.}
     \begin{tabular}{| l | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{\# Messages}&\textbf{\# Connections}&\textbf{\# Types}\\ \hline
@@ -1384,8 +1390,8 @@ In the table below we list the properties of our different data-sets.
         RTP         & 20179         & 5             & 1         \\ \hline
         DHCP        & 13014         & 376           & 11        \\ \hline
     \end{tabular}
-    \caption{Datasets.}
-\end{figure}
+    \label{tab:datasets}
+\end{table}
 
 \section{Clustering performance}
 We measure the performance of our clustering using the metrics described in
@@ -1393,7 +1399,7 @@ section~\ref{sec:metrics}: homogenity, completeness and V-Measure. The truth we
 use when calculating the metrics is based on the protocol definition in
 Wireshark.
 
-In table~\ref{table:clusterparams} we list the parameters we use on the
+In table~\ref{tab:clusterparams} we list the parameters we use on the
 different data-sets. The initial clustering, which uses OPTICS, uses only the
 Limit and MinSamples parameters. The type distinguisher clustering uses only
 the results from the OPTICS clustering and the MaxNumTypes parameter. All of
@@ -1403,8 +1409,9 @@ these parameters are rather insensitive to change.
 %   Before type distinguisher clustering
 %   After type distringuisher clustering
 
-\begin{figure}[h]
+\begin{table}[h]
     \centering
+    \caption{Clustering parameters.}
     \begin{tabular}{| l | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{MinSamples}&\textbf{MaxNumTypes}&\textbf{Limit} \\ \hline
@@ -1414,11 +1421,10 @@ these parameters are rather insensitive to change.
         RTP & 200 & 10 & 200 \\ \hline
         DHCP & 50 & 20 & 400 \\ \hline
     \end{tabular}
-    \caption{Clustering parameters.}
-    \label{table:clusterparams}
-\end{figure}
+    \label{tab:clusterparams}
+\end{table}
 
-Table~\ref{table:initclusterresults} shows the performance of our OPTICS
+Table~\ref{tab:initclusterresults} shows the performance of our OPTICS
 implementation. Like the clustering in Discoverer by \citeauthor{cui07} we
 are most concerned with achieving high homogenity. A high homogenity assures
 that each cluster mainly contains messages from one true type. A high
@@ -1426,7 +1432,7 @@ completeness is not as important in our initial clustering. A high completeness
 gives us a small number of clusters for each true type, ideally a single
 cluster.
 
-The performance for the RTP and DHCP data sets are inferor to the other
+The performance for the RTP and DHCP data sets are inferior to the other
 protocols. OPTICS has bad performance on RTP since our dump contains messages
 from a single message type. Instead of clustering on type-specific data, it
 proceeds to cluster the messages on the protocol payload. Since the payload
@@ -1436,8 +1442,9 @@ clustering due to the size of the header. The BOOTP header is over 200 bytes
 long. All DHCP-specific data is located as extensions to BOOTP, and these
 extensions are located at the end of the header.
 
-\begin{figure}[h]
+\begin{table}[h]
     \centering
+    \caption{Before type distinguisher clustering.}
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
@@ -1447,18 +1454,18 @@ extensions are located at the end of the header.
         RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
         DHCP & 0.3492 & 0.1224 & 0.1813 \\ \hline
     \end{tabular}
-    \caption{Before type distinguisher clustering.}
-    \label{table:initclusterresults}
-\end{figure}
+    \label{tab:initclusterresults}
+\end{table}
 
-After the intial clustering, we perform type distinguisher clustering in order
-to refine the clustering. The results from this process is shown intial
-table~\ref{table:tdclusterresults}. Since this method is dependent on some
-type distinguisher, it does not perform well on the RTP data-set. On the
-other data-sets, the results are close to ideal.
+After the initial clustering, we perform type distinguisher clustering in order
+to refine the clustering. The results from this process is shown initial
+table~\ref{tab:tdclusterresults}. Since this method is dependent on some
+type distinguisher, it does not perform well on the RTP dataset. On the
+other datasets, the results are close to ideal.
 
-\begin{figure}[h]
+\begin{table}[h]
     \centering
+    \caption{After type distinguisher clustering.}
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
@@ -1468,9 +1475,8 @@ other data-sets, the results are close to ideal.
         RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
         DHCP & 1.0000 & 0.4428 & 0.6138 \\ \hline
     \end{tabular}
-    \caption{After type distinguisher clustering.}
-    \label{table:tdclusterresults}
-\end{figure}
+    \label{tab:tdclusterresults}
+\end{table}
 
 \section{Field inference performance}
 % Compare each byte to annotation. Measure is the percentage of correctly
@@ -1478,9 +1484,25 @@ other data-sets, the results are close to ideal.
 % subsections?)
 %
 % Field boundaries: Check false positives/negatives
+When measuring the performance of our field inference, we do so by counting the
+number of bits that match against a definition for the current protocol. The
+definitions for the different protocols were constructed from openly available
+documentation in \citetalias{droms97}, \citetalias{sollins92},
+\citetalias{mockapetris87}, \citetalias{schulzrinne03} and
+\citetalias{microsoft13}. We only do these in-depth measurements for the header
+part of each protocol but our analysis yields similar results within clusters
+as well.
 
-\begin{figure}[h]
+For the definitions we quantified a number of combinations of field type and
+scope into symbols. We then annotated each bit of the header with these
+symbols. A summary of the symbols can be seen in table~\ref{tab:symbols} and
+the annotated header definitions can be seen in figure~\ref{fig:dnsdef} to
+figure~\ref{fig:dhcpdef}. The resulting accuracy is shown in
+table~\ref{tab:accuracy}.
+
+\begin{table}[h]
     \centering
+    \caption{Caption.}
     \begin{tabular}{| l | l |}
         \hline
         \textbf{Symbol}&\textbf{Description} \\ \hline
@@ -1495,10 +1517,12 @@ other data-sets, the results are close to ideal.
         D   & Data \\ \hline
         UNK & Unknown \\ \hline
     \end{tabular}
-\end{figure}
+    \label{tab:symbols}
+\end{table}
 
-\begin{figure}
+\begin{table}
     \centering
+    \caption{Field performance.}
     \begin{tabular}{| l | r | r |}
         \hline
         \textbf{Protocol}&\textbf{Correct bits}&\textbf{Correct \%} \\ \hline
@@ -1508,8 +1532,8 @@ other data-sets, the results are close to ideal.
         RTP & 40 & 41.7 \\ \hline
         DHCP & 64 & 3.4 \\ \hline
     \end{tabular}
-    \caption{Field performance.}
-\end{figure}
+    \label{tab:accuracy}
+\end{table}
 
 % DNS header
 \begin{figure}
@@ -1534,7 +1558,7 @@ other data-sets, the results are close to ideal.
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{DNS header.}
-        \label{bf:dns}
+        \label{fig:dnsdef}
     \end{subfigure}
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1553,8 +1577,10 @@ other data-sets, the results are close to ideal.
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the DNS header.}
-        \label{bf:dnsresult}
+        \label{fig:dnsres}
     \end{subfigure}
+    \caption{Caption.}
+    \label{fig:dnsperf}
 \end{figure}
 
 % Comment that a stream constant (such as security features) is classified
@@ -1592,7 +1618,7 @@ other data-sets, the results are close to ideal.
         \caption{The SMB header. Fields which belong to the NetBIOS-header
             are marked with a gray background. Dots denote continuation of
             the previous field.}
-        \label{bf:smb}
+        \label{fig:smbdef}
     \end{subfigure}
     \quad
     \begin{subfigure}[t]{0.48\textwidth}
@@ -1619,9 +1645,10 @@ other data-sets, the results are close to ideal.
             \bitbox{8}{N}     % Multiplex ID
         \end{bytefield}
         \caption{The result from our inference of the SMB header.}
-        \label{bf:smbresult}
+        \label{fig:smbres}
     \end{subfigure}
-
+    \caption{Caption.}
+    \label{fig:smbperf}
 \end{figure}
 
 % TFTP header
@@ -1636,7 +1663,7 @@ other data-sets, the results are close to ideal.
         \captionsetup{width=0.8\textwidth}
         \caption{The TFTP header. The header only consist of a two-byte 
         OP-code. Additional fields are type-dependent.}
-        \label{bf:tftp}
+        \label{fig:tftpdef}
     \end{subfigure}
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1647,8 +1674,10 @@ other data-sets, the results are close to ideal.
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the TFTP header.}
-        \label{bf:tftpres}
+        \label{fig:tftpres}
     \end{subfigure}
+    \caption{Caption.}
+    \label{fig:tftpperf}
 \end{figure}
 
 % Comment for RTP: One stream messed up the incremental in sequence number.
@@ -1674,7 +1703,7 @@ other data-sets, the results are close to ideal.
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The RTP header with bit-resolution flag-fields.}
-        \label{bf:rtp}
+        \label{fig:rtpdef}
     \end{subfigure}
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1691,8 +1720,10 @@ other data-sets, the results are close to ideal.
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the RTP header.}
-        \label{bf:rtpres}
+        \label{fig:rtpres}
     \end{subfigure}
+    \caption{Caption.}
+    \label{fig:rtpperf}
 \end{figure}
 
 % DHCP header
@@ -1719,7 +1750,7 @@ other data-sets, the results are close to ideal.
         \end{bytefield}
         \captionsetup{width=0.8\textwidth}
         \caption{The DHCP header.}
-        \label{bf:dhcp}
+        \label{fig:dhcpdef}
     \end{subfigure}
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
@@ -1765,8 +1796,10 @@ other data-sets, the results are close to ideal.
             fields specified as data (D) have a distribution which is
             undefined in the protocol specification. The actual distribution
             may be the type we've inferred.}
-        \label{bf:dhcpres}
+        \label{fig:dhcpres}
     \end{subfigure}
+    \caption{Caption.}
+    \label{fig:dhcpperf}
 \end{figure}
 
 \chapter{Discussion}
@@ -1833,17 +1866,17 @@ data in a specific ordering.
 \subsection{Variable number of fields}
 A variable number of fields may be useful in a protocol specification. BOOTP,
 which is the parent protocol to DHCP, has a variable number of header extensions.
-DNS has a variable number of queries or answers. How the exsistence of a variable
+DNS has a variable number of queries or answers. How the existence of a variable
 number of fields is specified is protocol specific, thus hard to determine
 analytically. 
 
-There are byte patterns which could be analysed in order to infer optional
+There are byte patterns which could be analyzed in order to infer optional
 fields, such as length fields or some byte value that decides the number of
 extended fields. This type of analysis has not been taken into account as we
 deem it out of the scope for this theses.
 
 \subsection{Non-aligned data}
-In our appproach, we assume that each field is aligned to one, two, or four
+In our approach, we assume that each field is aligned to one, two, or four
 bytes. This is somewhat of a standard as explained in
 section~\ref{sec:simplifications}. Although there are obvious benefits to
 aligning the fields in a protocol, not every protocol follows the field
@@ -1860,11 +1893,11 @@ $\lfloor \frac{length}{n} \rfloor$ possible fields for every length $n$.
 
 \subsection{Bit precision}
 It's not uncommon for fields to have a higher resolution than one byte. In
-the RTP header visualized in figure~\ref{bf:rtp} there is a four-byte length
-field between flag-bits in the first byte. In order to find these features,
-we would have to introduce bit precision in our analysis. Bit precision
-analysis would introduce the same complexity issues as non-aligned data
-analysis. 
+the RTP header visualized in figure~\ref{fig:rtpdef} there is a four-byte
+length field between flag-bits in the first byte. In order to find these
+features, we would have to introduce bit precision in our analysis. Bit
+precision analysis would introduce the same complexity issues as non-aligned
+data analysis.
 
 % Skriv mer här
 
@@ -1900,7 +1933,7 @@ of the scope for this thesis.
 
 \subsection{Timestamp identification}
 From our analysis, we've seen that timestamps have a potentially
-distinguishable byte distribution. This distribution could perhaps be analysed
+distinguishable byte distribution. This distribution could perhaps be analyzed
 in order to classify a field as a timestamp. The distribution reveals a number
 of spikes we assume to be dependent on the time resolution. This is most
 visible in the least significant byte of the timestamp field. Using frequency
