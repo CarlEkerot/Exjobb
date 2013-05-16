@@ -4,14 +4,16 @@ import pcap_glue
 import protocol_analyser
 import pcap_reassembler
 
-GLOBAL_CONSTANT = 0
-GLOBAL_FLAG = 1
-GLOBAL_UNIFORM = 2
-GLOBAL_NUMBER = 3
-GLOBAL_LENGTH = 4
+GLOBAL_CONSTANT     = 0
+GLOBAL_FLAG         = 1
+GLOBAL_UNIFORM      = 2
+GLOBAL_NUMBER       = 3
+GLOBAL_LENGTH       = 4
 CONNECTION_CONSTANT = 5
-STREAM_CONSTANT = 6
-STREAM_INCREMENTAL = 7
+STREAM_CONSTANT     = 6
+STREAM_INCREMENTAL  = 7
+DATA                = 8
+UNKNOWN             = 9
 
 definition_mapping = {
     ('global', 'constants'):        GLOBAL_CONSTANT,
@@ -22,30 +24,37 @@ definition_mapping = {
     ('connection', 'constants'):    CONNECTION_CONSTANT,
     ('stream', 'constants'):        STREAM_CONSTANT,
     ('stream', 'incrementals'):     STREAM_INCREMENTAL,
+    ('n/a', 'unknown'):             UNKNOWN,
 }
 
 definition = [
-    (GLOBAL_FLAG, 16),
+    (GLOBAL_UNIFORM, 16),
+    (GLOBAL_FLAG, 9),
+    (GLOBAL_CONSTANT, 3),
+    (GLOBAL_FLAG, 4),
+    (GLOBAL_NUMBER, 16),
+    (GLOBAL_NUMBER, 16),
+    (GLOBAL_NUMBER, 16),
+    (GLOBAL_NUMBER, 16),
 ]
 
 header_bits = sum(t[1] for t in definition)
 header_limit = int(round(header_bits / 8.0))
-print header_limit
 realized_definition = [e for t in definition for e in t[1] * [t[0]]]
-print realized_definition
+print header_bits, header_limit
 
-packets = pcap_reassembler.load_pcap('/media/data/cap/tftp.pcap', strict=True)
+packets = pcap_reassembler.load_pcap('/media/data/cap/dns-30628-packets.pcap', strict=True)
 nums = [p.number for p in packets]
 truth = []
-with open('/media/data/cap/tftp.csv.clean') as f:
+with open('/media/data/cap/dns.csv.clean') as f:
     for line in f:
         (no, type_) = line.split(',')
         if int(no) in nums:
             truth.append(type_[:-1])
 
-msgs = pcap_glue.build_messages('/media/data/cap/tftp.pcap')
+msgs = pcap_glue.build_messages('/media/data/cap/dns-30628-packets.pcap')
 an = protocol_analyser.ProtocolAnalyser(msgs, 200, truth)
-an.cluster(50, max_num_types=10, header_limit=header_limit)
+an.cluster(200, max_num_types=10, header_limit=header_limit)
 fields = an.classify_fields(global_limit=header_limit)
 #an.state_inference('dns-state_diagram.png', 5)
 
