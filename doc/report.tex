@@ -807,6 +807,24 @@ types are not a problem however. In the next step of the clustering, we make
 use of the fact that the clusters are very homogenous, i.e. each cluster mainly
 contains messages of one real type.
 
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{num_optics}
+        \caption{Number of clusters found by OPTICS for different input sizes.}
+        \label{fig:num_optics}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[t]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{metrics_optics}
+        \caption{Clustering metrics for our OPTICS clustering for different
+            input sizes.}
+        \label{fig:metrics_optics}
+    \end{subfigure}
+    \label{fig:optics_res}
+\end{figure}
+
+
 \subsection{Type distinguishers}
 Once we have obtained the OPTICS clustering our goal is to reduce the number of
 clusters to match the actual number of real types. We do this under the
@@ -849,6 +867,26 @@ Discoverer. Our approach is as follows:
     on until we reach the point that we can take no more type distinguisher
     bytes without exceeding $MaxNumTypes$.
 \end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{num_td}
+        \caption{Number of clusters found by our type distinguisher clustering
+            for different input sizes.}
+        \label{fig:num_td}
+    \end{subfigure}
+    \quad
+    \begin{subfigure}[t]{0.48\textwidth}
+        \includegraphics[width=\textwidth]{metrics_td}
+        \caption{Clustering metrics for our type distinguisher clustering for
+            different input sizes.}
+        \label{fig:metrics_td}
+    \end{subfigure}
+    \label{fig:td_res}
+\end{figure}
+
+
 
 \section{Field analysis}
 With our type inference complete we now have a number of clusters that contain
@@ -1240,6 +1278,7 @@ left-to-right order with respect to the state diagram.
 
 \begin{figure}
     \centering
+    \caption{SMB states.}
     \begin{tabular}{ | l | l |}
         \hline
         \textbf{State}&\textbf{Type}\\ \hline
@@ -1252,7 +1291,6 @@ left-to-right order with respect to the state diagram.
         20          & NT Create AndX Request        \\ \hline
         24          & Delete Request                \\ \hline
     \end{tabular}
-    \caption{SMB states.}
     \label{table:smb}
 \end{figure}
 
