@@ -16,7 +16,6 @@
 ]{hyperref}
 \usepackage{bytefield}
 
-
 \newtheorem*{definition}{Definition}
 \defcitealias{intel12}{Intel\textsuperscript{\textregistered} 64 and IA-32
 Architectures Optimization Reference Manual}
@@ -1740,6 +1739,30 @@ Draw conclusions about our method and compare it to the related methods.
 Is sequence alignment necessary? We could iteratively find length fields to get
 perfect alignments. Delimiters might be a problem
 
+% Explain the excellent results from OPTICS clustering
+
+% Discuss the problems with type distinguisher clustering for protocols that
+% have only one type
+
+% Emphasize the importance of diverse dumps (many different types, edge cases,
+% sessions etc.)
+
+% Compare type inference with related methods
+
+% Explain why the field inferences areactually pretty good, and why it is hard
+% to define a metric which is suitable.
+
+% (Try to) compare the results with other methods. Emphasize that unlike the
+% other methods we've reviewed, we seek semantics in fields (other than
+% just constant or variable)
+
+% Talk about time complexity for the process?
+
+% Give a short description on field inference in clusters and in what situations
+% it yields usable results
+
+% Explain why alignment might be unnecessary and discuss alternative solutions.
+
 \section{Limitations}
 Give a short introduction to the different limitations of our method.
 
@@ -1812,8 +1835,6 @@ Mention the ideas that has come up during the thesis work that we have not had
 time to investigate further.
 
 \subsection{Correspondence analysis}
-Explain how correspondence analysis could give a better result than PCA.
-
 In section~\ref{sec:pca} we describe how we use PCA in order to reduce the
 dimensionality of our features while preserving the components that contribute
 with the most variance. Another method which falls under the same category is
