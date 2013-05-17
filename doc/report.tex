@@ -1245,6 +1245,7 @@ order with respect to the state diagram.
 
 \begin{table}
     \centering
+    \captionsetup{width=0.8\textwidth}
     \caption{SMB states.}
     \begin{tabular}{ | l | l |}
         \hline
@@ -1342,7 +1343,8 @@ In table~\ref{tab:datasets} we list the properties of our different datasets.
 
 \begin{table}[h]
     \centering
-    \caption{Datasets.}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Dataset properties.}
     \begin{tabular}{| l | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{\# Messages}&\textbf{\# Connections}&\textbf{\# Types}\\ \hline
@@ -1373,6 +1375,7 @@ these parameters are rather insensitive to change.
 
 \begin{table}[h]
     \centering
+    \captionsetup{width=0.8\textwidth}
     \caption{Clustering parameters.}
     \begin{tabular}{| l | r | r | r |}
         \hline
@@ -1406,7 +1409,8 @@ extensions are located at the end of the header.
 
 \begin{table}[h]
     \centering
-    \caption{Before type distinguisher clustering.}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Clustering performance before type distinguisher clustering.}
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
@@ -1427,7 +1431,8 @@ other datasets, the results are close to ideal.
 
 \begin{table}[h]
     \centering
-    \caption{After type distinguisher clustering.}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Clustering performance after type distinguisher clustering.}
     \begin{tabular}{| l | r | r | r | r | r |}
         \hline
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
@@ -1447,47 +1452,60 @@ other datasets, the results are close to ideal.
 %
 % Field boundaries: Check false positives/negatives
 When measuring the performance of our field inference, we do so by counting the
-number of bits that match against a definition for the current protocol. The
-definitions for the different protocols were constructed from openly available
-documentation in \citetalias{droms97}, \citetalias{sollins92},
-\citetalias{mockapetris87}, \citetalias{schulzrinne03} and
-\citetalias{microsoft13}. We only do these in-depth measurements for the header
-part of each protocol but our analysis yields similar results within clusters
+number of bits that match against a definition for the current protocol. To
+produce a more easily comparable measure we also introduce the term
+\emph{accuracy} to refer to the percentage of correct bits out of all bits that
+are being looked at. The definitions for the different protocols were
+constructed from openly available documentation in \citetalias{droms97},
+\citetalias{sollins92}, \citetalias{mockapetris87}, \citetalias{schulzrinne03}
+and \citetalias{microsoft13}. We only do these in-depth measurements for the
+header of each protocol but our analysis yields similar results within clusters
 as well.
-
-For the definitions we quantified a number of combinations of field type and
-scope into symbols. We then annotated each bit of the header with these
-symbols. A summary of the symbols can be seen in table~\ref{tab:symbols} and
-the annotated header definitions can be seen in figure~\ref{fig:dnsdef} to
-figure~\ref{fig:dhcpdef}. The resulting accuracy is shown in
-table~\ref{tab:accuracy}.
 
 \begin{table}[h]
     \centering
-    \caption{Caption.}
+    \captionsetup{width=0.8\textwidth}
+    \caption{Symbols used to represent the different field types ordered
+    according to their precedence from highest to lowest.}
     \begin{tabular}{| l | l |}
         \hline
         \textbf{Symbol}&\textbf{Description} \\ \hline
         C   & Global constant \\ \hline
-        F   & Global flag \\ \hline
-        N   & Global number \\ \hline
-        U   & Global uniform \\ \hline
-        L   & Global length \\ \hline
         CC  & Connection constant \\ \hline
         SC  & Stream constant \\ \hline
+        L   & Global length \\ \hline
         SI  & Stream incremental \\ \hline
+        N   & Global number \\ \hline
+        U   & Global uniform \\ \hline
+        F   & Global flag \\ \hline
         D   & Data \\ \hline
         UNK & Unknown \\ \hline
     \end{tabular}
     \label{tab:symbols}
 \end{table}
 
-\begin{table}
+For the definitions we quantified a number of combinations of field types and
+scopes into symbols. These symbols are given in order of precedence in
+table~\ref{tab:symbols}. Worth noting are that the two last field types (data
+and unknown) are intrinsically non-inferable. The data field type is used in
+protocol definitions when none of the other field types are applicable.
+Similarly, the unknown field type is used in our field inference when the
+analysis cannot reach a conclusion about a type.
+
+We then annotated each bit of the header with these symbols. The resulting
+annotations are found in figure~\ref{fig:dnsdef} to figure~\ref{fig:dhcpdef}.
+These annotated definitions of the protocol are then compared, bit by bit,
+against the result from our field inference algorithm. These resulting inferred
+protocol definitions are found in figure~\ref{fig:dnsres} to
+figure~\ref{fig:dhcpres}.
+
+\begin{table}[h]
     \centering
-    \caption{Field performance.}
+    \captionsetup{width=0.8\textwidth}
+    \caption{The performance of our field inference on the different datasets.}
     \begin{tabular}{| l | r | r |}
         \hline
-        \textbf{Protocol}&\textbf{Correct bits}&\textbf{Correct \%} \\ \hline
+        \textbf{Protocol}&\textbf{\# Correct Bits}&\textbf{Accuracy (\%)} \\ \hline
         DNS & 37 & 38.5 \\ \hline
         SMB & 112 & 38.9 \\ \hline
         TFTP & 0 & 0.0 \\ \hline
@@ -1497,8 +1515,15 @@ table~\ref{tab:accuracy}.
     \label{tab:accuracy}
 \end{table}
 
+The resulting number of correctly inferred bits and the corresponding accuracy
+for the datasets are shown in table~\ref{tab:accuracy}. At a first glance these
+results seem quite mediocre. This is due to several different factors and we
+will go through them each on a per dataset basis below.
+
+\subsection{DNS performance}
+
 % DNS header
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1518,7 +1543,6 @@ table~\ref{tab:accuracy}.
             \wordbox{1}{N}\\
             \wordbox{1}{N}
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{DNS header.}
         \label{fig:dnsdef}
     \end{subfigure}
@@ -1537,7 +1561,6 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{C}
             \bitbox{8}{UNK}
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the DNS header.}
         \label{fig:dnsres}
     \end{subfigure}
@@ -1545,8 +1568,23 @@ table~\ref{tab:accuracy}.
     \label{fig:dnsperf}
 \end{figure}
 
+The main reason for the suboptimal performance in the DNS case is the lack of
+diversity in the packet dump. As we can see in table~\ref{tab:symbols} the
+three types of constant fields has higher precedence than any other type of
+field. This is the reason for the fields incorrectly classified as C and SC in
+figure~\ref{fig:dnsres} as they are constant within their scopes in our dump.
+Another factor is our precision; we see that the fourth byte has bits of
+different types, both flag and constant, but our method only looks at them on
+a byte level. This causes the whole byte to be classified as a flag as the
+constant bits do not interfere with our classification for flag fields. We can
+also see that the last byte is not classified as a number because its
+distribution does not fit well to a normal distribution, again due to low
+diversity.
+
+\subsection{SMB performance}
+
 % Comment that a stream constant (such as security features) is classified
-% as a global constant if it is the same constant in all streams in the 
+% as a global constant if it is the same constant in all streams in the
 % dump.
 
 % SMB header
@@ -1554,7 +1592,7 @@ table~\ref{tab:accuracy}.
     \rlap{\bitbox{#2}{\color{#1}\rule{\width}{\height}}}%
     \bitbox{#2}{#3}}
 \definecolor{lightgray}{gray}{0.9}
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1613,8 +1651,10 @@ table~\ref{tab:accuracy}.
     \label{fig:smbperf}
 \end{figure}
 
+\subsection{TFTP performance}
+
 % TFTP header
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1622,7 +1662,6 @@ table~\ref{tab:accuracy}.
             \bitheader{0, 15}\\
             \wordbox{1}{F}    % OPCode
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The TFTP header. The header only consist of a two-byte 
         OP-code. Additional fields are type-dependent.}
         \label{fig:tftpdef}
@@ -1634,7 +1673,6 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{C}
             \bitbox{8}{SC}
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the TFTP header.}
         \label{fig:tftpres}
     \end{subfigure}
@@ -1642,12 +1680,14 @@ table~\ref{tab:accuracy}.
     \label{fig:tftpperf}
 \end{figure}
 
+\subsection{RTP performance}
+
 % Comment for RTP: One stream messed up the incremental in sequence number.
 % Comment on how consensus of all streams may not be optimal for finding 
 % correct semantics.
 
 % RTP header
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
@@ -1663,7 +1703,6 @@ table~\ref{tab:accuracy}.
             \wordbox{1}{SI}\\   % Timestamp
             \wordbox{1}{SC}   % SSRC
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The RTP header with bit-resolution flag-fields.}
         \label{fig:rtpdef}
     \end{subfigure}
@@ -1680,7 +1719,6 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{UNK}\\
             \wordbox{1}{SC}
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the RTP header.}
         \label{fig:rtpres}
     \end{subfigure}
@@ -1688,8 +1726,10 @@ table~\ref{tab:accuracy}.
     \label{fig:rtpperf}
 \end{figure}
 
+\subsection{DHCP performance}
+
 % DHCP header
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
@@ -1710,7 +1750,6 @@ table~\ref{tab:accuracy}.
             \wordbox{1}{D (128 bytes)}\\  % Client HW Addr
             \wordbox[]{9}{}
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The DHCP header.}
         \label{fig:dhcpdef}
     \end{subfigure}
@@ -1753,7 +1792,6 @@ table~\ref{tab:accuracy}.
             \bitbox{8}{C}
             \bitbox{8}{F}
         \end{bytefield}
-        \captionsetup{width=0.8\textwidth}
         \caption{The result from our inference of the DHCP header. Note that
             fields specified as data (D) have a distribution which is
             undefined in the protocol specification. The actual distribution
