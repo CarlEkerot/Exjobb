@@ -585,8 +585,10 @@ When measuring the quality of a clustering from a clustering algorithm, a
 number of metrics are defined. These metrics reflects the quality of the
 features as well as the clustering algorithm. The metrics requires labels
 given from the clustering algorithm as well as a \emph{truth}, i.e. the true
-classes of the samples. The clustering metrics in this section are defined
-by \citet{rosenberg07} using information entropy.
+classes of the samples. The clustering metrics we use are based on information
+entropy theory and for their exact definition we refer to the paper by
+\citet{rosenberg07} where they were originally defined. Below are intuitive
+description of each metric.
 
 \subsubsection{Homogenity score}
 Homogenity is satisfied when every cluster only contains members of a single
@@ -1362,21 +1364,6 @@ in complexity, header size and area of usage. The protocols are the following:
 
 In table~\ref{tab:datasets} we list the properties of our different datasets.
 
-% SMB
-% SMB Command (byte 8), response/request flag (byte 13, bit 0)
-% All things with SMB is done on filtered data!
-
-% DNS
-% QR OPCODE AA RCODE
-
-% TFTP
-% OPCODE (byte 0-1)
-
-% RTP
-% Payload Type (byte 1, bit 1-7)
-
-% DHCP
-% Message type (byte 0), DHCP Message Type (byte 242)
 
 \begin{table}[h]
     \centering
@@ -1471,12 +1458,67 @@ other datasets, the results are close to ideal.
         \textbf{Protocol}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
         DNS & 0.9534 & 0.9999 & 0.9761 \\ \hline
         SMB & 0.9914 & 0.9880 & 0.9897 \\ \hline
-        TFTP & 1.0000 & 1.000 & 1.000 \\ \hline
+        TFTP & 1.0000 & 1.0000 & 1.0000 \\ \hline
         RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
         DHCP & 1.0000 & 0.4428 & 0.6138 \\ \hline
     \end{tabular}
     \label{tab:tdclusterresults}
 \end{table}
+
+% SMB
+% SMB Command (byte 8), response/request flag (byte 13, bit 0)
+% All things with SMB is done on filtered data!
+
+% DNS
+% QR OPCODE AA RCODE
+
+% TFTP
+% OPCODE (byte 0-1)
+
+% RTP
+% Payload Type (byte 1, bit 1-7)
+
+% DHCP
+% Message type (byte 0), DHCP Message Type (byte 242)
+
+In table~\ref{tab:typedistinguishers} below are the type distinguishers chosen
+by our clustering and the true type distinguishers for each protocol. Note that
+we classify both type flags and request/response-flags as type distinguishers,
+and that the true type distinguishers have byte resolution. The consequence of
+this is that a byte which contains some bit subset that defines a type are
+labeled as a true type distinguisher.
+
+\begin{table}[h]
+    \centering
+    \captionsetup{width=0.8\textwidth}
+    \caption{Chosen type distinguishers compared to true type distinguishers.}
+    \begin{tabular}{| l | l | l |}
+        \hline
+        \textbf{Protocol}&\textbf{Chosen bytes}&\textbf{Actual bytes}\\ \hline
+        DNS  & 2, 3         & 2, 3  \\ \hline
+        SMB  & 3, 8         & 3, 8  \\ \hline
+        TFTP & 1            & 1     \\ \hline
+        RTP  & 8, 9, 10, 11 & 1     \\ \hline
+        DHCP & 0            & 0, 242\\ \hline
+    \end{tabular}
+    \label{tab:typedistinguishers}
+\end{table}
+
+These results correlate with the results from table~\ref{tab:tdclusterresults}.
+If the type distinguisher bytes are chosen correctly, the clustering is close
+to ideal. Failing to find a correct type distinguisher has a heavy impact on
+the results. This is evident in the results from the RTP data-set. The chosen
+type distinguishers are actually defined as a stream identifier in the RTP
+specification. Our data-set contains several streams with variant data for
+each stream, but only one actual message type.
+
+For DHCP our type distinguisher clustering has found one of the two true
+type distinguishers. The one it has found is the type byte in the
+bootstrap protocol BOOTP that wraps the DHCP protocol. The second true type
+byte is located in an extension header to the BOOTP protocol. Our method fails
+to find this byte.
+
+% Try to speculate why it fails?
 
 \section{Field inference performance}
 % Compare each byte to annotation. Measure is the percentage of correctly
