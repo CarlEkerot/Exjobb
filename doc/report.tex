@@ -588,7 +588,7 @@ given from the clustering algorithm as well as a \emph{truth}, i.e. the true
 classes of the samples. The clustering metrics we use are based on information
 entropy theory and for their exact definition we refer to the paper by
 \citet{rosenberg07} where they were originally defined. Below are intuitive
-description of each metric.
+descriptions of each metric.
 
 \subsubsection{Homogenity score}
 Homogenity is satisfied when every cluster only contains members of a single
@@ -741,13 +741,13 @@ likely to be identical within a type. A message that is used for binary data
 transmission is often longer than a control message.
 
 We group messages that are similar using cluster analysis. We then move on to
-analyzing the grouped messages in an effort to discover the bytes which we
-rank the most probable to be responsible to the grouping we have found, and
-label these as (need new term here) the bytes which distinguishes a specific
-type. Once these bytes have been discovered, we may regroup the messages based
-on the value of that the byte takes.
+analyzing the clustered messages in an effort to discover the bytes which we
+rank the most probable to be responsible for the clustering we have found, and
+label these as \emph{type distinguishers}, i.e. the bytes that distinguishes a
+specific type. Once these bytes have been discovered, we may regroup the
+messages based on the value of that the byte takes.
 
-From the new grouping, we are able to analyze the type specific properties
+From this new grouping, we are able to analyze the type specific properties
 of messages of a certain type. We focus on determining the field structure of
 each type, and make an effort to determine the semantics of each field.
 From the byte value distribution at a certain byte range, we try to classify
@@ -789,7 +789,7 @@ The reason for having probability-based features is that density-based
 clustering algorithms such as OPTICS rely on distance measures. If we were to
 take the actual byte values at each offset as features, the difference between
 two byte values would represent a distance between the samples. In a flag byte
-this would introduce a great distance between a message where the most
+this would introduce a great distance between a message when the most
 significant bit is set and when it is not set. Since nominal features are not
 an option due to difficulties with high dimensionality, the probability
 measure is a compromise to having nominal features.
@@ -797,13 +797,14 @@ measure is a compromise to having nominal features.
 % Latex does not know how to split parametrized -> badboxes if splitpoint
 % not manually defined.
 Once the features have been calculated, we apply PCA transformation
-parametrized to capture $80\%$ of the variance. This reduces the
+param-etrized to capture $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
 variance. We use these new feature vectors as input to OPTICS.
 
 OPTICS works well for our application since it is insensitive to the parameters
-selected. We require an estimate $MinPts$ parameter. The distance parameter
-has the default value $\varepsilon = \infty$.
+selected and that it is a suitable clustering algorithm for when the number of
+classes are unknown. We require an estimate $MinPts$ parameter. The distance
+parameter has the default value $\varepsilon = \infty$.
 
 The resulting clustering from OPTICS may have far more clusters than the number
 of real types in the protocol. This is expected, since messages that are
@@ -813,6 +814,11 @@ areas within the real types. Having more clusters than the number of real
 types are not a problem however. In the next step of the clustering, we make
 use of the fact that the clusters are very homogeneous, i.e. each cluster mainly
 contains messages of one real type.
+
+Figures \ref{fig:num_optics} and \ref{fig:metrics_optics} visualizes how OPTICS
+performs for various input sizes of SMB messages. The number of messages needed
+in order to find a good clustering is fairly small. However, a large input size
+is often needed in order to capture as many message types as possible.
 
 \begin{figure}[h]
     \centering
@@ -874,6 +880,11 @@ Discoverer. Our approach is as follows:
     on until we reach the point that we can take no more type distinguisher
     bytes without exceeding $MaxNumTypes$.
 \end{enumerate}
+
+In figures \ref{fig:num_td} and \ref{fig:metrics_td} the performance of our
+type distinguisher clustering on SMB messages is visualized. This step in
+our method gives an obvious enhancement to the results from the OPTICS
+clustering.
 
 \begin{figure}[h]
     \centering
