@@ -856,7 +856,8 @@ at which the data is located must be a multiple of $n$. That means that a four
 byte field may be located at offset 0, 4 or 12 but not at offset 5 or 10. Most
 protocols follow these principle for optimization reasons as a received packet
 will reside in a byte buffer in memory and accessing misaligned data can be
-expensive; see e.g. Assembly/Compiler Coding Rule 46 in \citetalias{intel12}.
+expensive; see e.g. Assembly/Compiler Coding Rule 46 in \citetalias{intel12}
+for guidelines on memory alignment.
 
 Another principle that is often used is that messages start with a
 \emph{header}, a collection of fields of fixed length that is located before
