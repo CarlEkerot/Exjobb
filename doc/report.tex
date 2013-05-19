@@ -907,6 +907,7 @@ clustering.
 
 
 \section{Field analysis}
+\label{sec:fieldanalysis}
 With our type inference complete we now have a number of clusters that contain
 similar messages. The next step in inferring the structure of the protocol is
 to identify field boundaries and their contents. This is a very complex
@@ -942,6 +943,7 @@ them, however for the rest of the message, which is usually type specific, the
 data needs to be aligned.
 
 \subsection{Non-mutual sequence alignment}
+\label{sec:nonmutualalign}
 
 \begin{figure}[t]
     \begin{subfigure}[b]{0.55\textwidth}
@@ -1195,6 +1197,7 @@ threshold value is used to allow for some amount of wrap-around of the values
 in the field.
 
 \subsection{Length fields}
+\label{sec:length}
 
 \begin{figure}[h]
     \centering
@@ -1394,6 +1397,7 @@ In table~\ref{tab:datasets} we list the properties of our different datasets.
 \end{table}
 
 \section{Clustering performance}
+\label{sec:clustperf}
 We measure the performance of our clustering using the metrics described in
 section~\ref{sec:metrics}: homogenity, completeness and V-Measure. The truth we
 use when calculating the metrics is based on the protocol definition in
@@ -1537,6 +1541,7 @@ to find this byte.
 % Try to speculate why it fails?
 
 \section{Field inference performance}
+\label{sec:fieldperf}
 % Compare each byte to annotation. Measure is the percentage of correctly
 % inferred bytes. Perform for both cluster and header (two different 
 % subsections?)
@@ -1896,43 +1901,85 @@ diversity.
 \chapter{Discussion}
 
 \section{Conclusions}
-Draw conclusions about our method and compare it to the related methods.
-
-Is sequence alignment necessary? We could iteratively find length fields to get
-perfect alignments. Delimiters might be a problem
-
 % Explain the excellent results from OPTICS clustering
-
 % Discuss the problems with type distinguisher clustering for protocols that
 % have only one type
-
 % Emphasize the importance of diverse dumps (many different types, edge cases,
 % sessions etc.)
+In this thesis we have proven how density-based clustering algorithms may be
+applied to binary network protocols, and how protocol field semantics may be
+inferred. Our performance measurements in section~\ref{sec:clustperf} indicate
+that our method is capable of very good results given the exsistance of some
+type distinguisher. It also shows the difficulties in trying to infer types
+in protocols where no type distinguisher exsists or when the data-set is
+not diverse enough. 
 
-% Compare type inference with related methods
+Having diverse data-sets is key to finding a good type inference. Ideally, a
+data-set containing all possible message types, a large number of sessions,
+and messages from all edge-cases of the protocol would be needed for a
+complete inference. This would require large data-sets containing many more
+messages than the data-sets we used to generate our results. Using the OPTICS
+algorithm for such large data-sets would be infeasible since its time
+complexity is at best $O(n \cdot \log n)$ as proven by \citet{ankerst99}.
+A better approach would be to perform OPTICS on a subset of a large data-set
+in order to find the format distinguishers, and subsequently perform
+format distinguisher clustering on the complete data-set.
+
+% State machines
+From the inferred types we were able to construct state diagrams that reveals
+the ordering in which messages of different types were sent. This was suggested
+as future work in Discoverer by \citet{cui07}. For protocols with a large
+number of types we infer an immense amoun of state transitions. This renders
+a very complex state diagram. Instead we consider the state diagram inference
+useful when examining protocol initiation procedures, or protocols such as
+DNS where the number of types are small.
 
 % Explain why the field inferences areactually pretty good, and why it is hard
 % to define a metric which is suitable.
+When the types were inferred our method moved on to inferring fields and field
+semantics. In section~\ref{sec:fieldanalysis} we introduced a set of
+field primitives and corresponding heuristics for classifying them. The
+performance of these heuristics was measured in section~\ref{sec:fieldperf}.
+The metric we introduced for measuring field inference performance was very
+strict in the sense that ideal results (100\% correct field classifications)
+were in most cases only achievable if the actual protocol specification was
+given as input. For instance, fields labeled as data in the true specification
+could never be classified correctly, thus making a perfect classification
+impossible using our metric. 
 
 % (Try to) compare the results with other methods. Emphasize that unlike the
 % other methods we've reviewed, we seek semantics in fields (other than
 % just constant or variable)
+Taking this in to account, our field inference performance is fairly good.
+We have not found any related work that infer field semantics at the same
+level as our method.
 
 % Talk about time complexity for the process?
+The time complexity for our field inference is rather high, mainly because
+of the number field inference which performs a large number of normal
+distribution curve fittings.
 
 % Give a short description on field inference in clusters and in what situations
 % it yields usable results
-
 % Explain why alignment might be unnecessary and discuss alternative solutions.
+After inferring fields in common for all message types, we made an
+attempt to infer fields within each type. During this process we intially
+aligned the data using our modified version of Needleman-Wunsch defined in
+section~\ref{sec:nonmutualalign}. After the data had been aligned, we hoped to
+find which fields that were of variable length and if their length was
+decided by some length field or a delimiter. We found difficulties in
+analysing the results from the alignment and we were not able to handle
+variable length field or variable number of fields. Finding an alternative
+to using sequence alignment when examining variable fields is an area we
+leave to future work. Possibly length fields could iteratively be examined
+in order to limit the analysis to the bytes that the length field enclose,
+e.g. one of many variable fields.
 
 \section{Limitations}
-Give a short introduction to the different limitations of our method.
-
-Mention that the scoring matrix could be improved to use a normal distribution
-for scoring numerical differences.
-
-Mention the problem with our restricted version of multiple sequence alignment
-that it the longest message could optimally need gap insertion as well.
+During the development of our approach we have both found a number of
+limitations and introduced a number of restrictions. We focus on binary
+protocols where the fields are aligned. The main limitations of our approach
+is listed in this section.
 
 \subsection{Textual protocols}
 Our method attempts to find structure and semantics in binary protocols.
@@ -1956,10 +2003,10 @@ data in a specific ordering.
 
 \subsection{Variable number of fields}
 A variable number of fields may be useful in a protocol specification. BOOTP,
-which is the parent protocol to DHCP, has a variable number of header extensions.
-DNS has a variable number of queries or answers. How the existence of a variable
-number of fields is specified is protocol specific, thus hard to determine
-analytically. 
+which is the parent protocol to DHCP, has a variable number of header 
+extensions. DNS has a variable number of queries or answers. How the existence
+of a variable number of fields is specified is protocol specific, thus hard to
+determine analytically. 
 
 There are byte patterns which could be analyzed in order to infer optional
 fields, such as length fields or some byte value that decides the number of
@@ -1993,8 +2040,10 @@ data analysis.
 % Skriv mer här
 
 \section{Future work}
-Mention the ideas that has come up during the thesis work that we have not had
-time to investigate further.
+There are a number of areas we have not been able to explore in this thesis
+due to limited time or resources. The ideas in this section have come up
+while evaluating our current method and could improve the results from our
+method considerably.
 
 \subsection{Correspondence analysis}
 In section~\ref{sec:pca} we describe how we use PCA in order to reduce the
