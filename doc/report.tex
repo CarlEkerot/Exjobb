@@ -828,7 +828,7 @@ measure is a compromise to having nominal features.
 % Latex does not know how to split parametrized -> badboxes if splitpoint
 % not manually defined.
 Once the features have been calculated, we apply PCA transformation
-param-etrized to capture $80\%$ of the variance. This reduces the
+parametrized to capture $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
 variance. We use these new feature vectors as input to OPTICS.
 
@@ -1990,10 +1990,10 @@ our inferred results might actually be correct.
 In this thesis we have proven how density-based clustering algorithms may be
 applied to binary network protocols, and how protocol field semantics may be
 inferred. Our performance measurements in section~\ref{sec:clustperf} indicate
-that our method is capable of very good results given the exsistance of some
+that our method is capable of very good results given the existence of some
 type distinguisher. It also shows the difficulties in trying to infer types
-in protocols where no type distinguisher exsists or when the data-set is
-not diverse enough. 
+in protocols where no type distinguisher exists or when the data-set is
+not diverse enough.
 
 Having diverse data-sets is key to finding a good type inference. Ideally, a
 data-set containing all possible message types, a large number of sessions,
@@ -2010,7 +2010,7 @@ format distinguisher clustering on the complete data-set.
 From the inferred types we were able to construct state diagrams that reveals
 the ordering in which messages of different types were sent. This was suggested
 as future work in Discoverer by \citet{cui07}. For protocols with a large
-number of types we infer an immense amoun of state transitions. This renders
+number of types we infer an immense amount of state transitions. This renders
 a very complex state diagram. Instead we consider the state diagram inference
 useful when examining protocol initiation procedures, or protocols such as
 DNS where the number of types are small.
@@ -2031,7 +2031,7 @@ impossible using our metric.
 % (Try to) compare the results with other methods. Emphasize that unlike the
 % other methods we've reviewed, we seek semantics in fields (other than
 % just constant or variable)
-Taking this in to account, our field inference performance is fairly good.
+Taking this into account, our field inference performance is fairly good.
 We have not found any related work that infer field semantics at the same
 level as our method.
 
@@ -2044,12 +2044,12 @@ distribution curve fittings.
 % it yields usable results
 % Explain why alignment might be unnecessary and discuss alternative solutions.
 After inferring fields in common for all message types, we made an
-attempt to infer fields within each type. During this process we intially
+attempt to infer fields within each type. During this process we initially
 aligned the data using our modified version of Needleman-Wunsch defined in
 section~\ref{sec:nonmutualalign}. After the data had been aligned, we hoped to
 find which fields that were of variable length and if their length was
 decided by some length field or a delimiter. We found difficulties in
-analysing the results from the alignment and we were not able to handle
+analyzing the results from the alignment and we were not able to handle
 variable length field or variable number of fields. Finding an alternative
 to using sequence alignment when examining variable fields is an area we
 leave to future work. Possibly length fields could iteratively be examined
@@ -2087,7 +2087,7 @@ A variable number of fields may be useful in a protocol specification. BOOTP,
 which is the parent protocol to DHCP, has a variable number of header 
 extensions. DNS has a variable number of queries or answers. How the existence
 of a variable number of fields is specified is protocol specific, thus hard to
-determine analytically. 
+determine analytically.
 
 There are byte patterns which could be analyzed in order to infer optional
 fields, such as length fields or some byte value that decides the number of
@@ -2111,7 +2111,7 @@ for every length $n$. With our approach, we try at most
 $\lfloor \frac{length}{n} \rfloor$ possible fields for every length $n$.
 
 \subsection{Bit precision}
-It's not uncommon for fields to have a higher resolution than one byte. In
+It is not uncommon for fields to have a higher resolution than one byte. In
 the RTP header visualized in figure~\ref{fig:rtpdef} there is a four-byte
 length field between flag-bits in the first byte. In order to find these
 features, we would have to introduce bit precision in our analysis. Bit
@@ -2131,7 +2131,7 @@ In section~\ref{sec:pca} we describe how we use PCA in order to reduce the
 dimensionality of our features while preserving the components that contribute
 with the most variance. Another method which falls under the same category is
 correspondence analysis. Correspondence analysis is very similar to PCA, but
-it is applied to nominal data instead of continous data.
+it is applied to nominal data instead of continuous data.
 
 Due to the lack of good correspondence analysis libraries we have been unable
 to evaluate its performance on our feature vectors. By definition it should
