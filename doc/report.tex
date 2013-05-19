@@ -1993,7 +1993,7 @@ inferred. Our performance measurements in section~\ref{sec:clustperf} indicate
 that our method is capable of very good results given the existence of some
 type distinguisher. It also shows the difficulties in trying to infer types
 in protocols where no type distinguisher exists or when the data-set is
-not diverse enough. 
+not diverse enough.
 
 Having diverse data-sets is key to finding a good type inference. Ideally, a
 data-set containing all possible message types, a large number of sessions,
@@ -2031,7 +2031,7 @@ impossible using our metric.
 % (Try to) compare the results with other methods. Emphasize that unlike the
 % other methods we've reviewed, we seek semantics in fields (other than
 % just constant or variable)
-Taking this in to account, our field inference performance is fairly good.
+Taking this into account, our field inference performance is fairly good.
 We have not found any related work that infer field semantics at the same
 level as our method.
 
@@ -2087,7 +2087,7 @@ A variable number of fields may be useful in a protocol specification. BOOTP,
 which is the parent protocol to DHCP, has a variable number of header 
 extensions. DNS has a variable number of queries or answers. How the existence
 of a variable number of fields is specified is protocol specific, thus hard to
-determine analytically. 
+determine analytically.
 
 There are byte patterns which could be analyzed in order to infer optional
 fields, such as length fields or some byte value that decides the number of
@@ -2111,7 +2111,7 @@ for every length $n$. With our approach, we try at most
 $\lfloor \frac{length}{n} \rfloor$ possible fields for every length $n$.
 
 \subsection{Bit precision}
-It's not uncommon for fields to have a higher resolution than one byte. In
+It is not uncommon for fields to have a higher resolution than one byte. In
 the RTP header visualized in figure~\ref{fig:rtpdef} there is a four-byte
 length field between flag-bits in the first byte. In order to find these
 features, we would have to introduce bit precision in our analysis. Bit
