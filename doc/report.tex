@@ -17,6 +17,34 @@
 \usepackage{bytefield}
 \usepackage{afterpage}
 
+% Title page
+\RequirePackage{titling}
+\makeatletter
+\newcommand{\company}[1]{\def \@company {#1}}
+\newcommand{\supervisor}[1]{\def \@supervisor {#1}}
+\newcommand{\examiner}[1]{\def \@examiner {#1}}
+\newcommand{\subtitle}[1]{\def \@subtitle {#1}}
+\company{}
+\supervisor{}
+\examiner{}
+\subtitle{}
+\pretitle{\noindent\rule{\linewidth}{1pt}\begin{center}\Huge}
+\posttitle{\par \vskip 0.5em \ifx \@subtitle \empty \vskip 1em \else {\Large(\@subtitle)} \fi \end{center}\noindent\rule{\linewidth}{1pt}\vskip 0.5em}
+\predate{\vskip 5em \begin{center}\Large}
+\postdate{\par\vfill {\large Master's thesis work carried out at 
+\ifx \@company \empty
+\ClassWarning{cslthse-msc}{Host company missing. Use \protect\company{name}. Defaulting to CS.}
+\\ the Department of Computer Science, Lund University.
+\else \@company. \fi } \\  
+\vskip 1em {\normalsize Supervisor: 
+\ifx \@supervisor \empty
+\ClassError{cslthse-msc}{Missing supervisor. Use \protect\supervisor{name,email}}{You must specify your thesis supervisor.} 
+\else \@supervisor \fi \\ Examiner 
+\ifx \@examiner \empty
+\ClassError{cslthse-msc}{Missing examiner. Use \protect\examiner{name,email}}{You must specify your thesis examiner.}
+\else    \@examiner \fi } \end{center}}
+\makeatother
+
 % Command to create blank page.
 \newcommand\blankpage{%
     \null
@@ -58,6 +86,9 @@ Architectures Optimization Reference Manual}
 
 \title{Automatic Structural Inference of Binary Protocols}
 \author{Fredrik Appelros \and Carl Ekerot}
+\company{Procera Networks}
+\supervisor{Anders Waldenborg}
+\examiner{Pierre Nugues}
 \date{\today}
 \maketitle
 \blankpage
@@ -114,9 +145,7 @@ known.
 
 There are many different reasons why one would want to perform DPI, one of
 which is to provide \emph{quality of service} (QoS). QoS is needed in order to
-gather statistics for Internet service providers that manage the networks. One
-company that delivers QoS solutions is Procera Networks on whose behalf we are
-writing this thesis.
+gather statistics for Internet service providers that manage the networks.
 
 In this thesis we have focused on finding the structure of binary protocols as
 opposed to textual ones. The reason for this being that textual protocols are
@@ -147,7 +176,7 @@ network dumps into textual and binary tokens. From the tokens Discoverer
 attempts to group messages based on their true message type, such as requests
 or responses. After the grouping of messages, Discoverer seeks semantic meaning
 in the tokens in common for each group of messages, and classifies the tokens
-into a set of predefined classes. 
+into a set of predefined classes.
 
 \citet{caballero12} proposes a method where protocol specifications are
 constructed by monitoring the execution state of the client or server software
@@ -1306,8 +1335,8 @@ protocol state diagram is trivial. We simply partition the set of messages
 into connections, where connections are tuples of client and server sockets.
 From each connection, we define each message in the connection as a change
 of state. Each state has a set of probabilities for transitioning to
-all other states we've defined. The cumulative sum of these probabilities 
-sums up to 1. 
+all other states we have defined. The cumulative sum of these probabilities
+sums up to 1.
 
 We represent the states as two $n \times n$-matrices, $C$ and  $S$, where 
 $n$ is the number of types, which will be the same as the number of states.
@@ -1318,7 +1347,7 @@ two matrices, we may calculate the probabilities for the state transitions by
 normalizing each row.
 
 A state diagram of all protocol states and transitions may not always be
-feasible. Some protocols does not follow the state model which we're 
+feasible. Some protocols does not follow the state model which we are
 trying to model with our approach. They may allow some message types to
 be sent from all states, and may only be represented with a state diagram
 during some phases such as the handshake phase. We handle this problem by
@@ -1446,7 +1475,7 @@ use when calculating the metrics is based on the protocol definition in
 Wireshark.
 
 In table~\ref{tab:clusterparams} we list the parameters we use on the
-different data-sets. The initial clustering, which uses OPTICS, uses only the
+different datasets. The initial clustering, which uses OPTICS, uses only the
 Limit and MinSamples parameters. The type distinguisher clustering uses only
 the results from the OPTICS clustering and the MaxNumTypes parameter. All of
 these parameters are rather insensitive to change.
@@ -1569,9 +1598,9 @@ labeled as a true type distinguisher.
 These results correlate with the results from table~\ref{tab:tdclusterresults}.
 If the type distinguisher bytes are chosen correctly, the clustering is close
 to ideal. Failing to find a correct type distinguisher has a heavy impact on
-the results. This is evident in the results from the RTP data-set. The chosen
+the results. This is evident in the results from the RTP dataset. The chosen
 type distinguishers are actually defined as a stream identifier in the RTP
-specification. Our data-set contains several streams with variant data for
+specification. Our dataset contains several streams with variant data for
 each stream, but only one actual message type.
 
 For DHCP our type distinguisher clustering has found one of the two true
@@ -1992,19 +2021,19 @@ applied to binary network protocols, and how protocol field semantics may be
 inferred. Our performance measurements in section~\ref{sec:clustperf} indicate
 that our method is capable of very good results given the existence of some
 type distinguisher. It also shows the difficulties in trying to infer types
-in protocols where no type distinguisher exists or when the data-set is
+in protocols where no type distinguisher exists or when the dataset is
 not diverse enough.
 
-Having diverse data-sets is key to finding a good type inference. Ideally, a
-data-set containing all possible message types, a large number of sessions,
+Having diverse datasets is key to finding a good type inference. Ideally, a
+dataset containing all possible message types, a large number of sessions,
 and messages from all edge-cases of the protocol would be needed for a
-complete inference. This would require large data-sets containing many more
-messages than the data-sets we used to generate our results. Using the OPTICS
-algorithm for such large data-sets would be infeasible since its time
+complete inference. This would require large datasets containing many more
+messages than the datasets we used to generate our results. Using the OPTICS
+algorithm for such large datasets would be infeasible since its time
 complexity is at best $O(n \cdot \log n)$ as proven by \citet{ankerst99}.
-A better approach would be to perform OPTICS on a subset of a large data-set
+A better approach would be to perform OPTICS on a subset of a large dataset
 in order to find the format distinguishers, and subsequently perform
-format distinguisher clustering on the complete data-set.
+format distinguisher clustering on the complete dataset.
 
 % State machines
 From the inferred types we were able to construct state diagrams that reveals
@@ -2077,9 +2106,9 @@ the HTTP protocol was made. The HTTP header contains a set of unordered
 key-value pairs delimited by line breaks. Due to the pairs being unordered,
 the method yielded an immense number of possible types.
 
-For the type inference, our method could be able to find some type 
+For the type inference, our method could be able to find some type
 distinguisher, perhaps the first three ASCII characters of each HTTP method.
-Our field inference would however not work, since we're assuming aligned
+Our field inference would however not work, since we are assuming aligned
 data in a specific ordering.
 
 \subsection{Variable number of fields}
@@ -2153,7 +2182,7 @@ more robust field classification. Building the training set however is out
 of the scope for this thesis.
 
 \subsection{Timestamp identification}
-From our analysis, we've seen that timestamps have a potentially
+From our analysis, we have seen that timestamps have a potentially
 distinguishable byte distribution. This distribution could perhaps be analyzed
 in order to classify a field as a timestamp. The distribution reveals a number
 of spikes we assume to be dependent on the time resolution. This is most
@@ -2162,7 +2191,7 @@ analysis, it should be possible to determine the time resolution. This could
 be applicable for media streaming protocols.
 
 For general timestamps, we could compare the packet delivery timestamp from
-the data-set with the value difference in a field. If this difference is
+the dataset with the value difference in a field. If this difference is
 consistent enough, we could classify the field as a timestamp.
 
 \bibliographystyle{plainnat}
