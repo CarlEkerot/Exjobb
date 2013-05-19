@@ -927,7 +927,8 @@ at which the data is located must be a multiple of $n$. That means that a four
 byte field may be located at offset 0, 4 or 12 but not at offset 5 or 10. Most
 protocols follow these principle for optimization reasons as a received packet
 will reside in a byte buffer in memory and accessing misaligned data can be
-expensive; see e.g. Assembly/Compiler Coding Rule 46 in \citetalias{intel12}.
+expensive; see e.g. Assembly/Compiler Coding Rule 46 in \citetalias{intel12}
+for guidelines on memory alignment.
 
 Another principle that is often used is that messages start with a
 \emph{header}, a collection of fields of fixed length that is located before
@@ -1639,9 +1640,10 @@ will go through them each on a per dataset basis below.
             \wordbox{1}{N}\\
             \wordbox{1}{N}
         \end{bytefield}
-        \caption{DNS header.}
+        \caption{Definition of the DNS header.}
         \label{fig:dnsdef}
     \end{subfigure}
+    \quad
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
         \begin{bytefield}{16}
@@ -1660,7 +1662,7 @@ will go through them each on a per dataset basis below.
         \caption{The result from our inference of the DNS header.}
         \label{fig:dnsres}
     \end{subfigure}
-    \caption{Caption.}
+    \caption{Comparison of the actual header and the inferred header of DNS.}
     \label{fig:dnsperf}
 \end{figure}
 
@@ -1711,9 +1713,7 @@ diversity.
             \bitbox{16}{D}      % User ID
             \bitbox{16}{D}     % Multiplex ID
         \end{bytefield}
-        \caption{The SMB header. Fields which belong to the NetBIOS-header
-            are marked with a gray background. Dots denote continuation of
-            the previous field.}
+        \caption{Definition of the SMB header.}
         \label{fig:smbdef}
     \end{subfigure}
     \quad
@@ -1743,9 +1743,20 @@ diversity.
         \caption{The result from our inference of the SMB header.}
         \label{fig:smbres}
     \end{subfigure}
-    \caption{Caption.}
+    \caption{Comparison of the actual header and the inferred header of SMB.
+        Fields which belong to the NetBIOS-header are marked with a gray
+        background. Dots denote continuation of the previous field.}
     \label{fig:smbperf}
 \end{figure}
+
+Despite similar accuracy, the performance of SMB is actually quite a lot
+better. The main culprit behind the low performance here lies instead in the
+protocol definition. The SMB header has a lot of data fields which are, as
+previously mentioned, non-inferable. This means that actually only 144 of its
+288 bits can be found. If we had chosen to define accuracy on these bits
+instead we would get an accuracy of 77.8\%. There is also a slight problem with
+diversity again, causing some fields to be incorrectly classified as global
+constant.
 
 \subsection{TFTP performance}
 
@@ -1758,10 +1769,10 @@ diversity.
             \bitheader{0, 15}\\
             \wordbox{1}{F}    % OPCode
         \end{bytefield}
-        \caption{The TFTP header. The header only consist of a two-byte 
-        OP-code. Additional fields are type-dependent.}
+        \caption{Definition of the TFTP header.}
         \label{fig:tftpdef}
     \end{subfigure}
+    \quad
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
         \begin{bytefield}{16}
@@ -1772,9 +1783,15 @@ diversity.
         \caption{The result from our inference of the TFTP header.}
         \label{fig:tftpres}
     \end{subfigure}
-    \caption{Caption.}
+    \caption{Comparison of the actual header and the inferred header of TFTP.}
     \label{fig:tftpperf}
 \end{figure}
+
+We get the absolute worst performance with TFTP with no correct bits at all.
+Yet again the problem lies in the diversity of the dump. There are only two
+bytes in the TFTP header and both are classified as a type of constant. The
+performance is on the other hand better within the clusters as other fields are
+found.
 
 \subsection{RTP performance}
 
@@ -1799,9 +1816,10 @@ diversity.
             \wordbox{1}{SI}\\   % Timestamp
             \wordbox{1}{SC}   % SSRC
         \end{bytefield}
-        \caption{The RTP header with bit-resolution flag-fields.}
+        \caption{Definition of the RTP header.}
         \label{fig:rtpdef}
     \end{subfigure}
+    \quad
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
         \begin{bytefield}[bitwidth=0.5em]{32}
@@ -1818,9 +1836,21 @@ diversity.
         \caption{The result from our inference of the RTP header.}
         \label{fig:rtpres}
     \end{subfigure}
-    \caption{Caption.}
+    \caption{Comparison of the actual header and the inferred header of RTP.}
     \label{fig:rtpperf}
 \end{figure}
+
+The best performance for our field inference was found in the RTP dump. When
+examined more closely it could have been even better as the stream incremental
+fields was nearly identified as well. The reason why it was not is that we
+enforce all streams to be in agreement in order for a field to be classified as
+something with a stream scope. In this case one of the streams had a lot of
+retransmitted packets that caused the field to not increase so that it could
+not be classified as incremental. The condition that all streams need to be in
+agreement to classify a field might be too strict. A more reasonable approach
+could be to only require a majority of agreeing streams. Another smaller source
+of error is that there is yet again some fields that are constant within the
+dump causing incorrect classifications.
 
 \subsection{DHCP performance}
 
@@ -1835,7 +1865,7 @@ diversity.
             \bitbox{8}{F}       % HW addr. len
             \bitbox{8}{N}\\     % Hop-count
             \wordbox{1}{U}\\    % Transaction ID
-            \bitbox{16}{I}      % Num seconds
+            \bitbox{16}{D}      % Num seconds
             \bitbox{16}{F}\\    % Flags
             \wordbox{1}{D}\\    % Client IP
             \wordbox{1}{D}\\    % Your IP
@@ -1846,9 +1876,10 @@ diversity.
             \wordbox{1}{D (128 bytes)}\\  % Client HW Addr
             \wordbox[]{9}{}
         \end{bytefield}
-        \caption{The DHCP header.}
+        \caption{Definition of the DHCP header.}
         \label{fig:dhcpdef}
     \end{subfigure}
+    \quad
     \begin{subfigure}[t]{0.48\textwidth}
         \begin{bytefield}[bitwidth=0.5em]{32}
             \bitheader{0, 31}\\
@@ -1888,15 +1919,24 @@ diversity.
             \bitbox{8}{C}
             \bitbox{8}{F}
         \end{bytefield}
-        \caption{The result from our inference of the DHCP header. Note that
-            fields specified as data (D) have a distribution which is
-            undefined in the protocol specification. The actual distribution
-            may be the type we've inferred.}
+        \caption{The result from our inference of the DHCP header.}
         \label{fig:dhcpres}
     \end{subfigure}
-    \caption{Caption.}
+    \caption{Comparison of the actual header and the inferred header of DHCP.
+        Note that the header is too long to show here in its actual size; the
+        length in bytes for some of the fields are shown in text instead.}
     \label{fig:dhcpperf}
 \end{figure}
+
+The main problem with the classification in the case of DHCP is the extremely
+large amount of data in the header. Only 80 of the 1888 bits in the header is
+actually classifiable. If we consider this the accuracy is actually 80.0\%.
+
+The fields that are specified as data does not have a clear enough definition
+in its documentation to fall into one of our categories. They might in reality
+though have characteristics that does match one of our categories so some of
+the fields that are classified as data in the definition and something else in
+our inferred results might actually be correct.
 
 \chapter{Discussion}
 
