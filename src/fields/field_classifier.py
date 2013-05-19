@@ -27,10 +27,25 @@ def _build_stream_and_connection_data(msgs, limit):
     stream_data = defaultdict(list)
     conn_data   = defaultdict(list)
 
+    # Build streams and connections
     for msg in msgs:
         data = align.string_to_alignment(msg.data[:limit])
         stream_data[msg.stream].append(data)
         conn_data[msg.conn].append(data)
+
+    # Remove those with insufficient data
+    tbr = []
+    for key in stream_data:
+        if len(stream_data[key]) <= 1:
+            tbr.append(key)
+    for key in tbr:
+        del stream_data[key]
+    tbr = []
+    for key in conn_data:
+        if len(conn_data[key]) <= 1:
+            tbr.append(key)
+    for key in tbr:
+        del conn_data[key]
 
     return (stream_data, conn_data)
 
@@ -47,15 +62,14 @@ def _build_aligned_data(data, limit):
     return aligned_data
 
 def _field_consensus(categorized_samples, length, size, classifier):
-    num_fields = int(length / size)
+    num_fields = length / size
+    if num_fields == 0:
+        return []
     fields = np.asarray(num_fields * [True])
     for samples in categorized_samples.values():
         result = classifier(samples, size)
         result += (num_fields - len(result)) * [False]
-        try:
-            fields = fields & result
-        except:
-            print type(fields), type(result), fields, result
+        fields = fields & result
     return fields.tolist()
 
 def _classify_global_fields(msgs, limit, sizes, max_num_flag_values,
@@ -109,6 +123,8 @@ def _classify_cluster_fields(msgs, limit, sizes, max_num_flag_values,
     est = defaultdict(lambda: defaultdict(dict))
     for label in clusters:
         cluster_data = [data[i] for i in clusters[label]]
+        if len(cluster_data) <= 1:
+            continue
         aligned_data = _build_aligned_data(cluster_data, limit)
         samples = _build_samples(aligned_data)
         for size in sizes:
