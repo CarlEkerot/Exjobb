@@ -1990,9 +1990,9 @@ our inferred results might actually be correct.
 In this thesis we have proven how density-based clustering algorithms may be
 applied to binary network protocols, and how protocol field semantics may be
 inferred. Our performance measurements in section~\ref{sec:clustperf} indicate
-that our method is capable of very good results given the exsistance of some
+that our method is capable of very good results given the existence of some
 type distinguisher. It also shows the difficulties in trying to infer types
-in protocols where no type distinguisher exsists or when the data-set is
+in protocols where no type distinguisher exists or when the data-set is
 not diverse enough. 
 
 Having diverse data-sets is key to finding a good type inference. Ideally, a
@@ -2010,12 +2010,12 @@ format distinguisher clustering on the complete data-set.
 From the inferred types we were able to construct state diagrams that reveals
 the ordering in which messages of different types were sent. This was suggested
 as future work in Discoverer by \citet{cui07}. For protocols with a large
-number of types we infer an immense amoun of state transitions. This renders
+number of types we infer an immense amount of state transitions. This renders
 a very complex state diagram. Instead we consider the state diagram inference
 useful when examining protocol initiation procedures, or protocols such as
 DNS where the number of types are small.
 
-% Explain why the field inferences areactually pretty good, and why it is hard
+% Explain why the field inferences are actually pretty good, and why it is hard
 % to define a metric which is suitable.
 When the types were inferred our method moved on to inferring fields and field
 semantics. In section~\ref{sec:fieldanalysis} we introduced a set of
@@ -2044,12 +2044,12 @@ distribution curve fittings.
 % it yields usable results
 % Explain why alignment might be unnecessary and discuss alternative solutions.
 After inferring fields in common for all message types, we made an
-attempt to infer fields within each type. During this process we intially
+attempt to infer fields within each type. During this process we initially
 aligned the data using our modified version of Needleman-Wunsch defined in
 section~\ref{sec:nonmutualalign}. After the data had been aligned, we hoped to
 find which fields that were of variable length and if their length was
 decided by some length field or a delimiter. We found difficulties in
-analysing the results from the alignment and we were not able to handle
+analyzing the results from the alignment and we were not able to handle
 variable length field or variable number of fields. Finding an alternative
 to using sequence alignment when examining variable fields is an area we
 leave to future work. Possibly length fields could iteratively be examined
@@ -2131,7 +2131,7 @@ In section~\ref{sec:pca} we describe how we use PCA in order to reduce the
 dimensionality of our features while preserving the components that contribute
 with the most variance. Another method which falls under the same category is
 correspondence analysis. Correspondence analysis is very similar to PCA, but
-it is applied to nominal data instead of continous data.
+it is applied to nominal data instead of continuous data.
 
 Due to the lack of good correspondence analysis libraries we have been unable
 to evaluate its performance on our feature vectors. By definition it should
