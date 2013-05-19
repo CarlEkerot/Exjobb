@@ -635,8 +635,8 @@ are spread out over different clusters then $c = 0$. When some true classes
 are spread out while other are contained in single clusters then
 $0 < c < 1$.
 
-\subsubsection{V-Measure score}
-V-Measure is a weighted harmonic mean of homogenity and completeness, and
+\subsubsection{V-measure score}
+V-measure is a weighted harmonic mean of homogenity and completeness, and
 is defined by \citeauthor{rosenberg07} as:
 
 \[
@@ -1441,7 +1441,7 @@ In table~\ref{tab:datasets} we list the properties of our different datasets.
 \section{Clustering performance}
 \label{sec:clustperf}
 We measure the performance of our clustering using the metrics described in
-section~\ref{sec:metrics}: homogenity, completeness and V-Measure. The truth we
+section~\ref{sec:metrics}: homogenity, completeness and V-measure. The truth we
 use when calculating the metrics is based on the protocol definition in
 Wireshark.
 
@@ -1450,7 +1450,7 @@ different data-sets. The initial clustering, which uses OPTICS, uses only the
 Limit and MinSamples parameters. The type distinguisher clustering uses only
 the results from the OPTICS clustering and the MaxNumTypes parameter. All of
 these parameters are rather insensitive to change.
-% Metrics: homogenity, completeness, V-Measure
+% Metrics: homogenity, completeness, V-measure
 % Improvement over dump size; all metrics
 %   Before type distinguisher clustering
 %   After type distringuisher clustering
@@ -1846,7 +1846,7 @@ found.
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
         \begin{bytefield}[bitwidth=0.5em]{32}
-            \bitheader{0, 15, 16, 31}\\
+            \bitheader{0, 31}\\
             \bitbox{2}{\tiny{F}}       % Ver
             \bitbox{1}{\tiny{F}}       % P
             \bitbox{1}{\tiny{F}}       % X
@@ -1864,7 +1864,7 @@ found.
     \begin{subfigure}[t]{0.48\textwidth}
         \centering
         \begin{bytefield}[bitwidth=0.5em]{32}
-            \bitheader{0, 15, 16, 31}\\
+            \bitheader{0, 31}\\
             \bitbox{8}{C}
             \bitbox{8}{F}
             \bitbox{16}{N}\\
