@@ -315,7 +315,7 @@ figure~\ref{fig:ransac}.
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.8\textwidth]{ransac}
+    \includegraphics[width=0.8\textwidth]{img/ransac}
     \captionsetup{width=0.8\textwidth}
     \caption{A comparison between OLS and RANSAC on a dataset containing
     outliers.}
@@ -401,7 +401,7 @@ $MinPts = 200$.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{dbscan_dns}
+    \includegraphics[width=0.8\textwidth]{img/dbscan_dns}
     \captionsetup{width=0.8\textwidth}
     \caption{An example of clustering with DBSCAN running on samples generated
     from 5000 packets of DNS data. The samples has been projected down to two
@@ -478,13 +478,13 @@ The pseudocode algorithm is given in algorithm~\ref{alg:optics}.
 \begin{figure}[t]
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{rplot_dhcp}
+        \includegraphics[width=\textwidth]{img/rplot_dhcp}
         \caption{Reachability-plot for 5000 DHCP-packets with $MinPts = 200$.}
         \label{fig:rplot}
     \end{subfigure}
     \quad
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{hierextr}
+        \includegraphics[width=\textwidth]{img/hierextr}
         \caption{Hierarchical extraction for 5000 DNS-packets with
         $MinPts = 200$.}
         \label{fig:hierextr}
@@ -883,13 +883,13 @@ is often needed in order to capture as many message types as possible.
 \begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{num_optics}
+        \includegraphics[width=\textwidth]{img/num_optics}
         \caption{Number of clusters found by OPTICS for different input sizes.}
         \label{fig:num_optics}
     \end{subfigure}
     \quad
     \begin{subfigure}[t]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{metrics_optics}
+        \includegraphics[width=\textwidth]{img/metrics_optics}
         \caption{Clustering metrics for our OPTICS clustering for different
             input sizes.}
         \label{fig:metrics_optics}
@@ -949,14 +949,14 @@ clustering.
 \begin{figure}[h]
     \centering
     \begin{subfigure}[t]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{num_td}
+        \includegraphics[width=\textwidth]{img/num_td}
         \caption{Number of clusters found by our type distinguisher clustering
             for different input sizes.}
         \label{fig:num_td}
     \end{subfigure}
     \quad
     \begin{subfigure}[t]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{metrics_td}
+        \includegraphics[width=\textwidth]{img/metrics_td}
         \caption{Clustering metrics for our type distinguisher clustering for
             different input sizes.}
         \label{fig:metrics_td}
@@ -1127,7 +1127,7 @@ techniques on the data of each individual message.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{const_one}
+    \includegraphics[width=0.8\textwidth]{img/const_one}
     \captionsetup{width=0.8\textwidth}
     \caption{Byte value distribution of the 6th byte in the DNS header. This
         byte is the least significant byte of the two-byte query count field.
@@ -1160,7 +1160,7 @@ Constant fields may be interpreted as one of the following:
 \subsection{Flag fields}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{flag}
+    \includegraphics[width=0.8\textwidth]{img/flag}
     \captionsetup{width=0.8\textwidth}
     \caption{Byte value distribution for the 3rd byte in the DNS header.
     From this byte it may be determined if the message is a query or a
@@ -1193,7 +1193,7 @@ some upper bound.
 \subsection{Uniform fields}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{uniform}
+    \includegraphics[width=0.8\textwidth]{img/uniform}
     \captionsetup{width=0.8\textwidth}
     \caption{Byte value distribution for the first byte of the DNS header.
         This byte is the first of a two-byte ID field.}
@@ -1235,7 +1235,7 @@ uniform distribution; a horizontal line at $\frac{1}{256}$.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{number}
+    \includegraphics[width=0.8\textwidth]{img/number}
     \captionsetup{width=0.8\textwidth}
     \caption{A fitted normal distribution to the distribution of values of the
     13th byte in DNS.}
@@ -1272,7 +1272,7 @@ in the field.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{length}
+    \includegraphics[width=0.8\textwidth]{img/length}
     \captionsetup{width=0.8\textwidth}
     \caption{RANSAC fit of the WC field in the SMB protocol. The resulting
     parameters are $\alpha = 39$ and $\beta = 2$.}
@@ -1390,13 +1390,13 @@ order with respect to the state diagram.
 \begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{dnsstate}
+        \includegraphics[width=\textwidth]{img/dnsstate}
         \caption{State diagram for the DNS protocol.}
         \label{fig:dnsstate}
     \end{subfigure}
     \quad
     \begin{subfigure}[b]{0.48\textwidth}
-        \includegraphics[width=\textwidth]{smbstate}
+        \includegraphics[width=\textwidth]{img/smbstate}
         \caption{State diagram for the SMB protocol}
         \label{fig:smbstate}
     \end{subfigure}

@@ -16,5 +16,7 @@ slides:
 	xelatex ${slidesfile}
 
 clean:
-	rm ${texfile}.aux ${texfile}.bbl ${texfile}.blg ${texfile}.log ${texfile}.toc \
-	rm ${slidesfile}.aux ${slidesfile}.log ${slidesfile}.pdf ${slidesfile}.toc ${slidesfile}.snm ${slidesfile}.nav ${slidesfile}.out
+	rm ${texfile}.aux ${texfile}.out ${texfile}.bbl ${texfile}.blg \
+	${texfile}.log ${texfile}.toc \
+	rm ${slidesfile}.aux ${slidesfile}.log ${slidesfile}.pdf ${slidesfile}.toc \
+	${slidesfile}.snm ${slidesfile}.nav ${slidesfile}.out
