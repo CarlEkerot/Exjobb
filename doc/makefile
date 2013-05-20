@@ -12,4 +12,5 @@ compile:
 	pdflatex ${texfile}
 
 clean:
-	rm ${texfile}.aux ${texfile}.bbl ${texfile}.blg ${texfile}.log ${texfile}.toc ${texfile}.pdf
+	rm ${texfile}.aux ${texfile}.out ${texfile}.bbl ${texfile}.blg \
+	${texfile}.log ${texfile}.toc ${texfile}.pdf
