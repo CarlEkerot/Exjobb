@@ -106,6 +106,7 @@ class Clustering(object):
             print 'Could not find any format distinguishers.'
             return self.labels
         print 'Chosen format distinguishers: ' + ', '.join(map(str, positions))
+        self.type_distinguishers = positions
 
         bins = defaultdict(list)
         for (i, msg) in enumerate(self.msgs):

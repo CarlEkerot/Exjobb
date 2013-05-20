@@ -22,6 +22,7 @@ class ProtocolAnalyser(object):
         clustering.cluster(min_samples, args, max_num_types, header_limit, max_type_ratio)
         self.labels = clustering.labels
         self.clusters = clustering.clusters
+        self.type_distinguishers = clustering.type_distinguishers
 
     def state_inference(self, filename, depth=None):
         assert self.labels is not None, ("Missing cluster labels. "
@@ -45,6 +46,7 @@ class ProtocolAnalyser(object):
         print_fields(fields, global_limit)
         for label in self.cluster_est:
             print (' CLUSTER %d (%d) ' % (label, len(self.clusters[label]))).center(33, '=')
+            print 'TD values:', ', '.join([str(ord(self.msgs[self.clusters[label][0]].data[i])) for i in self.type_distinguishers])
             fields = create_cluster_fields(self.cluster_est, ordered_sizes, label)
             print_fields(fields)
 
