@@ -29,13 +29,14 @@ scope_prefix = {
 }
 
 type_symbols = {
-    'lengths':      'LEN',
-    'incrementals': 'INC',
-    'numbers':      'NUM',
-    'uniforms':     'UNI',
-    'flags':        'FLA',
-    'constants':    'CON',
-    'unknown':      'UNK',
+    'type_distinguisher':   'TD',
+    'lengths':              'LEN',
+    'incrementals':         'INC',
+    'numbers':              'NUM',
+    'uniforms':             'UNI',
+    'flags':                'FLA',
+    'constants':            'CON',
+    'unknown':              'UNK',
 }
 
 class Field(object):
@@ -48,9 +49,14 @@ class Field(object):
             self.scope = 'cluster'
         self.type   = type_
 
-def create_fields(order, estimations):
+def create_fields(order, estimations, tds=None):
     fields      = []
     occupied    = []
+    if tds:
+        occupied = (max(tds) + 1) * [False]
+        for pos in tds:
+            fields.append(Field(pos, 1, 'n/a', 'type_distinguisher'))
+            occupied[pos] = True
     for ((scope, type_), size) in order:
         est = estimations[scope][type_][size]
         for (i, b) in enumerate(est):
@@ -73,9 +79,9 @@ def create_global_fields(estimations, sizes):
     fields = create_fields(global_order, estimations)
     return fields
 
-def create_cluster_fields(estimations, sizes, label):
+def create_cluster_fields(estimations, sizes, label, type_distinguishers):
     cluster_order = list(product(product([label], cluster_precedences), sizes))
-    fields = create_fields(cluster_order, estimations)
+    fields = create_fields(cluster_order, estimations, type_distinguishers)
     return fields
 
 def print_fields(fields, limit=None):
