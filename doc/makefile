@@ -13,7 +13,7 @@ compile:
 	pdflatex ${texfile}
 
 slides:
-	pdflatex ${slidesfile}
+	xelatex ${slidesfile}
 
 clean:
 	rm ${texfile}.aux ${texfile}.bbl ${texfile}.blg ${texfile}.log ${texfile}.toc \
