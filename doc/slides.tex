@@ -1,5 +1,6 @@
 \documentclass[xetex]{beamer}
 \usepackage{fontspec}
+\usepackage{bytefield}
 
 \title{Automatisk upptäckt av strukturer för binära nätverksprotokoll}
 \author{Fredrik Appelros \& Carl Ekerot}
@@ -23,38 +24,152 @@
     % Introduktion
     \begin{frame}
         \frametitle{Binära nätveksprotokoll}
-        Beskriv binära nätverksprotokoll
+        \begin{columns}[t]
+            \begin{column}[T]{8cm}
+                \begin{itemize}
+                    \item Språk för mjukvara eller hårdvara
+                    \item Binärt kodat -- ej läsbart
+                    \item Läses med hjälp av specifikation
+                    \item Byggs upp av fält som representerar nummer, flaggor,
+                        data osv.
+                    \item Exempel: DNS, SMB, RTP, DHCP, \ldots
+                \end{itemize}
+            \end{column}
+            \begin{column}[T]{6cm}
+                \begin{bytefield}[bitwidth=0.56em]{16}
+                    \bitheader{0, 16}\\
+                    \wordbox{1}{\texttt{1000011010010000}}\\
+                    \bitbox{1}{\texttt{1}}
+                    \bitbox{4}{\texttt{0000}}
+                    \bitbox{1}{\texttt{0}}
+                    \bitbox{1}{\texttt{0}}
+                    \bitbox{1}{\texttt{1}}
+                    \bitbox{1}{\texttt{1}}
+                    \bitbox{3}{\texttt{000}}
+                    \bitbox{4}{\texttt{0000}}\\
+                    \wordbox{1}{\texttt{0000000000000001}}\\
+                    \wordbox{1}{\texttt{0000000000000010}}\\
+                    \wordbox{1}{\texttt{0000000000000001}}\\
+                    \wordbox{1}{\texttt{0000000000000000}}
+                \end{bytefield}
+            \end{column}
+        \end{columns}
     \end{frame}
     \begin{frame}
         \frametitle{Slutna protokoll}
-        Beskriv hur det kan finnas behov av att hitta struktur i
-        ospecifierade binära nätveksprotokoll
+        \begin{itemize}
+            \item Ett protokoll kan ha \emph{öppen} eller \emph{sluten}
+                specifikation
+            \item Slutet protokoll $\Rightarrow$ svårt att tyda meddelanden
+            \item Proprietära eller odokumenterade
+            \item Exempel: Skype, (tidigare) SMB
+        \end{itemize}
+        \vskip20pt
+        Varför avkoda slutna protokoll?
+        \begin{enumerate}
+            \item Interoperabilitet (SMB)
+            \item QoS
+        \end{enumerate}
     \end{frame}
     \begin{frame}
         \frametitle{Tidigare försök}
-        Berätta om Discoverer, exekveringstillstånds-approachen osv.
+        Discoverer, Microsoft (2005)
+        \begin{itemize}
+            \item Arbetar på lagrad nätverkstrafik
+            \item Delar upp i textuell och binär data
+            \item Försöker hitta meddelandetyper
+        \end{itemize}
+        \vskip20pt
+        Dispatcher, UC Berkeley (2012)
+        \begin{itemize}
+            \item Övervakar exekveringstillstånd
+            \item Jämför nätverkstrafik med data i minnet
+            \item Kräver mjukvaran/hårdvaran som använder protokollet
+        \end{itemize}
     \end{frame}
 
     % Vår approach
     \begin{frame}
         \frametitle{Vårt angreppssätt}
-        Kort om hur vi tillämpar metoder från statistisk analys så
-        som t.ex. klustring och diverse heurestiker.
+        Input: Nätverksdump (pcap)\\
+        Metod:
+        \begin{enumerate}
+            \item Identifiera meddelandetyper
+                \begin{itemize}
+                    \item Statistisk analys -- \emph{klustring}
+                    \item Förfining -- hitta vad som definierar en meddelandetyp
+                \end{itemize}
+            \item Identifiera fält
+                \begin{itemize}
+                    \item Statistisk analys -- identifiera bytevärdesdistributioner
+                    \item Identifiera fält specifika för anslutningar
+                    \item Hitta längdfält
+                \end{itemize}
+            \item Bygg tillståndsdiagram
+                \begin{itemize}
+                    \item Vilka meddelandetyper kan följa ett visst meddelande?
+                \end{itemize}
+        \end{enumerate}
     \end{frame}
     
     % Klustring
     \begin{frame}
         \frametitle{Hitta meddelandetyper}
-        Beskriv hur vi delar upp sökandet efter typer i två pass
+        \begin{itemize}
+            \item Antagande: liknande data $\Leftrightarrow$ samma meddelandetyp
+            \item Klustring: gruppera datapunkter m.a.p. egendefinierade egenskaper
+                för varje datapunkt
+            \item Använda resultat från klustring för att hitta de bytes som
+                definierar ett meddelandes typ
+        \end{itemize}
     \end{frame}
     \begin{frame}
         \frametitle{Hitta meddelandetyper -- Klustring}
-        Hur vi använder OPTICS för att hitta gruppering av meddelanden som
-        liknar varandra enligt våra features
+        Problem:
+        \begin{itemize}
+            \item Okänt antal kluster (meddelandetyper)
+            \item Varierande \emph{täthet} bland kluster
+        \end{itemize}
+        Lösning: \textbf{OPTICS}, \scriptsize{
+            \emph{\underline{O}rdering \underline{P}oints \underline{T}o
+                  \underline{I}dentify the \underline{C}lustering 
+                  \underline{S}tructure}}
+        \vskip20pt
+        \begin{columns}[t]
+            \begin{column}[T]{6cm}
+                \begin{itemize}
+                    \item \emph{Densitetsbaserad} klustringsalgoritm
+                    \item Hittar kluster med olika täthet
+                    \item Behöver ej fördefinierat antal kluster som parameter
+                \end{itemize}
+            \end{column}
+            \begin{column}[T]{6cm}
+                \includegraphics[height=4.5cm]{img/hierextr.pdf}
+            \end{column}
+        \end{columns}
+    \end{frame}
+    \begin{frame}
+        \frametitle{Hitta meddelandetyper -- Klustring (forts.)}
+        Egenskaper: vektor $\{f_1, f_2, ..., f_n\}$
+        \begin{itemize}
+            \item $n$: meddelandets längd
+            \item $f_i$: sannolikhet för att bytevärdet på position $i$ i
+                meddelandet är det värdet som det är.
+        \end{itemize}
+        \vskip20pt
+        Problem: hög dimensionalitet \\
+        Lösning: \textbf{PCA}, \scriptsize{\underline{P}rincipal
+            \underline{C}omponent \underline{A}nalysis}
     \end{frame}
     \begin{frame}
         \frametitle{Hitta meddelandetyper -- Förfining}
-        Type distinguisher clustering
+        \emph{Typ-bytes}: Bytes som bestämmer ett meddelandes typ \\
+        \vskip15pt
+        Antagande: Om det finns typ-bytes så kommer de ha samma värde inom
+            kluster \\
+        \vskip15pt
+        \emph{Completeness}: Hög om många datapunkter av en viss sann typ
+            ligger inom samma kluster
     \end{frame}
 
     % Fält
