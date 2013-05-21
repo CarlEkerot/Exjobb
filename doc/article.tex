@@ -102,6 +102,15 @@ since some field values never occur or are in practice only a single value
 although the protocol specification labels it as e.g. a flag.
 
 \section{Discussion}
+Our method for finding message types works very well for data-sets where more
+than one message type is present. From our evaluation of our method we have
+learned that a diverse data-set is crucial for a good analysis to be possible.
 
+We have observed that our field inference often finds field types that reflect
+how the field is actually used in the protocol. Our field inference reveals
+information on the type of data that is stored in a field, and gives an
+indication of the boundaries of the field. We believe that this method could
+be improved further, and that it could be extended to more field types such
+as timestamps.
 \end{document}
 
