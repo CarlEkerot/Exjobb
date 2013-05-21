@@ -10,18 +10,70 @@
 Communication protocols are the foundation of everyday networking tasks but
 they are not always open in terms of available documentation. For reasons of
 interoperability or the collection of statistics some protocols need to be
-reverse engineered. This thesis presents a method based on density-based
+reverse engineered. This article presents a method based on density-based
 clustering and byte distribution classification for automatically inferring the
 structure of a protocol from a packet dump. We evaluate the precision of the
-method for finding different packet types and for finding fields, both globally
-across all packets and within the inferred packet types.
+method for finding different packet types and for finding fields globally
+across all packets.
 \end{abstract}
 
 \section{Introduction}
-Text.
+The languages computers use when communicating are defined in network protocols.
+Some of these protocols, like HTTP, are text-based but a large portion of them
+are binary. Text-based protocols use messages that are easy for humans to
+understand as they can simply be read while binary ones are much harder to
+interpret. Binary protocols consist of a large chunk of binary data with no
+clear distinction between the different parts. However, each protocol usually
+has a documentation that explains how to interpret this data; a definition of
+the different fields that the data chunks are made up of. A field is a set of
+bits that represent some kind of information. It can be a flag, a number, a
+string or just raw data.
+
+Unfortunately, this documentation is not always available. The protocol might
+be proprietary or simply undocumented, making it hard for third parties to use.
+For interoperability or quality of service reasons the demand to understand
+these protocols still exists. This is where protocol reverse engineering steps
+in. Protocol reverse engineering is the art of deducing the syntax and
+semantics of a protocol by analyzing its communication.
 
 \section{Method}
-Text.
+The approach we used is based on analysis of packet dumps, i.e. a collection
+of captured messages. The first step was to find the different message types.
+After this was done we focused on finding different types of fields; both
+common for all types and unique fields within types. Lastly, we also
+constructed a state diagram for the protocol to get an overview of the
+transitions between different message types.
+
+The first part was done with the help of a density-based clustering algorithm
+called \emph{OPTICS}. What this step does is group similar messages together into
+\emph{clusters}. The similarity of the messages are defined as the euclidean
+distance between them in a feature-space. For our features we chose the
+observed probability of the current byte value occurring at the current
+position for each position in the message. This works fairly well but becomes
+cumbersome as the feature-space will be $n$-dimensional where $n$ is the size
+of the largest message. To circumvent this we apply
+\emph{principal component analysis} (PCA) on all our features to reduce the
+dimensionality of the problem.
+
+This yields a fairly good result but it can still be improved upon. We further
+assume that this initial clustering is mostly homogeneous, i.e. most clusters
+only contain messages of a single type. We also assume that there is some set
+of bytes in the message that indicates what type it is. We call these bytes
+\emph{type distinguishers}. We then refine our clustering by finding the bytes
+that are most likely to be type distinguishers and grouping messages together
+depending on the values of these bytes. The most likely candidates are found by
+measuring how high the \emph{completeness} for the clusters becomes if they are
+grouped together by the value of that specific byte. Completeness is a metric
+that describes how spread out the different message types are. If all messages
+of each specific type is located in a single cluster the completeness becomes
+one while on the other hand if all messages are located in different clusters
+it becomes zero. In most clusterings the completeness value falls somewhere
+in between zero and one. With the type distinguishers and, therefore, the
+message types found we move on to the next step; finding the fields.
+
+\section{Results}
+
+\section{Discussion}
 
 \end{document}
 
