@@ -72,6 +72,34 @@ in between zero and one. With the type distinguishers and, therefore, the
 message types found we move on to the next step; finding the fields.
 
 \section{Results}
+We have measured the performance for each stage of our method on five
+different data-sets generated from five different protocols. For the two
+clustering passes we measured completeness, homogenity and \emph{V-measure}.
+V-measure is a metric that reflects how good both the homogenity and the
+completeness are. 
+
+After the OPTICS clustering pass, we found that the homogenity was generally
+high while completeness was low. This means that the clusters mainly
+consisted of a single true message type, but that messages from each true
+message type was spread out over more than one cluster. As a consequence the
+V-measure was pretty low as well.
+
+The refining pass successfully found some or all of the type bytes
+in four of the five data-sets. For the data-sets where all type bytes
+were found our metrics resulted in a next to perfect score. In one data-set
+only one of its two type bytes was found which resulted in perfect
+completeness but a mediocre homogenity. In another data-set where no good
+type bytes were found the completeness and V-measure scores were as bad as
+it could be. This was expected since the data-set only contained messages
+from a single type.
+
+When measuring the field inference performance we introduced our own metric.
+The metric we used was the ratio of bits correctly inferred with respect to
+each protocol specification. Our method yielded up to 41.7\% correctly
+inferred bits. In worst case 0\% of the bits were correctly inferred.
+Using this metric, a result of 100\% correctly inferred bits is unrealistic
+since some field values never occur or are in practice only a single value
+although the protocol specification labels it as e.g. a flag.
 
 \section{Discussion}
 
