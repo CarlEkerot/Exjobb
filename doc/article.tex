@@ -1,5 +1,8 @@
 \documentclass[a4paper,twocolumn]{article}
 
+\usepackage{graphicx}
+\usepackage[small]{caption}
+
 \begin{document}
 
 \title{Automatic Structural Inference of Binary Protocols}
@@ -44,6 +47,7 @@ common for all types and unique fields within types. Lastly, we also
 constructed a state diagram for the protocol to get an overview of the
 transitions between different message types.
 
+\subsection{Type inference}
 The first part was done with the help of a density-based clustering algorithm
 called \emph{OPTICS}. What this step does is group similar messages together into
 \emph{clusters}. The similarity of the messages are defined as the euclidean
@@ -70,6 +74,43 @@ one while on the other hand if all messages are located in different clusters
 it becomes zero. In most clusterings the completeness value falls somewhere
 in between zero and one. With the type distinguishers and, therefore, the
 message types found we move on to the next step; finding the fields.
+
+\subsection{Field inference}
+When inferring the fields we start by defining a set of field types that we
+deem identifiable, e.g. length fields, flags and constants. We then go through
+all possible aligned field positions of different lengths and try to match them
+to one of these types. This is done for different scopes of our packet dump in
+order to find fields present in all messages as well as fields only present in
+certain types.
+
+For some of the more basic types, like flags and constants, it is sufficient to
+look at the distribution of byte values for each byte of the potential field in
+order to determine the field type. The distribution are constructed from all
+the messages in the current scope. For more complex types a deeper analysis is
+needed. A good example is length fields for which we do a robust form of linear
+regression to see if we can find some linear dependency between the value in
+the field and the lengths of the messages.
+
+Once we have all the possible field types for all possible aligned field
+positions we merge them together into a unified definition. The merging works
+on a set of precedences for the types in order to remove overlapping fields.
+
+\begin{figure}[h]
+    \includegraphics[width=\linewidth]{img/smbstate}
+    \caption{State diagram for the first five states of the SMB protocol. A
+        handshaking procedure is clearly visible in the first three states.}
+    \label{fig:smbstate}
+\end{figure}
+
+\subsection{State inference}
+For our state diagram we only want a simple overview of the first few states
+of the protocol. Because of this we have a parameter that limits the diagram to
+a number of transitions from the start state. The diagram itself is constructed
+by building a pair of transition matrices from the connections in the packet
+dump. Each inferred message type is considered a state and sequential messages
+are seen as state transitions. Using these matrices it is trivial to produce a
+state diagram for the protocol. An example of such a diagram is seen in
+figure~\ref{fig:smbstate}.
 
 \section{Results}
 
