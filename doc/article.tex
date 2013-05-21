@@ -114,7 +114,7 @@ figure~\ref{fig:smbstate}.
 
 \section{Results}
 We have measured the performance for each stage of our method on five
-different data-sets generated from five different protocols. For the two
+different datasets generated from five different protocols. For the two
 clustering passes we measured completeness, homogenity and \emph{V-measure}.
 V-measure is a metric that reflects how good both the homogenity and the
 completeness are. 
@@ -125,13 +125,13 @@ consisted of a single true message type, but that messages from each true
 message type was spread out over more than one cluster. As a consequence the
 V-measure was pretty low as well.
 
-The refining pass successfully found some or all of the type bytes
-in four of the five data-sets. For the data-sets where all type bytes
-were found our metrics resulted in a next to perfect score. In one data-set
-only one of its two type bytes was found which resulted in perfect
-completeness but a mediocre homogenity. In another data-set where no good
-type bytes were found the completeness and V-measure scores were as bad as
-it could be. This was expected since the data-set only contained messages
+The refining pass successfully found some or all of the type distinguishers
+in four of the five datasets. For the datasets where all type distinguishers
+were found our metrics resulted in a next to perfect score. In one dataset
+only one of its two type distinguishers was found which resulted in perfect
+completeness but a mediocre homogenity. In another dataset where no
+type distinguishers were found the completeness and V-measure scores were as
+low as possible. This was expected since the dataset only contained messages
 from a single type.
 
 When measuring the field inference performance we introduced our own metric.
@@ -143,9 +143,9 @@ since some field values never occur or are in practice only a single value
 although the protocol specification labels it as e.g. a flag.
 
 \section{Discussion}
-Our method for finding message types works very well for data-sets where more
+Our method for finding message types works very well for datasets where more
 than one message type is present. From our evaluation of our method we have
-learned that a diverse data-set is crucial for a good analysis to be possible.
+learned that a diverse dataset is crucial for a good analysis to be possible.
 
 We have observed that our field inference often finds field types that reflect
 how the field is actually used in the protocol. Our field inference reveals
