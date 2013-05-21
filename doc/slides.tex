@@ -6,6 +6,9 @@
 \author{Fredrik Appelros \& Carl Ekerot}
 \date
 
+\setbeamertemplate{navigation symbols}{}
+\renewcommand*{\thefootnote}{\fnsymbol{footnote}}
+
 % Introducera problemet - applikationer
 % Tidigare försök
 % Kort om vårt angreppssätt
@@ -28,8 +31,7 @@
             \begin{column}[T]{8cm}
                 \begin{itemize}
                     \item Språk för mjukvara eller hårdvara
-                    \item Binärt kodat -- ej läsbart
-                    \item Läses med hjälp av specifikation
+                    \item Binärt kodat -- svårläst utan specifikation
                     \item Byggs upp av fält som representerar nummer, flaggor,
                         data osv.
                     \item Exempel: DNS, SMB, RTP, DHCP, \ldots
@@ -75,8 +77,8 @@
         \frametitle{Tidigare försök}
         Discoverer, Microsoft (2005)
         \begin{itemize}
-            \item Arbetar på lagrad nätverkstrafik
-            \item Delar upp i textuell och binär data
+            \item Arbetar på nätverksdumpar (lagrad nätverkstrafik)
+            \item Delar upp meddelanden i textuell och binär data
             \item Försöker hitta meddelandetyper
         \end{itemize}
         \vskip20pt
@@ -102,7 +104,7 @@
             \item Identifiera fält
                 \begin{itemize}
                     \item Statistisk analys -- identifiera bytevärdesdistributioner
-                    \item Identifiera fält specifika för anslutningar
+                    \item Identifiera fält specifika för strömmar och anslutningar
                     \item Hitta längdfält
                 \end{itemize}
             \item Bygg tillståndsdiagram
@@ -116,8 +118,8 @@
     \begin{frame}
         \frametitle{Hitta meddelandetyper}
         \begin{itemize}
-            \item Antagande: liknande data $\Leftrightarrow$ samma meddelandetyp
-            \item Klustring: gruppera datapunkter m.a.p. egendefinierade egenskaper
+            \item Antagande: Liknande data $\Leftrightarrow$ samma meddelandetyp
+            \item Klustring: Gruppera datapunkter m.a.p. egendefinierade egenskaper
                 för varje datapunkt
             \item Använda resultat från klustring för att hitta de bytes som
                 definierar ett meddelandes typ
@@ -150,39 +152,63 @@
     \end{frame}
     \begin{frame}
         \frametitle{Hitta meddelandetyper -- Klustring (forts.)}
-        Egenskaper: vektor $\{f_1, f_2, ..., f_n\}$
+        Egenskaper: Vektor $\{f_1, f_2, ..., f_n\}$
         \begin{itemize}
-            \item $n$: meddelandets längd
-            \item $f_i$: sannolikhet för att bytevärdet på position $i$ i
+            \item $n$: Meddelandets längd
+            \item $f_i$: Sannolikhet för att bytevärdet på position $i$ i
                 meddelandet är det värdet som det är.
         \end{itemize}
         \vskip20pt
-        Problem: hög dimensionalitet \\
+        Problem: Hög dimensionalitet \\
         Lösning: \textbf{PCA}, \scriptsize{\underline{P}rincipal
             \underline{C}omponent \underline{A}nalysis}
     \end{frame}
     \begin{frame}
         \frametitle{Hitta meddelandetyper -- Förfining}
-        \emph{Typ-bytes}: Bytes som bestämmer ett meddelandes typ \\
-        \vskip15pt
-        Antagande: Om det finns typ-bytes så kommer de ha samma värde inom
-            kluster \\
-        \vskip15pt
-        \emph{Completeness}: Hög om många datapunkter av en viss sann typ
-            ligger inom samma kluster
+        \begin{itemize}
+            \item \emph{Typ-bytes}: Bytes som bestämmer ett meddelandes typ \\
+            \item Antagande: Om det finns typ-bytes så kommer de oftast ha
+                samma värde inom kluster \\
+            \item \emph{Completeness}: Hög om många datapunkter av en viss
+                sann typ ligger inom samma kluster
+        \end{itemize}
+        \vskip20pt
+        \textbf{Metod}: För varje byte-position, dela upp alla meddelanden
+        efter de värden som byten antar. Har indelningen hög completeness mot
+        OPTICS-klustringen: \underline{möjlig typ-byte}
     \end{frame}
 
     % Fält
     \begin{frame}
         \frametitle{Protokollens fält}
-        Beskriv vad fält är, hur de brukar vara alignade, vilka olika typer
-        som vi anser det finnas. Berätta om bytevärdesdistribution
+        \begin{itemize}
+            \item Lagrar data som är intressant för protokollet
+            \item Ligger ofta justerade efter 1, 2 eller 4 bytes
+            \item Fälttyper vi observerat:
+                \begin{itemize}
+                    \item Konstanta fält
+                    \item Flaggfält
+                    \item Uniformt fördelade fält
+                    \item Nummerfält
+                    \item Inkrementella fält
+                    \item Längdfält
+                \end{itemize}
+            \item Många fälttyper har speciell fördelning av bytevärden
+        \end{itemize}
     \end{frame}
+
+    % Något om hur vi kör vår klassificering
+
     \begin{frame}
         \frametitle{Konstanta fält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
-                Hur vi hittar konstanta fält
+                \begin{itemize}
+                    \item Antar bara ett värde för alla meddelanden
+                    \item Kan vara konstant globalt, inom ström, inom
+                        anslutning eller inom typ
+                    \item Lätt att klassificera
+                \end{itemize}
             \end{column}
             \begin{column}[T]{6cm}
                 \includegraphics[height=5cm]{img/const_one.pdf}
@@ -193,7 +219,11 @@
         \frametitle{Flaggfält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
-                Hur vi hittar flaggfält
+                \begin{itemize}
+                    \item Antar fåtal värden för alla meddelanden
+                    \item Klassificerar som flaggfält om fält antar minst
+                        två värden men mindre värden än en övre gräns
+                \end{itemize}
             \end{column}
             \begin{column}[T]{6cm}
                 \includegraphics[height=5cm]{img/flag.pdf}
@@ -204,7 +234,12 @@
         \frametitle{Uniformt fördelade fält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
-                Hur vi hittar uniformt fördelade fält
+                \begin{itemize}
+                    \item Uniform fördelning: Vanlig för slumptal
+                    \item Vanlig för genererade värden så som ID:n
+                    \item Klassificerar som uniformt om avstånd till 
+                        rektangulär- fördelning är låg
+                \end{itemize}
             \end{column}
             \begin{column}[T]{6cm}
                 \includegraphics[height=5cm]{img/uniform.pdf}
@@ -215,7 +250,13 @@
         \frametitle{Nummerfält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
-                Hur vi hittar nummerfält
+                \begin{itemize}
+                    \item Fält som innehåller nummer, t.ex. antal
+                    \item Observation: Normalfördelade
+                    \item Klassificerar som nummerfält om vi kan få avståndet
+                        till någon normalfördelningskurva att understiga ett
+                        visst värde
+                \end{itemize}
             \end{column}
             \begin{column}[T]{6cm}
                 \includegraphics[height=5cm]{img/number.pdf}
@@ -224,16 +265,30 @@
     \end{frame}
     \begin{frame}
         \frametitle{Inkrementella fält}
-        Hur vi hittar inkrementella fält
+        \begin{itemize}
+            \item Bytevärdesdistribution är ointressant
+            \item Kan bara upptäckas inom ström eller anslutning
+            \item Exempel: Sekvensnummer, räknare, tid
+            \item Klassificerar som inkrementellt fält om dess värde
+                oftast\footnote{Efter 255 kommer 0} är ökande genom
+                ström/anslutning
+        \end{itemize}
     \end{frame}
     \begin{frame}
         \frametitle{Längdfält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
-                Hur vi hittar längdfält
+                \begin{itemize}
+                    \item Bestämmer längd på något fält inom meddelande
+                    \item Observation: Värde i längdfält är proportionellt
+                        mot meddelandets längd
+                    \item Problem: Segmentering
+                    \item Lösning: RANSAC
+                \end{itemize}
             \end{column}
             \begin{column}[T]{6cm}
-                \includegraphics[height=5cm]{img/length.pdf}
+                \includegraphics[height=4cm]{img/ransac.pdf}\\
+                \includegraphics[height=4cm]{img/length.pdf}
             \end{column}
         \end{columns}
     \end{frame}
@@ -241,25 +296,119 @@
     % Tillstånd
     \begin{frame}
         \frametitle{Protokolls tillstånd}
-        Beskriv hur många protokoll har ett antal tillstånd och hur vi
-        hittar dem. Beskriv varför det inte alltid är rimligt att hitta
-        alla möjliga tillstånd.
+        \begin{itemize}
+            \item Protokoll modelleras ofta efter \emph{tillståndsdiagram}
+            \item Vet vilka typer som finns och i vilken ordning de skickats
+            \item Kan delvis återskapa tillståndsdiagrammet
+            \item Att återskapa tillståndsdiagrammet för alla tillstånd är
+                oftast för rörigt. Nöjer oss med protokollets initiering.
+        \end{itemize}
+        \begin{columns}[t]
+            \begin{column}[T]{5cm}
+                \includegraphics[height=3cm]{img/dnsstate.pdf}
+            \end{column}
+            \begin{column}[T]{6cm}
+                \includegraphics[height=3.5cm]{img/smbstate.pdf}
+            \end{column}
+        \end{columns}
+
     \end{frame}
 
     % Resultat
     \begin{frame}
-        \frametitle{Resultat}
-        Visa resultat och prestanda
+        \frametitle{Resultat -- Klustring}
+        Resultat efter OPTICS:
+        \begin{table}[h]
+            \centering
+            \scriptsize{
+                \begin{tabular}{| l | r | r | r | r | r |}
+                    \hline
+                    \textbf{Protokoll}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
+                    DNS & 0.1982 & 0.9550 & 0.3282 \\ \hline
+                    SMB & 0.8480 & 0.8632 & 0.8555 \\ \hline
+                    TFTP & 0.3015 & 0.9449 & 0.4571 \\ \hline
+                    RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
+                    DHCP & 0.3492 & 0.1224 & 0.1813 \\ \hline
+                \end{tabular}
+            }
+        \end{table}
+        Resultat efter förfining:
+        \begin{table}[h]
+            \centering
+            \scriptsize{
+                \begin{tabular}{| l | r | r | r | r | r |}
+                    \hline
+                    \textbf{Protokoll}&\textbf{Completeness}&\textbf{Homogenity}&\textbf{V-measure} \\ \hline
+                    DNS & 0.9534 & 0.9999 & 0.9761 \\ \hline
+                    SMB & 0.9914 & 0.9880 & 0.9897 \\ \hline
+                    TFTP & 1.0000 & 1.0000 & 1.0000 \\ \hline
+                    RTP & 0.0000 & 1.0000 & 0.0000 \\ \hline
+                    DHCP & 1.0000 & 0.4428 & 0.6138 \\ \hline
+                \end{tabular}
+            }
+        \end{table}
     \end{frame}
     \begin{frame}
-        \frametitle{Demo?}
-        Demonstrera?
-    \end{frame}
+        \frametitle{Resultat -- Fält}
+        \begin{table}[h]
+            \scriptsize{
+                \begin{tabular}{| l | r | r | r |}
+                    \hline
+                    \textbf{Protokoll}&\textbf{\# Korrekta Bitar}&\textbf{\# Bitar Totalt}&\textbf{Riktighet (\%)} \\ \hline
+                    DNS & 37 & 96 & 38.5 \\ \hline
+                    SMB & 112 & 288 & 38.9 \\ \hline
+                    TFTP & 0 & 16 & 0.0 \\ \hline
+                    RTP & 40 & 96 & 41.7 \\ \hline
+                    DHCP & 64 & 1888 & 3.4 \\ \hline
+                \end{tabular}
+            }
+        \end{table}
 
+        Exempel: DNS
+        \begin{columns}[t]
+            \begin{column}[T]{5cm}
+                \begin{bytefield}[bitwidth=0.3cm]{16}
+                    \bitheader{0, 16}\\
+                    \wordbox{1}{U}\\
+                    \bitbox{1}{F}
+                    \bitbox{4}{F}
+                    \bitbox{1}{F}
+                    \bitbox{1}{F}
+                    \bitbox{1}{F}
+                    \bitbox{1}{F}
+                    \bitbox{3}{C}
+                    \bitbox{4}{F}\\
+                    \wordbox{1}{N}\\
+                    \wordbox{1}{N}\\
+                    \wordbox{1}{N}\\
+                    \wordbox{1}{N}
+                \end{bytefield}
+            \end{column}
+            \begin{column}[T]{5cm}
+                \begin{bytefield}[bitwidth=0.3cm]{16}
+                    \bitheader{0, 16}\\
+                    \wordbox{1}{U}\\
+                    \bitbox{8}{SC}
+                    \bitbox{8}{F}\\
+                    \wordbox{1}{C}\\
+                    \bitbox{8}{C}
+                    \bitbox{8}{N}\\
+                    \bitbox{8}{C}
+                    \bitbox{8}{N}\\
+                    \bitbox{8}{C}
+                    \bitbox{8}{UNK}
+                \end{bytefield}
+            \end{column}
+        \end{columns}
+    \end{frame}
     % Begränsningar
     \begin{frame}
         \frametitle{Begränsningar}
-        Berätta vad som krävs för att kunna göra en bra analys
+        \begin{itemize}
+            \item Textuella protokoll
+            \item Icke-justerad data
+            \item Bit-precision
+        \end{itemize}
     \end{frame}
 
 \end{document}
