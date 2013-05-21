@@ -2139,6 +2139,12 @@ inference immensely, since we would have to try $length - n$ possible fields
 for every length $n$. With our approach, we try at most
 $\lfloor \frac{length}{n} \rfloor$ possible fields for every length $n$.
 
+\subsection{Endianness}
+Many network protocols use big-endian order for their data, as suggested
+in the guidelines in RFC1700 by \citet{reynolds94}. However, some protocols
+still use little-endian order partially or completely in their specifications.
+Our method assumes big-endian order.
+
 \subsection{Bit precision}
 It is not uncommon for fields to have a higher resolution than one byte. In
 the RTP header visualized in figure~\ref{fig:rtpdef} there is a four-byte
