@@ -206,12 +206,12 @@ to the techniques used in Section~\ref{sec:type_inf} while the latter two
 relate to the techniques used in Section~\ref{sec:field_inf}.
 
 \section{Features}
-In machine learning, a feature is a measurable property of the input data. An
-example of a feature when working with images could be the intensity of light
-for a certain pixel. Features do not need to directly correspond to a
-physically measurable property however, instead they can be constructed by
-transforming other features. These new high-level features can then be used
-just like any other feature in order to simplify a complex problem.
+In machine learning, a feature is a measurable property of the input data, e.g.
+the intensity of light for a certain pixel when working with image data.
+Features do not need to directly correspond to a physically measurable property
+however, instead they can be constructed by transforming other features. These
+new high-level features can then be used just like any other feature in order
+to simplify a complex problem.
 
 One common type of complex problem is working with high dimensional data. There
 are different ways to deal with such data; one of them being to use a solving
@@ -231,7 +231,7 @@ singular value decomposition of a matrix.
 
 \section{Clustering}
 A clustering is a grouping of samples based on similarity with respect to their
-features. The features are predefined to represent distinct properties of the
+features. The features are defined to represent distinct properties of the
 samples. Similarities between samples are normally represented as distances in
 an $n$-dimensional space, where $n$ is the number of features. Distances may be
 calculated using any suitable norm.
@@ -240,7 +240,7 @@ In cluster analysis, the goal is normally to find a clustering from a
 set of samples such that the membership of a cluster represents some true
 relationship. In some clustering algorithms such as K-means \citep{macqueen67},
 the number of clusters are predefined. When the number of clusters are unknown,
-other algorithms such as DBSCAN, OPTICS and hierarchical clustering methods may
+other methods such as density-based or hierarchical clustering algorithms may
 be used.
 
 The clustering algorithm we use in our method is OPTICS, which is based on
@@ -254,30 +254,30 @@ algorithms provide the benefit of not having to provide an estimated number
 of clusters as a parameter to the algorithm.
 
 DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of
-samples $D$ and two parameters, $MinPts$ and $\varepsilon$. $MinPts$ decides
-how many samples that are needed in order to form a cluster.
+samples $D$ and two parameters, $MinPts$ and $\varepsilon$. $MinPts$ represents
+the lower bound for how many proximal samples are needed in order to form a
+cluster, while $\varepsilon$ is a parameter used to define proximity.
 
-The densities are defined by the distances between a set of points.
 The algorithm introduces the definition \emph{$\varepsilon$-neighborhood}
-$N_{\varepsilon}(p)$ for a point $p$. The samples which are in 
-$N_{\varepsilon}(p)$ are given by the following condition:
+$N_{\varepsilon}(p)$ for a point $p$ as the following:
 
 \begin{equation}
-    N_{\varepsilon}(p) = \{ q \in D ~|~ dist(p,q) < \varepsilon  \}
+    N_{\varepsilon}(p) = \{ q \in D ~|~ dist(p,q) \le \varepsilon  \}
     \label{eq:eps}
 \end{equation}
 
-The samples in $N_{\varepsilon}(p)$ are defined as
-\emph{directly density-reachable} from $p$. Given that
-$|N_{\varepsilon}(p)| \ge MinPts$, the samples in $N_{\varepsilon}(p)$ forms a
-cluster, and $p$ is a \emph{core point}.
+where $dist(p,q)$ is the distance between point $p$ and $q$. The samples in
+$N_{\varepsilon}(p)$ are defined as \emph{directly density-reachable} from $p$.
 
-A cluster is not limited to containing samples which are directly
-density-reachable. The DBSCAN algorithm also defines that samples which are
-not directly density-reachable may be \emph{density-reachable}.
-A sample $q$ is density-reachable from a sample $p$ if there is a set of samples
-$S = \{s_1, .., s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is directly
-density-reachable from $s_i$ for $0 < i < n$.
+Given that
+$|N_{\varepsilon}(p)| \ge MinPts$, the samples in $N_{\varepsilon}(p)$ forms a
+cluster, and $p$ is a \emph{core point}. A cluster is not limited to containing
+samples which are directly density-reachable. The DBSCAN algorithm also defines
+that samples which are not directly density-reachable may be
+\emph{density-reachable}. A sample $q$ is density-reachable from a sample $p$
+if there is a set of samples
+$S = \{s_1, s_2, \ldots, s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is
+directly density-reachable from $s_i$ for $0 < i < n$.
 
 Since the density-reachable relationship is not symmetric, a looser
 relationship is introduced: \emph{density-connected}. Two samples $p$ and
@@ -301,20 +301,19 @@ follows:
     \centering
     \includegraphics[width=0.8\textwidth]{img/dbscan_dns}
     \captionsetup{width=0.8\textwidth}
-    \caption{An example of clustering with DBSCAN running on samples generated
-    from 5000 packets of DNS data. The samples have been projected down to two
-    dimensions using PCA (see Section~\ref{sec:pca}).}
+    \caption{An example of a clustering constructed by running DBSCAN on
+    samples generated from 5000 packets of DNS data. The samples have been
+    projected down to two dimensions using PCA (see Section~\ref{sec:pca}).}
     \label{fig:dbscan}
 \end{figure}
 
 One of the drawbacks of DBSCAN is that it can only find clusters with a density
-higher than the density decided by the $\varepsilon$-parameter. It is also hard
-to estimate the $\varepsilon$ and $MinPts$-parameters for an unknown dataset.
-This makes DBSCAN suitable for classifying data into known classes, but not as
-suitable for finding underlying structures in entirely unknown datasets. In
-Figure~\ref{fig:dbscan} is an example of DBSCAN running on 5000 packets of DNS
-data. The parameters are manually selected to $\varepsilon = 0.085$ and
-$MinPts = 200$.
+higher than the density given by the $MinPts$ and $\varepsilon$ parameters.
+It is also hard to estimate the parameters for an unknown dataset. This makes
+DBSCAN suitable for classifying data into known classes, but not for finding
+underlying structures in unknown datasets. In Figure~\ref{fig:dbscan} there is
+an example of running DBSCAN on 5000 packets of DNS data. The parameters were
+manually selected as $MinPts = 200$ and $\varepsilon = 0.085$.
 
 \subsection{OPTICS}
 Addressing the difficulties in selecting parameters for DBSCAN,
@@ -324,7 +323,7 @@ the concepts introduced in DBSCAN. OPTICS uses the definitions
 \emph{density-connected} which were described in the DBSCAN algorithm, but
 eliminates the need for an explicit $\varepsilon$ parameter. Instead the
 $\varepsilon$ parameter is interpreted as the largest distance to consider
-when clustering. The results is an algorithm which is less sensitive to
+when clustering. The result is an algorithm which is less sensitive to
 user-specified parameters, and is able to find clusters with varying densities.
 
 One important aspect of OPTICS is that it does not generate actual clusters.
@@ -332,29 +331,26 @@ Instead, it generates an \emph{ordering} of samples and a set of corresponding
 \emph{reachability-distances} which reveals density-based structure in the
 input data. The OPTICS algorithm extends DBSCAN with the definitions
 \emph{core-distance} and \emph{reachability-distance}.
-\\
+
 Core-distance is a measurement of the distance $\varepsilon$ which is required
-for a sample $p$ to be a core point. That is, a core distance is the distance
-$\varepsilon$ which satisfies $|N_{\varepsilon}(p)| = MinPts$.
+for a sample $p$ to be a core point. The $\varepsilon$ parameter can be set to
+$\infty$ but that might affect the runtime of the algorithm as more samples are
+considered for inclusion in the clusters.
 
 \begin{definition}
     The core-distance for a sample $p$ is defined as:
 \[
     \begin{cases}
         \text{UNDEFINED}, & \text{if $|N_{\varepsilon}(p)| < MinPts$}\\
-        \text{Min $\varepsilon$ which satisfies  $|N_{\varepsilon}(p)| =
+        \text{Min $\varepsilon$ which satisfies $|N_{\varepsilon}(p)| \ge
         MinPts$}(p), & \text{otherwise}
     \end{cases}
 \]
 \end{definition}
 
-The core-distance is $UNDEFINED$ when an upper limit on $\varepsilon$ is
-given as a parameter to the algorithm. This parameter is not required,
-although it has an impact on the runtime of the algorithm.
-\\
-The reachability-distance of a sample $p$ is the smallest distance which is
-needed for $p$ to be directly density-reachable to a core point $q$ for some
-$\varepsilon$.
+The reachability-distance of a sample $p$ is the smallest distance,
+$\varepsilon$, which is needed for $p$ to be directly density-reachable to a
+core point $q$.
 
 \begin{definition}
     The reachability-distance of a sample $p$ with respect to some sample $q$
@@ -365,7 +361,7 @@ $\varepsilon$.
         \text{max(core-distance($q$), distance($q$, $p$))}, & \text{otherwise}
     \end{cases}
 \]
-    where distance($q$, $p$) is the smallest $\varepsilon$ for which $q$ is
+    where distance($q$, $p$) is the smallest distance for which $q$ is
     density-reachable from $p$.
 \end{definition}
 
@@ -469,7 +465,7 @@ the algorithm running on the same DNS dataset as Figure~\ref{fig:dbscan}
 with $MinPts = 200$. The algorithm yields three clusters, each cluster
 distinguished by changing background color. The true types \emph{request} and
 \emph{response} are colored blue and green respectively in the reachability
-plot. Note that the algorithm is rather insensitive to the $MinPts$-parameter,
+plot. Note that the algorithm is rather insensitive to the $MinPts$ parameter,
 and that the true types of DNS may be extended to different record types such
 as A/AAAA/CNAME-records.
 \\
