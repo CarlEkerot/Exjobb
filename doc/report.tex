@@ -119,7 +119,7 @@ semantics of these messages are defined by protocols.
 Protocols may be open or closed in terms of available documentation. The reason
 for them being closed might be that they are proprietary or simply because no
 one invested in creating a documentation of the protocol in the first place.
-Despite the lack of a documentation there still sometimes exists a need to
+Despite the lack of a documentation, there still sometimes exists a need to
 understand the inner workings of a certain protocol, e.g. when providing
 interoperability between services. One infamous example of this is Microsoft's
 proprietary SMB protocol which spawned the Samba project. This project was
@@ -136,18 +136,19 @@ usually constructed hierarchically. At the bottom there is only raw binary data
 and at the top there is the application data, e.g. an email or a video. There
 in between exists several layers that contain metadata which is used to make
 sure that the data reaches its target and that it does not get corrupted during
-transmission. As a message is sent from one party to another it traverses a
-series of nodes in the network. These nodes only needs to look at the lower
+transmission. As a message is sent from one party to another, it traverses a
+series of nodes in the network. These nodes only need to examine the lower
 parts of the hierarchical structure of the message in order to relay it. If a
-node wants to conduct DPI however, the higher levels of the hierarchy is looked
-at as well. To be able to do this the structure of the protocol needs to be
-known.
+node wants to conduct DPI however, the higher levels of the hierarchy are
+examined as well. To be able to do this the structure of the protocol needs to
+be known.
 
 There are many different reasons why one would want to perform DPI, one of
-which is to provide \emph{quality of service} (QoS). QoS is needed in order to
-gather statistics for Internet service providers that manage the networks.
+which is to provide \emph{quality of service} (QoS) solutions. QoS solutions
+are needed in order to gather statistics for Internet service providers that
+manage the networks.
 
-In this thesis we have focused on finding the structure of binary protocols as
+In this thesis, we have focused on finding the structure of binary protocols as
 opposed to textual ones. The reason for this being that textual protocols are
 intrinsically simple to read and understand and therefore do not require
 advanced methods of analysis. Some of the methods described here are however
@@ -157,7 +158,7 @@ also applicable to textual protocols.
 A popular approach to the problem of automatic inference of network protocols
 has been to draw a parallel to bioinformatics. Byte-streams have been
 processed using the same methodology as DNA sequence analysis in order
-to mine patterns in protocol messages. \citep{beddoe05} explores the
+to mine patterns in protocol messages. \citet{beddoe05} explores the
 possibilities of using bioinformatics methods such as multiple sequence
 alignment in order to find patterns in both textual and binary protocols. These
 principles have been applied in e.g. Netzob\footnote{http://www.netzob.org}, a
@@ -166,11 +167,11 @@ tool for protocol analysis.
 Using techniques from bioinformatics in protocol analysis seems natural since
 the analysis of messages, which may be viewed as the analysis of byte-streams,
 is easily converted to the problem of sequence analysis. Methods such as
-multiple sequence alignment does provide an insight to the structure of
+multiple sequence alignment do provide an insight to the structure of
 protocols, but further analysis is needed in order to find semantic meaning in
 segments of bytes.
 
-Discoverer by \citeauthor{cui07} is an approach which is specifically modeled
+Discoverer by \citet{cui07} uses an approach which is specifically modeled
 after the behavior of network protocols. Discoverer tokenizes
 network dumps into textual and binary tokens. From the tokens Discoverer
 attempts to group messages based on their true message type, such as requests
@@ -178,17 +179,31 @@ or responses. After the grouping of messages, Discoverer seeks semantic meaning
 in the tokens in common for each group of messages, and classifies the tokens
 into a set of predefined classes.
 
-\citet{caballero12} proposes a method where protocol specifications are
+\citet{caballero12} propose a method where protocol specifications are
 constructed by monitoring the execution state of the client or server software
 which utilizes the protocol. This approach has the obvious benefit of mapping
 data stored in memory at one state to the data subsequently present in a
 protocol message. This requires access to the actual software which generates
-the messages. In many cases this may limit the analysis to the messages sent by
+the messages. In many cases, this may limit the analysis to the messages sent by
 the client. When the server software is unavailable for execution state
 monitoring, one must resort to other methods in order to further analyze the
 protocol.
 
+For our purposes we need a method that can be applied on observed data alone,
+without access to the actual software that generates the traffic. This leads us
+to a method similar to the one used in Discoverer. However, the approach used
+in Discoverer is severely limited as it depends upon finding two types of
+tokens; binary and text tokens. Since the method is based on the results of
+this tokenization, it is not suitable for protocols that are mostly or entirely
+binary. Our approach is designed to work well with these types of protocols,
+and additionally to find a more detailed semantic meaning for each field.
+
 \chapter{Theory}
+In this chapter, we present the theory behind the techniques used throughout
+this report. The theory is divided into four subjects: features, clustering,
+sequence alignment and simple linear regression. The first two subjects relate
+to the techniques used in Section~\ref{sec:type_inf} while the latter two
+relate to the techniques used in Section~\ref{sec:field_inf}.
 
 \section{Features}
 In machine learning, a feature is a measurable property of the input data. An
@@ -205,122 +220,14 @@ problem itself.
 
 \subsection{Principal component analysis}
 \label{sec:pca}
-One method to reduce the dimensionality of a problem is to use principal
-component analysis (PCA). PCA is defined by \citet{jolliffe86} and transforms
-the input data into another dataset where each dimension accounts for as much
-variance as possible while requiring it to maintain orthogonality to the other
-dimensions. The new dataset can be constructed to contain fewer dimensions than
-the original data and will then capture as much variance as possible in the
-given number of dimensions. PCA can be accomplished through singular value
-decomposition of a matrix.
-
-\section{Simple linear regression}
-In statistics, a response variable $Y_i$ that is linearly dependent on an
-explanatory variable $X_i$ can be modeled with a simple linear regression
-model. The relationship between the two variables are then
-
-\begin{equation}
-    Y_i = \alpha + \beta X_i + \varepsilon_i
-    \label{eq:slr}
-\end{equation}
-
-where $\alpha$ and $\beta$ are the \emph{regression coefficients} and
-$\varepsilon_i$ is the error term. Given a set of data
-$\displaystyle \{Y_i, X_i\}_1^n$ the regression coefficients can be estimated
-through linear regression. This process is often called fitting as it can be
-seen as trying to find the model with the best fit for the data. There are
-different methods to do this as there is no consistent measure for what is the
-best fit.
-
-\subsection{Ordinary least squares}
-Ordinary least squares (OLS) is a method for estimating the regression
-coefficients in Equation~\ref{eq:slr}. It does this by minimizing the sum of
-squared residuals of the simple linear regression model. This can be formulated
-as minimizing the following cost function.
-
-\begin{equation}
-    C(\alpha, \beta) = \sum_{i=1}^n(Y_i - \alpha - \beta X_i)^2
-\end{equation}
-
-The result of this is a model that minimizes the residuals globally across all
-samples. This intrinsically makes the method \emph{non-robust}, i.e. sensitive
-to outliers.
-
-{
-    \fontsize{10}{12}
-    \selectfont
-    \begin{algorithm}[t]
-        \DontPrintSemicolon
-        \BlankLine
-        \KwIn{$D$, $M$, $n$, $\delta$, $\gamma$, $k$}
-        \KwOut{$P_b$}
-        \BlankLine
-        $P_b \gets \varnothing$\;
-        $\varepsilon_b \gets \infty$\;
-        \For{$k$}{
-            $I \gets n$ number of randomly chosen samples\;
-            fit $M$ to $I$\;
-            $I_m \gets$ samples where distance from $M \leq \delta$\;
-            $I \gets I \cup I_m$\;
-            \If{$|I| \geq \gamma$}{
-                fit $M$ to $I$\;
-                $\varepsilon \gets$ deviation from $M$ for all $I$\;
-                \If{$\varepsilon < \varepsilon_b$}{
-                    $P_b \gets$ parameters in $M$\;
-                    $\varepsilon_b \gets \varepsilon$\;
-                }
-            }
-        }
-        \Return{$P_b$}
-        \BlankLine
-        \caption{RANSAC}
-        \label{alg:ransac}
-    \end{algorithm}
-}
-
-\subsection{RANSAC}
-\label{sec:ransac}
-Random Sample Consensus (RANSAC) \citep{fischler81} is a \emph{robust} method
-for fitting a dataset to a model and was originally intended for image
-analysis. The robustness of the method allows it to avoid the influence of
-outliers in the model. Given a dataset $D$, a model $M$, a set of inliers $I$
-and two confidence parameters, $\delta$ and $\gamma$, it works the following
-way:
-
-\begin{enumerate}
-    \item Fit $M$ to $I$
-    \item Find the samples that are within $\delta$ distance from $M$ and add
-        those samples to $I$
-    \item Continue if $|I|$ is at least $\gamma$
-    \item Fit $M$ to $I$
-    \item Evaluate $M$ from the residual of $I$
-\end{enumerate}
-
-One problem with this approach is that an initial set of inliers is required.
-In most cases this is not available so we need to guess which samples might be
-inliers. A simple solution to this is to take $n$ random samples and assume
-that they are inliers. This only works if the assumption is actually true and
-thus the resulting algorithm will be \emph{non-deterministic}, meaning that it
-only produces a good fit with a certain probability. The algorithm is normally
-run $k$ number of iterations until the probability of success is sufficiently
-large. Pseudocode for RANSAC can be seen in Algorithm~\ref{alg:ransac}.
-
-The model that RANSAC operates on can be any kind of mathematical model, 
-therefore when handling two-dimensional linear data the simple linear
-regression model given in Equation~\ref{eq:slr} can be used. This gives us a
-method that solves the problem of simple linear regression but that is also
-insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
-some samples have been replaced by random noise can be seen in
-Figure~\ref{fig:ransac}.
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/ransac}
-    \captionsetup{width=0.8\textwidth}
-    \caption{A comparison between OLS and RANSAC on a dataset containing
-    outliers.}
-    \label{fig:ransac}
-\end{figure}
+One method to reduce the dimensionality of a problem is to use \emph{principal
+component analysis} (PCA). PCA was first defined by \citet{pearson01} and
+transforms the input data into another dataset where each dimension accounts
+for as much variance as possible while requiring it to maintain orthogonality
+to the other dimensions. The new dataset can be constructed to contain fewer
+dimensions than the original data and will then capture as much variance as
+possible in the given number of dimensions. PCA can be accomplished through
+singular value decomposition of a matrix.
 
 \section{Clustering}
 A clustering is a grouping of samples based on similarity with respect to their
@@ -342,11 +249,11 @@ provide examples based on protocol data.
 
 \subsection{DBSCAN}
 DBSCAN is a \emph{density-based} clustering algorithm, as opposed to
-partitioning clustering algorithms such as K-means. Density-based clustering 
-algorithms provides the benefit of not having to provide an estimated number 
+partitioning clustering algorithms such as K-means. Density-based clustering
+algorithms provide the benefit of not having to provide an estimated number
 of clusters as a parameter to the algorithm.
 
-DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of 
+DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of
 samples $D$ and two parameters, $MinPts$ and $\varepsilon$. $MinPts$ decides
 how many samples that are needed in order to form a cluster.
 
@@ -390,6 +297,16 @@ follows:
     \end{enumerate}
 \end{definition}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/dbscan_dns}
+    \captionsetup{width=0.8\textwidth}
+    \caption{An example of clustering with DBSCAN running on samples generated
+    from 5000 packets of DNS data. The samples have been projected down to two
+    dimensions using PCA (see Section~\ref{sec:pca}).}
+    \label{fig:dbscan}
+\end{figure}
+
 One of the drawbacks of DBSCAN is that it can only find clusters with a density
 higher than the density decided by the $\varepsilon$-parameter. It is also hard
 to estimate the $\varepsilon$ and $MinPts$-parameters for an unknown dataset.
@@ -398,16 +315,6 @@ suitable for finding underlying structures in entirely unknown datasets. In
 Figure~\ref{fig:dbscan} is an example of DBSCAN running on 5000 packets of DNS
 data. The parameters are manually selected to $\varepsilon = 0.085$ and
 $MinPts = 200$.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{img/dbscan_dns}
-    \captionsetup{width=0.8\textwidth}
-    \caption{An example of clustering with DBSCAN running on samples generated
-    from 5000 packets of DNS data. The samples has been projected down to two
-    dimensions using PCA (see Section~\ref{sec:pca}).}
-    \label{fig:dbscan}
-\end{figure}
 
 \subsection{OPTICS}
 Addressing the difficulties in selecting parameters for DBSCAN,
@@ -425,7 +332,7 @@ Instead, it generates an \emph{ordering} of samples and a set of corresponding
 \emph{reachability-distances} which reveals density-based structure in the
 input data. The OPTICS algorithm extends DBSCAN with the definitions
 \emph{core-distance} and \emph{reachability-distance}.
-\\[0.5cm]
+\\
 Core-distance is a measurement of the distance $\varepsilon$ which is required
 for a sample $p$ to be a core point. That is, a core distance is the distance
 $\varepsilon$ which satisfies $|N_{\varepsilon}(p)| = MinPts$.
@@ -444,10 +351,10 @@ $\varepsilon$ which satisfies $|N_{\varepsilon}(p)| = MinPts$.
 The core-distance is $UNDEFINED$ when an upper limit on $\varepsilon$ is
 given as a parameter to the algorithm. This parameter is not required,
 although it has an impact on the runtime of the algorithm.
-\\[0.5cm]
+\\
 The reachability-distance of a sample $p$ is the smallest distance which is
 needed for $p$ to be directly density-reachable to a core point $q$ for some
-$\varepsilon$. 
+$\varepsilon$.
 
 \begin{definition}
     The reachability-distance of a sample $p$ with respect to some sample $q$
@@ -462,20 +369,7 @@ $\varepsilon$.
     density-reachable from $p$.
 \end{definition}
 
-From the ordering and reachability-distances, the cluster structure may be
-visualized in a \emph{reachability-plot}. The reachability-plot provides an
-overview of the output from OPTICS as a bar-plot where the bars represent
-reachability-distances in the ordering generated by OPTICS.
-
-An example of a reachability plot generated from 5000 DHCP-packets with 
-$MinPts = 500$ is shown in Figure~\ref{fig:rplot}. Valleys in the
-reachability-plot represents samples which are close to each other. Spikes
-represents a large difference in distance between the samples to the left and
-right of the spike.
-
-The pseudocode algorithm is given in Algorithm~\ref{alg:optics}.
-
-\begin{figure}[t]
+\begin{figure}[h]
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{img/rplot_dhcp}
@@ -494,6 +388,18 @@ The pseudocode algorithm is given in Algorithm~\ref{alg:optics}.
     \label{fig:rplots}
 \end{figure}
 
+From the ordering and reachability-distances, the cluster structure may be
+visualized in a \emph{reachability-plot}. The reachability-plot provides an
+overview of the output from OPTICS as a bar-plot where the bars represent
+reachability-distances in the ordering generated by OPTICS.
+
+An example of a reachability plot generated from 5000 DHCP-packets with
+$MinPts = 500$ is shown in Figure~\ref{fig:rplot}. Valleys in the
+reachability-plot represent samples which are close to each other. Spikes
+represent a large difference in distance between the samples to the left and
+right of the spike. The pseudocode for OPTICS is given in
+Algorithm~\ref{alg:optics}.
+\\
 {
     \fontsize{10}{12}
     \selectfont
@@ -539,7 +445,7 @@ The pseudocode algorithm is given in Algorithm~\ref{alg:optics}.
 
 \subsubsection{Cluster extraction}
 
-\citeauthor{ankerst99} describes the principles of the OPTICS algorithm as
+\citeauthor{ankerst99} describe the principles of the OPTICS algorithm as
 running DBSCAN for an infinite number of distance parameters $\varepsilon_i$
 in the interval $0 \le \varepsilon_i \le \varepsilon$. They also explain that
 extracting clusters from the OPTICS ordering and reachability-distances using
@@ -547,7 +453,7 @@ a static reachability-distance threshold $\varepsilon_i$ gives a clustering
 which is roughly equivalent to the clustering obtained when running DBSCAN
 with the same $MinPts$ and $\varepsilon = \varepsilon_i$.
 
-\citet{sander03} describes a hierarchical cluster extraction algorithm for
+\citet{sander03} describe a hierarchical cluster extraction algorithm for
 OPTICS. As opposed to the DBSCAN-equivalent extraction approach, hierarchical
 cluster extraction retains many of the properties which comes with OPTICS,
 such as finding clusters with varying densities and subclusters nested in larger
@@ -557,7 +463,7 @@ The algorithm takes an ordering and reachability-distances from OPTICS and
 builds a hierarchical representation of the clustering in the form of a tree,
 where the leaves are clusters.
 
-The pseudocode for hierarchical extraction is given in 
+The pseudocode for hierarchical extraction is given in
 Algorithm~\ref{alg:hierextr}. Figure~\ref{fig:hierextr} is the result of
 the algorithm running on the same DNS dataset as Figure~\ref{fig:dbscan}
 with $MinPts = 200$. The algorithm yields three clusters, each cluster
@@ -566,7 +472,7 @@ distinguished by changing background color. The true types \emph{request} and
 plot. Note that the algorithm is rather insensitive to the $MinPts$-parameter,
 and that the true types of DNS may be extended to different record types such
 as A/AAAA/CNAME-records.
-
+\\
 {
     \fontsize{10}{12}
     \selectfont
@@ -643,7 +549,7 @@ as A/AAAA/CNAME-records.
 \label{sec:metrics}
 When measuring the quality of a clustering from a clustering algorithm, a
 number of metrics are defined. These metrics reflects the quality of the
-features as well as the clustering algorithm. The metrics requires labels
+features as well as the clustering algorithm. The metrics require labels
 given from the clustering algorithm as well as a \emph{truth}, i.e. the true
 classes of the samples. The clustering metrics we use are based on information
 entropy theory and for their exact definition we refer to the paper by
@@ -654,7 +560,7 @@ descriptions of each metric.
 Homogenity is satisfied when every cluster only contains members of a single
 true class. When completely satisfied, $h = 1$. If every cluster contains
 samples from different true classes then $h = 0$. When some clusters only
-contains members from one true class while other contains mixed true classes
+contain members from one true class while others contain mixed true classes
 then $0 < h < 1$.
 
 \subsubsection{Completeness score}
@@ -688,7 +594,7 @@ between the sequences.
 Originally, the path was built only with respect to the number of matching
 identical symbols and not to the number of mismatches or gaps. This has since
 been improved upon to include pairwise scores for symbol matching and penalties
-for gaps. The different scores used when matching symbols is typically given in
+for gaps. The different scores used when matching symbols are typically given in
 a similarity matrix. An example of such a matrix for a small alphabet of
 symbols is seen in Figure~\ref{fig:simmatrix}.
 
@@ -772,6 +678,115 @@ and the resulting alignments in Figure~\ref{fig:align}.
     \label{fig:align}
 \end{figure}
 
+\section{Simple linear regression}
+In statistics, a response variable $Y_i$ that is linearly dependent on an
+explanatory variable $X_i$ can be modeled with a simple linear regression
+model. The relationship between the two variables are then
+
+\begin{equation}
+    Y_i = \alpha + \beta X_i + \varepsilon_i
+    \label{eq:slr}
+\end{equation}
+
+where $\alpha$ and $\beta$ are the \emph{regression coefficients} and
+$\varepsilon_i$ is the error term. Given a set of data
+$\displaystyle \{Y_i, X_i\}_1^n$ the regression coefficients can be estimated
+through linear regression. This process is often called fitting as it can be
+seen as trying to find the model with the best fit for the data. There are
+different methods to do this as there is no consistent measure for what is the
+best fit.
+
+\subsection{Ordinary least squares}
+Ordinary least squares (OLS) is a method for estimating the regression
+coefficients in Equation~\ref{eq:slr}. It does this by minimizing the sum of
+squared residuals of the simple linear regression model. This can be formulated
+as minimizing the following cost function.
+
+\begin{equation}
+    C(\alpha, \beta) = \sum_{i=1}^n(Y_i - \alpha - \beta X_i)^2
+\end{equation}
+
+The result of this is a model that minimizes the residuals globally across all
+samples. This intrinsically makes the method \emph{non-robust}, i.e. sensitive
+to outliers.
+
+\subsection{RANSAC}
+\label{sec:ransac}
+
+Random Sample Consensus (RANSAC) \citep{fischler81} is a \emph{robust} method
+for fitting a dataset to a model and was originally intended for image
+analysis. The robustness of the method allows it to avoid the influence of
+outliers in the model. Given a dataset $D$, a model $M$, a set of inliers $I$
+and two confidence parameters, $\delta$ and $\gamma$, it works the following
+way:
+
+\begin{enumerate}
+    \item Fit $M$ to $I$
+    \item Find the samples that are within $\delta$ distance from $M$ and add
+        those samples to $I$
+    \item Continue if $|I|$ is at least $\gamma$
+    \item Fit $M$ to $I$
+    \item Evaluate $M$ from the residual of $I$
+\end{enumerate}
+
+One problem with this approach is that an initial set of inliers is required.
+In most cases this is not available so we need to guess which samples might be
+inliers. A simple solution to this is to take $n$ random samples and assume
+that they are inliers. This only works if the assumption is actually true and
+thus the resulting algorithm will be \emph{non-deterministic}, meaning that it
+only produces a good fit with a certain probability. The algorithm is normally
+run $k$ number of iterations until the probability of success is sufficiently
+large. Pseudocode for RANSAC can be seen in Algorithm~\ref{alg:ransac}.
+
+{
+    \fontsize{10}{12}
+    \selectfont
+    \begin{algorithm}[t]
+        \DontPrintSemicolon
+        \BlankLine
+        \KwIn{$D$, $M$, $n$, $\delta$, $\gamma$, $k$}
+        \KwOut{$P_b$}
+        \BlankLine
+        $P_b \gets \varnothing$\;
+        $\varepsilon_b \gets \infty$\;
+        \For{$k$}{
+            $I \gets n$ number of randomly chosen samples\;
+            fit $M$ to $I$\;
+            $I_m \gets$ samples where distance from $M \leq \delta$\;
+            $I \gets I \cup I_m$\;
+            \If{$|I| \geq \gamma$}{
+                fit $M$ to $I$\;
+                $\varepsilon \gets$ deviation from $M$ for all $I$\;
+                \If{$\varepsilon < \varepsilon_b$}{
+                    $P_b \gets$ parameters in $M$\;
+                    $\varepsilon_b \gets \varepsilon$\;
+                }
+            }
+        }
+        \Return{$P_b$}
+        \BlankLine
+        \caption{RANSAC}
+        \label{alg:ransac}
+    \end{algorithm}
+}
+
+The model that RANSAC operates on can be any kind of mathematical model,
+therefore when handling two-dimensional linear data the simple linear
+regression model given in Equation~\ref{eq:slr} can be used. This gives us a
+method that solves the problem of simple linear regression but that is also
+insensitive to outliers. A comparison between OLS and RANSAC on a dataset where
+some samples have been replaced by random noise can be seen in
+Figure~\ref{fig:ransac}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/ransac}
+    \captionsetup{width=0.8\textwidth}
+    \caption{A comparison between OLS and RANSAC on a dataset containing
+    outliers.}
+    \label{fig:ransac}
+\end{figure}
+
 \chapter{Method}
 
 \section{Approach}
@@ -830,6 +845,7 @@ what order messages are sent in and the probability for the message types
 of subsequent messages from any message type.
 
 \section{Type inference}
+\label{sec:type_inf}
 When inferring the message types, we perform a two-pass clustering. In the
 first pass, we use a clustering algorithm in order to statistically group
 messages that are similar according to the features we define. In the second
@@ -978,8 +994,8 @@ clustering.
         distinguisher clustering on SMB messages with respect to input size.}
 \end{figure}
 
-\section{Field analysis}
-\label{sec:fieldanalysis}
+\section{Field inference}
+\label{sec:field_inf}
 With our type inference complete we now have a number of clusters that contain
 similar messages. The next step in inferring the structure of the protocol is
 to identify field boundaries and their contents. This is a very complex
@@ -1352,14 +1368,14 @@ sums up to 1.
 
 We represent the states as two $n \times n$-matrices, $C$ and  $S$, where 
 $n$ is the number of types, which will be the same as the number of states.
-Each entry $C_{i,j}$ or $S_{i,j}$ in the matrix defines the number of times
+Each entry $C_{i,j}$ or $S_{i,j}$ in the matrices defines the number of times
 we observe a transition by the client or server from state $i$ to state $j$.
 We define the client as the peer initiating the connection. Once we have our
 two matrices, we may calculate the probabilities for the state transitions by
 normalizing each row.
 
 A state diagram of all protocol states and transitions may not always be
-feasible. Some protocols does not follow the state model which we are
+feasible. Some protocols do not follow the state model which we are
 trying to model with our approach. They may allow some message types to
 be sent from all states, and may only be represented with a state diagram
 during some phases such as the handshake phase. We handle this problem by
@@ -1438,19 +1454,20 @@ data set contains messages from a single protocol. All the protocols vary
 in complexity, header size and area of usage. The protocols are the following:
 
 \begin{itemize}
-    \item \textbf{SMB}: A protocol mainly used by Microsoft Windows for 
-        file-sharing, printer-sharing and access control. The protocol
-        has a wide variety of types and a fairly complex header. The protocol
-        messages are generally wrapped in a NetBIOS-message.
+    \item \textbf{SMB}: \emph{Server Message Block}, a protocol mainly used
+        in Microsoft Windows for file-sharing, printer-sharing and access
+        control. The protocol has a wide variety of types and a fairly complex
+        header. The protocol messages are generally wrapped in a
+        NetBIOS-message.
     \item \textbf{DNS}: \emph{Domain Name System}, a system for resolving
-        hostnames and addresses to IP-addresses. The DNS header is simple,
-        but its payload contains a variable number of fields. Each of these
-        fields denote a subdomain or domain to some URL.
+        IP-addresses from domain names. The DNS header is simple, but its
+        payload contains a variable number of fields. Each of these fields
+        denote a subdomain or domain to some URL.
     \item \textbf{TFTP}: \emph{Trivial File Transfer Protocol}, a very simple
         file transfer protocol. It defines a very limited number of types
         and a very simple header.
     \item \textbf{RTP}: \emph{Real-Time Transport Protocol}, a protocol for
-        transporting audio and video. Its header is fairly simple, but in our
+        streaming audio and video. Its header is fairly simple, but in our
         dump it has no diversity in the payload type. This makes type
         inference difficult.
     \item \textbf{DHCP}: \emph{Dynamic Host Configuration Protocol}, a
@@ -1488,8 +1505,8 @@ Wireshark.
 
 In Table~\ref{tab:clusterparams}, we list the parameters we use on the
 different datasets. The initial clustering, which uses OPTICS, uses only the
-Limit and MinSamples parameters. The type distinguisher clustering uses only
-the results from the OPTICS clustering and the MaxNumTypes parameter. All of
+$Limit$ and $MinPts$ parameters. The type distinguisher clustering uses only
+the results from the OPTICS clustering and the $MaxNumTypes$ parameter. All of
 these parameters are rather insensitive to change.
 % Metrics: homogenity, completeness, V-measure
 % Improvement over dump size; all metrics
@@ -1502,7 +1519,7 @@ these parameters are rather insensitive to change.
     \caption{Clustering parameters.}
     \begin{tabular}{| l | r | r | r |}
         \hline
-        \textbf{Protocol}&\textbf{MinSamples}&\textbf{MaxNumTypes}&\textbf{Limit} \\ \hline
+        \textbf{Protocol}&\textbf{MinPts}&\textbf{MaxNumTypes}&\textbf{Limit} \\ \hline
         DNS & 200 & 10 & 200 \\ \hline
         SMB & 50 & 100 & 200 \\ \hline
         TFTP & 50 & 10 & 200 \\ \hline
@@ -2015,9 +2032,9 @@ large amount of data in the header. Only 80 of the 1888 bits in the header is
 actually classifiable. If we consider this the accuracy is actually 80.0\%.
 
 The fields that are specified as data does not have a clear enough definition
-in its documentation to fall into one of our categories. They might in reality
-though have characteristics that does match one of our categories so some of
-the fields that are classified as data in the definition and something else in
+in its documentation to fall into one of our categories. In reality they might
+have characteristics that does match one of our categories so some of the
+fields that are classified as data in the definition and something else in
 our inferred results might actually be correct.
 
 \chapter{Discussion}
@@ -2059,7 +2076,7 @@ DNS where the number of types are small.
 % Explain why the field inferences are actually pretty good, and why it is hard
 % to define a metric which is suitable.
 When the types were inferred our method moved on to inferring fields and field
-semantics. In Section~\ref{sec:fieldanalysis} we introduced a set of
+semantics. In Section~\ref{sec:field_inf} we introduced a set of
 field primitives and corresponding heuristics for classifying them. The
 performance of these heuristics was measured in Section~\ref{sec:fieldperf}.
 The metric we introduced for measuring field inference performance was very
@@ -2091,7 +2108,7 @@ Section~\ref{sec:nonmutualalign}. After the data had been aligned, we hoped to
 find which fields that were of variable length and if their length was
 decided by some length field or a delimiter. We found difficulties in
 analyzing the results from the alignment and we were not able to handle
-variable length field or variable number of fields. Finding an alternative
+variable length fields or variable number of fields. Finding an alternative
 to using sequence alignment when examining variable fields is an area we
 leave to future work. Possibly length fields could iteratively be examined
 in order to limit the analysis to the bytes that the length field enclose,
@@ -2108,7 +2125,7 @@ Our method attempts to find structure and semantics in binary protocols.
 By nature, binary protocols are hard to read and it may be impossible to
 uncover the exact meaning of every field. Textual protocols, on the other
 hand, are often self-explanatory. Often they are designed to be read by
-humans. Textual protocols work well in applications which have no constraint
+humans. Textual protocols work well in applications that have no constraint
 on message size or parsing performance. Notations commonly used in textual
 protocols such as JSON and XML are more complex to parse than binary protocols,
 and introduces features where our approach is not feasible.
@@ -2133,7 +2150,7 @@ determine analytically.
 There are byte patterns which could be analyzed in order to infer optional
 fields, such as length fields or some byte value that decides the number of
 extended fields. This type of analysis has not been taken into account as we
-deem it out of the scope for this theses.
+deem it out of the scope for this thesis.
 
 \subsection{Non-aligned data}
 In our approach, we assume that each field is aligned to one, two, or four
@@ -2161,7 +2178,7 @@ Our method assumes big-endian order.
 It is not uncommon for fields to have a higher resolution than one byte. In
 the RTP header visualized in Figure~\ref{fig:rtpdef} there is a four-byte
 length field between flag-bits in the first byte. In order to find these
-features, we would have to introduce bit precision in our analysis. Bit
+fields we would have to introduce bit precision in our analysis. Bit
 precision analysis would introduce the same complexity issues as non-aligned
 data analysis.
 
@@ -2181,8 +2198,8 @@ correspondence analysis. Correspondence analysis is very similar to PCA, but
 it is applied to nominal data instead of continuous data.
 
 Due to the lack of good correspondence analysis libraries we have been unable
-to evaluate its performance on our feature vectors. By definition it should
-be more suitable than PCA in our field of application.
+to evaluate its performance on our feature vectors. Judging from its
+definition, it should be more suitable than PCA in our field of application.
 
 \subsection{Machine learning for field inference}
 Our methods use statistical heuristics when inferring fields. Each heuristic
@@ -2193,7 +2210,7 @@ as logistic regression or support vector machines.
 
 In our research we considered using these methods when classifying fields.
 The main complication with this approach was the difficulty in building the
-training set. Each field in a protocol yields a single sample. In order to
+training set. Each byte in a protocol yields a single sample. In order to
 build a good training set we would have to annotate and process a large
 amount of binary protocols. Using these techniques could possibly lead to
 more robust field classification. Building the training set however is out
@@ -2204,12 +2221,12 @@ From our analysis, we have seen that timestamps have a potentially
 distinguishable byte distribution. This distribution could perhaps be analyzed
 in order to classify a field as a timestamp. The distribution reveals a number
 of spikes we assume to be dependent on the time resolution. This is most
-visible in the least significant byte of the timestamp field. Using frequency
+visible in the least significant byte of a timestamp field. Using frequency
 analysis, it should be possible to determine the time resolution. This could
 be applicable for media streaming protocols.
 
-For general timestamps, we could compare the packet delivery timestamp from
-the dataset with the value difference in a field. If this difference is
+For general timestamps, we could compare the packet delivery timestamp given
+by the dataset with the value difference in a field. If this difference is
 consistent enough, we could classify the field as a timestamp.
 
 \bibliographystyle{plainnat}
