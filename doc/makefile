@@ -2,6 +2,7 @@ texfile=report
 bibfile=thesis
 slidesfile=slides
 articlefile=article
+notesfile=slides_notes
 
 all: pdf
 
@@ -15,6 +16,9 @@ compile:
 
 slides:
 	xelatex ${slidesfile}
+
+notes:
+	xelatex ${notesfile}
 
 article:
 	pdflatex ${articlefile}
