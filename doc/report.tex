@@ -554,23 +554,23 @@ each metric.
 
 \subsubsection{Homogenity score}
 Homogenity, $h$, is satisfied when every cluster only contains members of a
-single true class. The homogenity score lies in the range $0 \le h \le 1$ and
+single true class. The homogeneity score lies in the range $0 \le h \le 1$ and
 when completely satisfied, $h = 1$.
 
 \subsubsection{Completeness score}
 Completeness, $c$, is satisfied when all members of a true class are in the
-same cluster. Like the homogenity score, completeness lies in the range
+same cluster. Like the homogeneity score, completeness lies in the range
 $0 \le c \le 1$ and when completely satisfied, $c = 1$.
 
 \subsubsection{V-measure score}
-V-measure is a weighted harmonic mean of homogenity and completeness, and
+V-measure is a weighted harmonic mean of homogeneity and completeness, and
 is defined by \citeauthor{rosenberg07} as:
 
 \[
     V_{\beta} = \frac{(1 + \beta) * h * c}{(\beta * h) + c}
 \]
 
-We weigh homogenity and completeness equally in our application, thus setting
+We weigh homogeneity and completeness equally in our application, thus setting
 $\beta = 1$.
 
 \section{Sequence alignment}
@@ -784,22 +784,21 @@ Figure~\ref{fig:ransac}.
 \section{Approach}
 A protocol is generally made up of a predefined set of message types. A
 message type may define if the message is a request or response. If so, it is
-fairly easy to determine which parts of the message that defines if it is a
-request or a response. One may simply look for values in a message that depend
-on the direction of the message. However, most protocols are not limited to
-being classified as requests and responses. Protocols often define sets of
-control message types which changes the state of the protocol. Some protocols
-do not follow the request/response model, which is the case for many
-peer-to-peer protocols.
+fairly easy to determine which parts of the message that defines this. One can
+simply look for values in a message that are dependent on the direction of the
+message. However, most protocols are not limited to being classified only as
+requests and responses. Protocols often define sets of control message types
+which change the state of the protocol. Some protocols do not even follow the
+request/response model, which is the case for many peer-to-peer protocols. Our
+method tries to overcome these obstacles.
 
 \subsubsection{Type inference}
-In order to thoroughly analyze a protocol, the first step is essentially to
-distinguish the different types of the protocol. This is a necessary first
-step which enables us to infer the different states of the protocol and allows
-for type-specific field analysis. The type is commonly specified by some flag
-or a combination of flags. A type flag may be a byte, a bit subset of a byte,
-or spread out over multiple bytes where each byte may define some subtype to a
-more general type.
+In order to thoroughly analyze a protocol, the first step is to infer the
+different message types. This is necessary for us to perform further analysis
+of the different protocol states and allows for type-specific field analysis.
+The message type is commonly specified by some flag or a combination of flags.
+A type flag may be a byte, a subset of bits within a byte, or spread out over
+multiple bytes where some may define subtypes.
 
 Messages that have the same value in their type flags are likely to have a
 distinguishable structure which differs from messages with other values in the
@@ -811,30 +810,30 @@ data transmission is often longer than a control message.
 We group messages that are similar using cluster analysis. We then move on to
 analyzing the clustered messages in an effort to discover the bytes which we
 rank the most probable to be responsible for the clustering we have found, and
-label these as \emph{type distinguishers}, i.e. the bytes that distinguishes a
-specific type. Once these bytes have been discovered, we may regroup the
-messages based on the values of these bytes.
+label these as \emph{type distinguishers}, i.e. the bytes that distinguishes
+between different types. Once these bytes have been discovered, we may regroup
+the messages based on the values of these bytes.
 
 \subsubsection{Field inference}
 From the grouping acquired by the type inference, we are able to analyze the
-type specific properties of messages of a certain type. We focus on
-determining the field structure of each type, and make an effort to determine
-the semantics of each field. From the byte value distribution at a certain byte
-range, we try to classify each field as one of our primitive field types: 
-constant, flag, uniform, number, incremental or length. We do this analysis in
-global scope, cluster scope, stream scope and connection scope. We define the
-global scope to cover the fields that all messages have in common e.g. the
-protocol header. The cluster scope cover fields that are specific for a type.
-The connection scope is a subscope to the global and cluster scopes, and cover
-fields that are constant or incremental within a connection, the same goes for
-the stream scope but only in one direction.
+type specific properties of the messages. We focus on determining the field
+structure for each type, and make an effort to determine the semantics of each
+field. From the byte value distribution at a certain byte range, we try to
+classify each field as one of our primitive field types: constant, flag,
+uniform, number, incremental or length. We perform this analysis in global
+scope, cluster scope, stream scope and connection scope. We define the
+global scope to cover the fields that all messages have in common, which
+usually the corresponds to the protocol header. The cluster scope covers fields
+that are specific for that type. The connection scope is a subscope to the
+global scope, and cover fields that are constant or incremental within a
+connection. The same goes for the stream scope but only in one direction.
 
 \subsubsection{State inference}
-Once we have knowledge of the types of the protocol we may analyze the order
-in which messages of different types are sent. From this analysis we build
-a state diagram of the protocol. From this state diagram one may interpret
-what order messages are sent in and the probability for the message types
-of subsequent messages from any message type.
+Once we have knowledge of the message types we may analyze the order in which
+messages of different types are sent. From this analysis we build a state
+diagram for the protocol. From this state diagram one may get an overview of
+the order in which messages are sent and the probability for subsequent
+messages being a specific type.
 
 \section{Type inference}
 \label{sec:type_inf}
@@ -842,21 +841,19 @@ When inferring the message types, we perform a two-pass clustering. In the
 first pass, we use a clustering algorithm in order to statistically group
 messages that are similar according to the features we define. In the second
 pass, we utilize the assumption that there exists one or more bytes which
-distinguishes a specific type.
-% Two different steps: statistical clustering with OPTICS and type 
-% distinguishing
+controls the message type.
 
 \subsection{Initial clustering}
 \label{sec:init_clust}
 The first step when performing cluster analysis is to define a set of features.
-The features which we have chosen are based on the byte value distribution at
-each offset for every message.
+The features which we have chosen are based on the byte value distribution for
+all messages.
 
-We define a matrix $P$ where each element $P_{i,j}$ is the probability that
-the byte with the decimal value $j$ is present at the offset $i$ for all
+We define a matrix $P$ where each element $p_{i,j}$ is the observed probability
+that the byte with the decimal value $j$ is present at the offset $i$ for all
 packets. Using $P$ we create the feature vector $\{f_1, f_2, ..., f_n\}$ for
 every message $m$ where $m$ is $n$ bytes long. We define each feature as
-$f_i = P_{i, m_i}$.
+$f_i = p_{i, m_i}$.
 
 Informally, this means that we create a feature vector consisting of $n$
 features for each message. Each element $f_i$ in the feature vector is the
@@ -873,30 +870,24 @@ measure is a compromise to having nominal features.
 
 % Latex does not know how to split parametrized -> badboxes if splitpoint
 % not manually defined.
-Once the features have been calculated, we apply PCA transformation
-param-etrized to capture $80\%$ of the variance. This reduces the
+Once the features have been generated, we apply a PCA transformation
+param-etrized to capture at least $80\%$ of the variance. This reduces the
 dimensionality of our feature vectors while conserving the most significant
 variance. We use these new feature vectors as input to OPTICS.
 
 OPTICS works well for our application since it is insensitive to the parameters
 selected and that it is a suitable clustering algorithm for when the number of
-classes are unknown. We require an estimate $MinPts$ parameter. The distance
-parameter has the default value $\varepsilon = \infty$.
+classes are unknown. We require an estimated $MinPts$ parameter while the distance
+parameter defaults to $\varepsilon = \infty$.
 
 The resulting clustering from OPTICS may have far more clusters than the number
 of real types in the protocol. This is expected, since messages that are
 identical on large partitions of the data will induce a low distance when
-running the OPTICS algorithm, which in its turn will result in high-density
+running the OPTICS algorithm, which in turn will result in high-density
 areas within the real types. Having more clusters than the number of real
 types is not a problem however. In the next step of the clustering, we make
-use of the fact that the clusters are very homogeneous, i.e. each cluster mainly
-contains messages of one real type.
-
-Figure~\ref{fig:num_optics} and Figure~\ref{fig:metrics_optics} visualizes how
-OPTICS performs for various input sizes of SMB messages. The number of messages
-needed in order to find a good clustering is fairly small. However, a large
-input size is often needed in order to capture as many message types as
-possible.
+use of the fact that the clusters are mostly homogeneous, i.e. each cluster mainly
+contains messages of a single real type.
 
 \begin{figure}[h]
     \centering
@@ -912,11 +903,15 @@ possible.
             input sizes.}
         \label{fig:metrics_optics}
     \end{subfigure}
-    \label{fig:optics_res}
     \caption{Performance of the OPTICS algorithm on SMB messages with respect
         to input size.}
+    \label{fig:optics_res}
 \end{figure}
 
+Figure~\ref{fig:optics_res} visualizes how OPTICS performs for various input
+sizes of SMB messages. The number of messages needed in order to find a good
+clustering is fairly small. However, a large input size is often needed in
+order to capture as many message types as possible.
 
 \subsection{Type distinguishers}
 Once we have obtained the OPTICS clustering our goal is to reduce the number of
@@ -926,15 +921,16 @@ each message. We call these bytes \emph{type distinguishers}.
 
 Many protocols define an explicit type flag in the form of a single byte. The
 type distinguishers which fit our definition may consist of a number of bytes.
-When combined, these bytes gives a reasonable indication of what messages with
+When combined, these bytes give a reasonable indication of what messages with
 high similarity have in common. In order to find these bytes we use an approach
 similar to the recursive clustering described by \citeauthor{cui07} in
 Discoverer. Our approach is as follows:
 
 \begin{enumerate}
-    \item For every byte offset from the beginning of all messages up to a certain limit
-    we calculate how many values the byte takes. This is equivalent to how many
-    real types that would be present if the chosen byte was a real type flag.
+    \item For every byte offset from the beginning of all messages up to a
+    certain limit we calculate how many values the byte takes. This is equivalent
+    to how many real types that would be present if that byte was a real
+    type flag.
 
     We introduce two criteria when considering a byte as a type distinguisher.
     The first criterion is $MaxNumTypes$ which decides the maximum number of
@@ -946,25 +942,20 @@ Discoverer. Our approach is as follows:
     $60\%$ of all messages.
 
     \item Now that we have the possible type distinguishers we rank the type
-    distinguishers based on completeness score. For each possible type
-    distinguisher byte we group the messages on every value which the byte
-    takes. This gives us a new clustering. We measure the quality of each type
-    distinguisher byte by comparing its clustering to the OPTICS clustering.
-    This is achieved using completeness score with the OPTICS clustering as our
-    truth. 
+    distinguishers based on its completeness score. For each possible type
+    distinguisher byte we group the messages depending on the value which the
+    byte takes. This gives us a new clustering. We measure the quality of each
+    type distinguisher by comparing its clustering to the OPTICS clustering.
+    This is achieved using the completeness score as our metric and the OPTICS
+    clustering as our truth.
 
-    \item Once our type distinguisher bytes have been scored, we take the bytes
-    with the highest completeness score. For every byte we take, we calculate
-    how many clusters this would yield if we were to cluster all messages on
-    the distinct values that the combination of bytes takes. This process goes
-    on until we reach the point that we can take no more type distinguisher
-    bytes without exceeding $MaxNumTypes$.
+    \item Once our type distinguisher bytes have been scored, we select the bytes
+    with the highest completeness score. For each newly selected byte, we calculate
+    how many clusters would be yielded if we were to group all messages based on
+    the distinct values for the combination of all selected bytes. This process
+    goes on until we reach the point where we can no longer select any more
+    type distinguisher bytes without exceeding $MaxNumTypes$.
 \end{enumerate}
-
-In Figure~\ref{fig:num_td} and Figure~\ref{fig:metrics_td} the performance of
-our type distinguisher clustering on SMB messages is visualized. This step in
-our method gives an obvious enhancement to the results from the OPTICS
-clustering.
 
 \begin{figure}[h]
     \centering
@@ -981,10 +972,14 @@ clustering.
             different input sizes.}
         \label{fig:metrics_td}
     \end{subfigure}
-    \label{fig:td_res}
     \caption{Performance of the OPTICS algorithm followed by the type
         distinguisher clustering on SMB messages with respect to input size.}
+    \label{fig:td_res}
 \end{figure}
+
+In Figure~\ref{fig:td_res} the performance of our type distinguisher clustering
+on SMB messages is visualized. This step in our method gives an obvious
+enhancement compared to the results from the OPTICS clustering.
 
 \section{Field inference}
 \label{sec:field_inf}
@@ -1157,8 +1152,8 @@ techniques on the data of each individual message.
 
 We define a constant field as a field that only assumes a single value in all
 the messages in the current scope. By looking at the byte value probability
-distributions, we classify an offset $i$ as constant if $P_{i,v} = 1$ holds for
-some $v$, $0 \le v \le 255$. $P_{i,v}$ is an element in the probability
+distributions, we classify an offset $i$ as constant if $p_{i,v} = 1$ holds for
+some $v$, $0 \le v \le 255$. $p_{i,v}$ is an element in the probability
 matrix $P$ which is defined in Section~\ref{sec:init_clust}.
 
 Constant fields may be interpreted as one of the following:
@@ -1172,7 +1167,7 @@ Constant fields may be interpreted as one of the following:
         fields are commonly set to zero.
     \item A field which is constant in the current scope. For example, if a dump
         only contains a single connection, then a session ID field may be
-        interpreted as a constant. 
+        interpreted as a constant.
 \end{itemize}
 
 \newpage
@@ -1188,7 +1183,7 @@ Constant fields may be interpreted as one of the following:
     \label{fig:flag}
 \end{figure}
 
-A flag field is a field that defines some property of a message. Typically,
+A flag field is a field that defines some property of the message. Typically,
 it assumes a very limited number of values and may be used for representing
 a message type, an error code, a status code and so on.
 
@@ -1203,10 +1198,10 @@ The amount of queries and responses are relatively equally distributed. The
 bar at byte value 0 = \underline{0}0000000 represent the queries. The bar at
 byte value 128 = \underline{1}0000000 represent the responses.
 
-When classifying flag fields, we constrain the amount of values that a
-certain byte may assume. We classify a field as a flag if the total amount
-of values the field takes is greater than one single value and less than
-some upper bound.
+When classifying flag fields, we place constraints on the amount of values that
+a certain byte may assume. A field is classified as a flag if the total amount
+of unique values the field assumes is greater than one and less than some upper
+bound.
 
 \newpage
 
@@ -1220,7 +1215,7 @@ some upper bound.
     \label{fig:uniform}
 \end{figure}
 
-A pattern we observed while inspecting the byte value distribution for
+A pattern we observed while inspecting the byte value distributions for
 various fields was that some fields were uniformly distributed. The real
 types of these fields are normally some randomly generated value, such as
 a generated session identifier or a nonce.
@@ -1341,8 +1336,9 @@ fragmentation or some other form of imperfect parsing that affects the length
 of the messages.
 
 \section{State inference}
-Many protocols may be described using a state diagram. Some handshake phase
-between the peers is common when a conversation is initialized. There might
+Protocols may be seen as having an internal state that represents which
+messages are valid at a certain point in the communication. Some handshake
+phase between the peers is common when a session is initialized. There might
 also be some teardown phase, and phases for transmitting data etc.
 Inferring the states of the protocol is an important task when trying to
 figure out the semantics of the protocol. Modeling the protocol states as
@@ -1350,43 +1346,34 @@ a state diagram provides a readable representation of the inner workings
 of the protocol, and might simplify the analysis of the fields of the
 different message types.
 
-When a reasonable partitioning into types has been achieved, finding the
+When a reasonable partitioning into types has been achieved, constructing the
 protocol state diagram is trivial. We simply partition the set of messages
 into connections, where connections are tuples of client and server sockets.
-From each connection, we define each message in the connection as a change
+From each connection, we define the messages in that connection as a change
 of state. Each state has a set of probabilities for transitioning to
-all other states we have defined. The cumulative sum of these probabilities
-sums up to 1.
+all other states we have defined.
 
-We represent the states as two $n \times n$-matrices, $C$ and  $S$, where 
+We represent the states as two $n \times n$-matrices, $C$ and $S$, where
 $n$ is the number of types, which will be the same as the number of states.
-Each entry $C_{i,j}$ or $S_{i,j}$ in the matrices defines the number of times
-we observe a transition by the client or server from state $i$ to state $j$.
-We define the client as the peer initiating the connection. Once we have our
-two matrices, we may calculate the probabilities for the state transitions by
-normalizing each row.
+Each entry $c_{i,j}$ or $s_{i,j}$ in the matrices defines the number of times
+we observe a transition by the client or server respectively from state $i$ to
+state $j$. We define the client as the peer that initiates the connection. Once
+we have our two matrices, we may calculate the probabilities for the state
+transitions by normalizing each row.
 
-A state diagram of all protocol states and transitions may not always be
-feasible. Some protocols do not follow the state model which we are
-trying to model with our approach. They may allow some message types to
-be sent from all states, and may only be represented with a state diagram
-during some phases such as the handshake phase. We handle this problem by
+A state diagram of all protocol states and transitions is not always
+practical however. Some protocols allow certain message types to be sent from
+all states, resulting in a cluttered state diagram. We handle this problem by
 allowing the user to define the depth for which the analysis is performed.
-If depth is set to 5, we only analyze which states the protocol may be in
-after five transitions. From this restricted state diagram a handshake
-procedure will be much more readable.
+If the depth is set to five, we only analyze the states that the protocol can
+reach in five transitions from the starting state. From this restricted state
+diagram a handshake procedure will be much more readable.
 
-% Get Figure for SMB as well.
-
-In Figure~\ref{fig:dnsstate} the state diagram generated from a DNS stream
-capture with $MaxNumTypes = 3$ is shown. State 0 represents queries and state 1
-represent responses. Blue edges represent messages sent by the client. Red
-edges represent messages sent by the server.
-
-Figure~\ref{fig:smbstate} shows the state diagram for SMB with a depth of
-five transitions. This shows the handshake used by the protocol.
-Table~\ref{tab:smb} lists the true types of the messages in a left-to-right
-order with respect to the state diagram.
+Figure~\ref{fig:states} shows state diagrams generated from DNS and SMB data.
+In the figure blue edges represent messages sent by the client while red
+edges represent messages sent by the server. Table~\ref{tab:smb} lists the
+true types of the messages in a left-to-right order with respect to the state
+diagram.
 
 \begin{table}
     \centering
@@ -1411,13 +1398,17 @@ order with respect to the state diagram.
     \centering
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{img/dnsstate}
-        \caption{State diagram for the DNS protocol.}
+        \caption{State diagram for the DNS protocol generated from our
+        method with $MaxNumTypes = 3$. State 0 and 1 represents the last message
+        being a query and a response respectively.}
         \label{fig:dnsstate}
     \end{subfigure}
     \quad
     \begin{subfigure}[b]{0.48\textwidth}
         \includegraphics[width=\textwidth]{img/smbstate}
-        \caption{State diagram for the SMB protocol.}
+        \caption{State diagram for the SMB protocol with a depth of five
+        transitions. A handshaking procedure is clearly visible in the first
+        three states.}
         \label{fig:smbstate}
     \end{subfigure}
     \caption{State diagrams generated by our state inference. The left-most
@@ -1491,7 +1482,7 @@ In Table~\ref{tab:datasets} we list the properties of our different datasets.
 \section{Clustering performance}
 \label{sec:clustperf}
 We measure the performance of our clustering using the metrics described in
-Section~\ref{sec:metrics}: homogenity, completeness and V-measure. The truth we
+Section~\ref{sec:metrics}: homogeneity, completeness and V-measure. The truth we
 use when calculating the metrics is based on the protocol definition in
 Wireshark.
 
@@ -1500,7 +1491,7 @@ different datasets. The initial clustering, which uses OPTICS, uses only the
 $Limit$ and $MinPts$ parameters. The type distinguisher clustering uses only
 the results from the OPTICS clustering and the $MaxNumTypes$ parameter. All of
 these parameters are rather insensitive to change.
-% Metrics: homogenity, completeness, V-measure
+% Metrics: homogeneity, completeness, V-measure
 % Improvement over dump size; all metrics
 %   Before type distinguisher clustering
 %   After type distringuisher clustering
@@ -1523,7 +1514,7 @@ these parameters are rather insensitive to change.
 
 Table~\ref{tab:initclusterresults} shows the performance of our OPTICS
 implementation. Like the clustering in Discoverer by \citeauthor{cui07} we
-are most concerned with achieving high homogenity. A high homogenity assures
+are most concerned with achieving high homogeneity. A high homogeneity assures
 that each cluster mainly contains messages from one true type. A high
 completeness is not as important in our initial clustering. A high completeness
 gives us a small number of clusters for each true type, ideally a single
