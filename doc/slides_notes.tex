@@ -26,7 +26,7 @@
     
     % Introduktion
     \begin{frame}
-        \frametitle{Binära nätveksprotokoll}
+        \frametitle{F: Binära nätveksprotokoll}
         \begin{itemize}
             \item Protokoll används dagligen i webbläsare, chattklienter, nätverkskort osv
             \item Binärt kodat:
@@ -45,7 +45,7 @@
         \end{itemize}
     \end{frame}
     \begin{frame}
-        \frametitle{Slutna protokoll}
+        \frametitle{F: Slutna protokoll}
         \begin{itemize}
             \item Öppet:
                 \begin{itemize}
@@ -84,7 +84,7 @@
         \end{itemize}
     \end{frame}
     \begin{frame}
-        \frametitle{Tidigare försök}
+        \frametitle{F: Tidigare försök}
         Discoverer, Microsoft (2005)
         \begin{itemize}
             \item Arbetar på nätverksdumpar (lagrad nätverkstrafik)
@@ -102,7 +102,7 @@
 
     % Vår approach
     \begin{frame}
-        \frametitle{Vårt angreppssätt}
+        \frametitle{K: Vårt angreppssätt}
         Input: Nätverksdump (pcap), hämtad från t.ex. Wireshark\\
         Metod:
         \begin{enumerate}
@@ -126,7 +126,7 @@
     
     % Klustring
     \begin{frame}
-        \frametitle{Hitta meddelandetyper}
+        \frametitle{K: Hitta meddelandetyper}
         \begin{itemize}
             \item Antagande: Liknande data $\Leftrightarrow$ samma meddelandetyp
                 \begin{itemize}
@@ -142,7 +142,7 @@
         \end{itemize}
     \end{frame}
     \begin{frame}
-        \frametitle{Hitta meddelandetyper -- Klustring}
+        \frametitle{K: Hitta meddelandetyper -- Klustring}
         Problem:
         \begin{itemize}
             \item Okänt antal kluster (meddelandetyper)
@@ -186,7 +186,7 @@
         \end{columns}
     \end{frame}
     \begin{frame}
-        \frametitle{Hitta meddelandetyper -- Klustring (forts.)}
+        \frametitle{K: Hitta meddelandetyper -- Klustring (forts.)}
         Egenskaper: Vektor $\{f_1, f_2, ..., f_n\}$
         \begin{itemize}
             \item $n$: Meddelandets längd
@@ -209,7 +209,7 @@
         \end{itemize}
     \end{frame}
     \begin{frame}
-        \frametitle{Hitta meddelandetyper -- Förfining}
+        \frametitle{K: Hitta meddelandetyper -- Förfining}
         \begin{itemize}
             \item \emph{Typ-bytes}: Bytes som bestämmer ett meddelandes typ \\
                 \begin{itemize}
@@ -233,7 +233,7 @@
 
     % Fält
     \begin{frame}
-        \frametitle{Protokollens fält}
+        \frametitle{F: Protokollens fält}
         \begin{itemize}
             \item Lagrar data som är intressant för protokollet
             \item Ligger ofta justerade efter 1, 2 eller 4 bytes
@@ -261,7 +261,7 @@
     % Något om hur vi kör vår klassificering
 
     \begin{frame}
-        \frametitle{Konstanta fält}
+        \frametitle{F: Konstanta fält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
                 \begin{itemize}
@@ -284,7 +284,7 @@
         \end{columns}
     \end{frame}
     \begin{frame}
-        \frametitle{Flaggfält}
+        \frametitle{F: Flaggfält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
                 \begin{itemize}
@@ -306,7 +306,7 @@
         \end{columns}
     \end{frame}
     \begin{frame}
-        \frametitle{Uniformt fördelade fält}
+        \frametitle{F: Uniformt fördelade fält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
                 \begin{itemize}
@@ -326,7 +326,7 @@
         \end{columns}
     \end{frame}
     \begin{frame}
-        \frametitle{Nummerfält}
+        \frametitle{F: Nummerfält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
                 \begin{itemize}
@@ -343,7 +343,7 @@
         \end{columns}
     \end{frame}
     \begin{frame}
-        \frametitle{Inkrementella fält}
+        \frametitle{F: Inkrementella fält}
         \begin{itemize}
             \item Bytevärdesdistribution är ointressant
                 \begin{itemize}
@@ -360,7 +360,7 @@
         \end{itemize}
     \end{frame}
     \begin{frame}
-        \frametitle{Längdfält}
+        \frametitle{F: Längdfält}
         \begin{columns}[t]
             \begin{column}[T]{6cm}
                 \begin{itemize}
@@ -387,7 +387,7 @@
 
     % Tillstånd
     \begin{frame}
-        \frametitle{Protokolls tillstånd}
+        \frametitle{K: Protokolls tillstånd}
         \begin{itemize}
             \item Protokoll modelleras ofta efter \emph{tillståndsdiagram}
             \item Vet vilka typer som finns och i vilken ordning de skickats
@@ -418,7 +418,7 @@
 
     % Resultat
     \begin{frame}
-        \frametitle{Resultat -- Klustring}
+        \frametitle{K: Resultat -- Klustring}
         Resultat efter OPTICS:
         \begin{table}[h]
             \centering
@@ -459,7 +459,7 @@
         \end{itemize}
     \end{frame}
     \begin{frame}
-        \frametitle{Resultat -- Fält}
+        \frametitle{K: Resultat -- Fält}
         \begin{table}[h]
             \scriptsize{
                 \begin{tabular}{| l | r | r | r |}
@@ -514,7 +514,7 @@
     \end{frame}
     % Begränsningar
     \begin{frame}
-        \frametitle{Begränsningar}
+        \frametitle{K: Begränsningar}
         \begin{itemize}
             \item Textuella protokoll
                 \begin{itemize}
