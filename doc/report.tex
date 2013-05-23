@@ -1422,19 +1422,18 @@ We measure the performance of our method by comparing the results from the
 type inference and field inference to annotated data from a variety of network
 captures for binary protocols.
 
-The common property for all the data sets we have analyzed is that they do
-not explore the entire protocol. If some field in a protocol is constant most
-of the time but is set to a certain value in special cases we will have
-difficulties finding it. Such fields may be flags that denotes some error code
-or some uncommon state of the protocol. If some type is never present in the
-dump, we will not be able to predict its existence.
+A common property for all the datasets we have analyzed is that they do
+not capture the entire protocol they contain. If some field in the protocol is
+constant within the dump we will have difficulties classifying it correctly.
+Such fields may be flags that denotes some error code or some uncommon state of
+the protocol.
 
 These difficulties emphasize the importance of diverse network captures.
 
 \section{Datasets}
 We have chosen five different data sets for our performance analysis. Each
 data set contains messages from a single protocol. All the protocols vary
-in complexity, header size and area of usage. The protocols are the following:
+in complexity, header size and usage area. The protocols are the following:
 
 \begin{itemize}
     \item \textbf{SMB}: \emph{Server Message Block}, a protocol mainly used
@@ -1460,8 +1459,8 @@ in complexity, header size and area of usage. The protocols are the following:
         header and a number of extension headers to BOOTP.
 \end{itemize}
 
-In Table~\ref{tab:datasets} we list the properties of our different datasets.
-
+In Table~\ref{tab:datasets} we list some of the properties for our different
+datasets.
 
 \begin{table}[h]
     \centering
@@ -1483,12 +1482,12 @@ In Table~\ref{tab:datasets} we list the properties of our different datasets.
 \label{sec:clustperf}
 We measure the performance of our clustering using the metrics described in
 Section~\ref{sec:metrics}: homogeneity, completeness and V-measure. The truth we
-use when calculating the metrics is based on the protocol definition in
+use when calculating the metrics is based on the protocol definitions in
 Wireshark.
 
 In Table~\ref{tab:clusterparams}, we list the parameters we use on the
-different datasets. The initial clustering, which uses OPTICS, uses only the
-$Limit$ and $MinPts$ parameters. The type distinguisher clustering uses only
+different datasets. The initial clustering, which uses OPTICS, uses the
+$Limit$ and $MinPts$ parameters. The type distinguisher clustering uses
 the results from the OPTICS clustering and the $MaxNumTypes$ parameter. All of
 these parameters are rather insensitive to change.
 % Metrics: homogeneity, completeness, V-measure
@@ -1521,7 +1520,7 @@ gives us a small number of clusters for each true type, ideally a single
 cluster.
 
 The performance for the RTP and DHCP data sets are inferior to the other
-protocols. OPTICS has bad performance on RTP since our dump contains messages
+protocols. OPTICS has bad performance on RTP since our dump only contains messages
 from a single message type. Instead of clustering on type-specific data, it
 proceeds to cluster the messages on the protocol payload. Since the payload
 data is very specific for each connection, each cluster mainly contains
@@ -1568,23 +1567,7 @@ other datasets, the results are close to ideal.
     \label{tab:tdclusterresults}
 \end{table}
 
-% SMB
-% SMB Command (byte 8), response/request flag (byte 13, bit 0)
-% All things with SMB is done on filtered data!
-
-% DNS
-% QR OPCODE AA RCODE
-
-% TFTP
-% OPCODE (byte 0-1)
-
-% RTP
-% Payload Type (byte 1, bit 1-7)
-
-% DHCP
-% Message type (byte 0), DHCP Message Type (byte 242)
-
-In Table~\ref{tab:typedistinguishers} below are the type distinguishers chosen
+Table~\ref{tab:typedistinguishers} shows the type distinguishers chosen
 by our clustering and the true type distinguishers for each protocol. Note that
 we classify both type flags and request/response-flags as type distinguishers,
 and that the true type distinguishers have byte resolution. The consequence of
@@ -1612,16 +1595,14 @@ If the type distinguisher bytes are chosen correctly, the clustering is close
 to ideal. Failing to find a correct type distinguisher has a heavy impact on
 the results. This is evident in the results from the RTP dataset. The chosen
 type distinguishers are actually defined as a stream identifier in the RTP
-specification. Our dataset contains several streams with variant data for
+specification. Our dataset contains several streams with similar data within
 each stream, but only one actual message type.
 
 For DHCP our type distinguisher clustering has found one of the two true
 type distinguishers. The one it has found is the type byte in the
 bootstrap protocol BOOTP that wraps the DHCP protocol. The second true type
 byte is located in an extension header to the BOOTP protocol. Our method fails
-to find this byte.
-
-% Try to speculate why it fails?
+to find this byte which causes the drop in performance for DHCP.
 
 \section{Field inference performance}
 \label{sec:fieldperf}
@@ -2036,11 +2017,11 @@ type distinguisher. It also shows the difficulties in trying to infer types
 in protocols where no type distinguisher exists or when the dataset is
 not diverse enough.
 
-Having diverse datasets is key to finding a good type inference. Ideally, a
+Having diverse datasets is key to constructing a good type inference. Ideally, a
 dataset containing all possible message types, a large number of sessions,
 and messages from all edge-cases of the protocol would be needed for a
 complete inference. This would require large datasets containing many more
-messages than the datasets we used to generate our results. Using the OPTICS
+messages than the datasets we used during our evaluation. Using the OPTICS
 algorithm for such large datasets would be infeasible since its time
 complexity is at best $O(n \cdot \log n)$ as proven by \citet{ankerst99}.
 A better approach would be to perform OPTICS on a subset of a large dataset
@@ -2048,8 +2029,8 @@ in order to find the format distinguishers, and subsequently perform
 format distinguisher clustering on the complete dataset.
 
 % State machines
-From the inferred types we were able to construct state diagrams that reveals
-the ordering in which messages of different types were sent. This was suggested
+From the inferred types we were able to construct state diagrams that reveal
+the order in which messages of different types were sent. This was suggested
 as future work in Discoverer by \citet{cui07}. For protocols with a large
 number of types we infer an immense amount of state transitions. This renders
 a very complex state diagram. Instead we consider the state diagram inference
@@ -2058,7 +2039,7 @@ DNS where the number of types are small.
 
 % Explain why the field inferences are actually pretty good, and why it is hard
 % to define a metric which is suitable.
-When the types were inferred our method moved on to inferring fields and field
+When the types were inferred we could proceed to infer fields and field
 semantics. In Section~\ref{sec:field_inf} we introduced a set of
 field primitives and corresponding heuristics for classifying them. The
 performance of these heuristics was measured in Section~\ref{sec:fieldperf}.
@@ -2067,35 +2048,27 @@ strict in the sense that ideal results (100\% correct field classifications)
 were in most cases only achievable if the actual protocol specification was
 given as input. For instance, fields labeled as data in the true specification
 could never be classified correctly, thus making a perfect classification
-impossible using our metric. 
+impossible. Taking this into account, our field inference performance is
+fairly good. We have not found any related works that are able to infer field
+semantics at the same level of detail as our method.
 
-% (Try to) compare the results with other methods. Emphasize that unlike the
-% other methods we've reviewed, we seek semantics in fields (other than
-% just constant or variable)
-Taking this into account, our field inference performance is fairly good.
-We have not found any related work that infer field semantics at the same
-level as our method.
-
-% Talk about time complexity for the process?
-The time complexity for our field inference is rather high, mainly because
-of the number field inference which performs a large number of normal
+The time consumption for our field inference is rather high, mainly because
+of the classification of number fields which performs a large number of normal
 distribution curve fittings.
 
-% Give a short description on field inference in clusters and in what situations
-% it yields usable results
-% Explain why alignment might be unnecessary and discuss alternative solutions.
-After inferring fields in common for all message types, we made an
-attempt to infer fields within each type. During this process we initially
-aligned the data using our modified version of Needleman-Wunsch defined in
-Section~\ref{sec:nonmutualalign}. After the data had been aligned, we hoped to
-find which fields that were of variable length and if their length was
-decided by some length field or a delimiter. We found difficulties in
-analyzing the results from the alignment and we were not able to handle
-variable length fields or variable number of fields. Finding an alternative
-to using sequence alignment when examining variable fields is an area we
-leave to future work. Possibly length fields could iteratively be examined
-in order to limit the analysis to the bytes that the length field enclose,
-e.g. one of many variable fields.
+After inferring fields in common for all message types, we proceeded to
+infer fields within each type. During this process we aligned the data using
+our modified version of Needleman-Wunsch defined in
+Section~\ref{sec:nonmutualalign}. After the data had been aligned, we attempted
+to perform our field inference on the aligned data with mixed results. One
+of the major problems with validating the results for the field inference
+within clusters is the need for annotated data. The large number of different
+message types makes it difficult to create definitions for all of them. Another
+problem is the impact of incorrect alignments. A few misaligned messages can
+cause confusion for our classification heuristics.
+
+Finding an alternative to using sequence alignment when examining variable
+length fields or a variable number of fields is an area we leave to future work.
 
 \section{Limitations}
 During the development of our approach we have both found a number of
@@ -2169,9 +2142,15 @@ data analysis.
 
 \section{Future work}
 There are a number of areas we have not been able to explore in this thesis
-due to limited time or resources. The ideas in this section have come up
-while evaluating our current method and could improve the results from our
-method considerably.
+due to limited time or resources. After evaluating our method we propose the
+following improvements.
+
+\subsection{Iterative identification of length fields}
+A possible alternative to using sequence alignment could be to find the exact
+length of all variable parts for each message. This could be done by performing
+identification of length field in an iterative manner. Each subsequent iteration
+would then use the parts of the message that has not yet been included into the
+range of a previously identified length field.
 
 \subsection{Correspondence analysis}
 In Section~\ref{sec:pca} we describe how we use PCA in order to reduce the
@@ -2180,9 +2159,11 @@ with the most variance. Another method which falls under the same category is
 correspondence analysis. Correspondence analysis is very similar to PCA, but
 it is applied to nominal data instead of continuous data.
 
-Due to the lack of good correspondence analysis libraries we have been unable
-to evaluate its performance on our feature vectors. Judging from its
-definition, it should be more suitable than PCA in our field of application.
+Using correspondence analysis we could possibly use nominal data for our
+features in Section~\ref{sec:init_clust} instead of probabilities. Due to the
+lack of correspondence analysis libraries we have been unable to evaluate its
+performance. Judging from its definition, it should be more suitable than PCA
+in our field of application.
 
 \subsection{Machine learning for field inference}
 Our methods use statistical heuristics when inferring fields. Each heuristic
@@ -2195,8 +2176,8 @@ In our research we considered using these methods when classifying fields.
 The main complication with this approach was the difficulty in building the
 training set. Each byte in a protocol yields a single sample. In order to
 build a good training set we would have to annotate and process a large
-amount of binary protocols. Using these techniques could possibly lead to
-more robust field classification. Building the training set however is out
+amount of binary protocols. These techniques could possibly lead to a
+more robust field classification. Building the training set is however out
 of the scope for this thesis.
 
 \subsection{Timestamp identification}
@@ -2208,9 +2189,10 @@ visible in the least significant byte of a timestamp field. Using frequency
 analysis, it should be possible to determine the time resolution. This could
 be applicable for media streaming protocols.
 
-For general timestamps, we could compare the packet delivery timestamp given
-by the dataset with the value difference in a field. If this difference is
-consistent enough, we could classify the field as a timestamp.
+For general timestamps, we could compare the difference in packet delivery
+timestamps given by the dataset with the difference of the values in the field.
+If the relationship between the two differences consistent enough, we could
+classify the field as a timestamp.
 
 \bibliographystyle{plainnat}
 \bibliography{thesis}
