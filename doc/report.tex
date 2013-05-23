@@ -256,32 +256,33 @@ of clusters as a parameter to the algorithm.
 DBSCAN was first presented by \citet{ester96}. The algorithm takes a set of
 samples $D$ and two parameters, $MinPts$ and $\varepsilon$. $MinPts$ represents
 the lower bound for how many proximal samples are needed in order to form a
-cluster, while $\varepsilon$ is a parameter used to define proximity.
+cluster, while $\varepsilon$ is a parameter used to define proximity. In order
+to explain the algorithm in greater detail we first need to introduce some
+definitions.
 
-The algorithm introduces the definition \emph{$\varepsilon$-neighborhood}
-$N_{\varepsilon}(p)$ for a point $p$ as the following:
-
-\begin{equation}
+\begin{definition}
+The \emph{$\varepsilon$-neighborhood}, $N_{\varepsilon}(p)$, for a sample $p$
+is defined as the following:
+\[
     N_{\varepsilon}(p) = \{ q \in D ~|~ dist(p,q) \le \varepsilon  \}
     \label{eq:eps}
-\end{equation}
+\]
+where $dist(p,q)$ is the distance between samples $p$ and $q$.
+\end{definition}
 
-where $dist(p,q)$ is the distance between point $p$ and $q$. The samples in
-$N_{\varepsilon}(p)$ are defined as \emph{directly density-reachable} from $p$.
-
-Given that
-$|N_{\varepsilon}(p)| \ge MinPts$, the samples in $N_{\varepsilon}(p)$ forms a
-cluster, and $p$ is a \emph{core point}. A cluster is not limited to containing
-samples which are directly density-reachable. The DBSCAN algorithm also defines
-that samples which are not directly density-reachable may be
-\emph{density-reachable}. A sample $q$ is density-reachable from a sample $p$
-if there is a set of samples
+Furthermore, the samples in $N_{\varepsilon}(p)$ are defined as \emph{directly
+density-reachable} from $p$. Given that $|N_{\varepsilon}(p)| \ge MinPts$, the
+samples in $N_{\varepsilon}(p)$ forms a cluster, and $p$ is a \emph{core
+sample}. A cluster is not limited to containing samples which are directly
+density-reachable. The DBSCAN algorithm also defines that samples which are not
+directly density-reachable may be \emph{density-reachable}. A sample $q$ is
+density-reachable from a sample $p$ if there is a set of samples
 $S = \{s_1, s_2, \ldots, s_n\}$ where $p = s_1$, $q = s_n$ and $s_{i+1}$ is
 directly density-reachable from $s_i$ for $0 < i < n$.
 
 Since the density-reachable relationship is not symmetric, a looser
 relationship is introduced: \emph{density-connected}. Two samples $p$ and
-$q$ are density-connected if there exists a third point $o$ from which both
+$q$ are density-connected if there exists a third sample $o$ from which both
 $p$ and $q$ are density-reachable. The density-connected relationship
 is symmetric.
 
@@ -289,7 +290,7 @@ With these relationships, the algorithm defines cluster membership as
 follows:
 
 \begin{definition}
-    The following conditions needs to be satisfied for a point $q$ to be a
+    The following conditions needs to be satisfied for a sample $q$ to be a
     member of a cluster $C$, given that there is a sample $p \in C$:
     \begin{enumerate}
         \item $q$ is density-reachable from $p$
@@ -332,10 +333,11 @@ Instead, it generates an \emph{ordering} of samples and a set of corresponding
 input data. The OPTICS algorithm extends DBSCAN with the definitions
 \emph{core-distance} and \emph{reachability-distance}.
 
-Core-distance is a measurement of the distance $\varepsilon$ which is required
-for a sample $p$ to be a core point. The $\varepsilon$ parameter can be set to
+Core-distance is a measure of the distance $\varepsilon$ which is required
+for a sample $p$ to be a core sample. The $\varepsilon$ parameter can be set to
 $\infty$ but that might affect the runtime of the algorithm as more samples are
-considered for inclusion in the clusters.
+considered for inclusion in the clusters. Reachability-distance is the smallest
+distance such that $p$ is directly density-reachable from a core sample $q$.
 
 \begin{definition}
     The core-distance for a sample $p$ is defined as:
@@ -347,10 +349,6 @@ considered for inclusion in the clusters.
     \end{cases}
 \]
 \end{definition}
-
-% The reachability-distance of a sample $p$ is the smallest distance,
-% $\varepsilon$, which is needed for $p$ to be directly density-reachable to a
-% core point $q$.
 
 \begin{definition}
     The reachability-distance of a sample $p$ with respect to some sample $q$
@@ -379,22 +377,28 @@ considered for inclusion in the clusters.
         $MinPts = 200$.}
         \label{fig:hierextr}
     \end{subfigure}
-    \caption{Reachability-plots generated from the ordering and
-    reachability-distances given by OPTICS.}
+    \caption{Reachability-plots for DHCP and DNS data. In (\subref{fig:rplot})
+        a normal reachability plot for DHCP data is given. In
+        (\subref{fig:hierextr}) a similar, but more complex, plot is given for
+        DNS data. The alternating background color represents different clusters
+        that have been extracted. The true types \emph{request} and
+        \emph{response} are colored blue and green respectively. Note that the
+        true types of DNS may be extended to different record types such as
+        A/AAAA/CNAME-records.}
     \label{fig:rplots}
 \end{figure}
 
 From the ordering and reachability-distances, the cluster structure may be
 visualized in a \emph{reachability-plot}. The reachability-plot provides an
 overview of the output from OPTICS as a bar-plot where the bars represent
-reachability-distances in the ordering generated by OPTICS.
-
-An example of a reachability plot generated from 5000 DHCP-packets with
-$MinPts = 500$ is shown in Figure~\ref{fig:rplot}. Valleys in the
+reachability-distances in the ordering generated by OPTICS. Valleys in the
 reachability-plot represent samples which are close to each other. Spikes
 represent a large difference in distance between the samples to the left and
-right of the spike. The pseudocode for OPTICS is given in
-Algorithm~\ref{alg:optics}.
+right of the spike.
+
+An example of a reachability plot generated from 5000 DHCP-packets with
+$MinPts = 500$ is shown in Figure~\ref{fig:rplot}. The pseudocode for OPTICS
+is given in Algorithm~\ref{alg:optics}.
 \\
 {
     \fontsize{10}{12}
@@ -462,12 +466,8 @@ where the leaves are clusters.
 The pseudocode for hierarchical extraction is given in
 Algorithm~\ref{alg:hierextr}. Figure~\ref{fig:hierextr} is the result of
 the algorithm running on the same DNS dataset as Figure~\ref{fig:dbscan}
-with $MinPts = 200$. The algorithm yields three clusters, each cluster
-distinguished by alternating background color. The true types \emph{request} and
-\emph{response} are colored blue and green respectively in the reachability
-plot. Note that the algorithm is rather insensitive to the $MinPts$ parameter,
-and that the true types of DNS may be extended to different record types such
-as A/AAAA/CNAME-records.
+with $MinPts = 200$. Note that the algorithm is rather insensitive to the
+$MinPts$ parameter.
 \\
 {
     \fontsize{10}{12}
