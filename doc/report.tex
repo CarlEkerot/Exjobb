@@ -543,28 +543,24 @@ $MinPts$ parameter.
 
 \subsection{Clustering metrics}
 \label{sec:metrics}
-When measuring the quality of a clustering from a clustering algorithm, a
-number of metrics are defined. These metrics reflect the quality of the
-features as well as the clustering algorithm. The metrics require labels
-given from the clustering algorithm as well as a \emph{truth}, i.e. the true
-classes of the samples. The clustering metrics we use are based on information
-entropy theory and for their exact definition we refer to the paper by
-\citet{rosenberg07} where they were originally defined. Below are intuitive
-descriptions of each metric.
+For measuring the quality of a clustering, a number of metrics need to be
+defined. These metrics reflect the quality of the features as well as the
+clustering algorithm. The metrics require labels given from the clustering
+algorithm as well as a \emph{truth}, i.e. the true classes of the samples.
+The clustering metrics we use are based on information entropy theory and
+for their exact definition we refer to the paper by \citet{rosenberg07}
+where they were originally defined. Below are intuitive descriptions of
+each metric.
 
 \subsubsection{Homogenity score}
-Homogenity is satisfied when every cluster only contains members of a single
-true class. When completely satisfied, $h = 1$. If every cluster contains
-samples from different true classes then $h = 0$. When some clusters only
-contain members from one true class while others contain mixed true classes
-then $0 < h < 1$.
+Homogenity, $h$, is satisfied when every cluster only contains members of a
+single true class. The homogenity score lies in the range $0 \le h \le 1$ and
+when completely satisfied, $h = 1$.
 
 \subsubsection{Completeness score}
-Completeness is satisfied when all members of a true class are in the same
-cluster. When completely satisfied, $c = 1$. If all members of a true class
-are spread out over different clusters then $c = 0$. When some true classes
-are spread out while other are contained in single clusters then
-$0 < c < 1$.
+Completeness, $c$, is satisfied when all members of a true class are in the
+same cluster. Like the homogenity score, completeness lies in the range
+$0 \le c \le 1$ and when completely satisfied, $c = 1$.
 
 \subsubsection{V-measure score}
 V-measure is a weighted harmonic mean of homogenity and completeness, and
