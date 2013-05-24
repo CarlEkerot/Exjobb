@@ -117,13 +117,20 @@
     % Klustring
     \begin{frame}
         \frametitle{Hitta meddelandetyper}
-        \begin{itemize}
-            \item Antagande: Liknande data $\Leftrightarrow$ samma meddelandetyp
-            \item Klustring: Gruppera datapunkter m.a.p. egendefinierade egenskaper
-                för varje datapunkt
-            \item Använda resultat från klustring för att hitta de bytes som
-                definierar ett meddelandes typ
-        \end{itemize}
+        \begin{columns}[t]
+            \begin{column}[T]{6cm}
+                \begin{itemize}
+                    \item Antagande: Liknande data $\Leftrightarrow$ samma meddelandetyp
+                    \item Klustring: Gruppera datapunkter m.a.p. egendefinierade egenskaper
+                        för varje datapunkt
+                    \item Använda resultat från klustring för att hitta de bytes som
+                        definierar ett meddelandes typ
+                \end{itemize}
+            \end{column}
+            \begin{column}[T]{6cm}
+                \includegraphics[height=4.5cm]{img/dbscan_dns.pdf}
+            \end{column}
+        \end{columns}
     \end{frame}
     \begin{frame}
         \frametitle{Hitta meddelandetyper -- Klustring}
@@ -154,7 +161,7 @@
         \frametitle{Hitta meddelandetyper -- Klustring (forts.)}
         Egenskaper: Vektor $\{f_1, f_2, ..., f_n\}$
         \begin{itemize}
-            \item $n$: Meddelandets längd
+            \item $n$: Längsta meddelandets längd
             \item $f_i$: Sannolikhet för att bytevärdet på position $i$ i
                 meddelandet är det värdet som det är.
         \end{itemize}

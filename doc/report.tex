@@ -852,8 +852,9 @@ all messages.
 We define a matrix $P$ where each element $p_{i,j}$ is the observed probability
 that the byte with the decimal value $j$ is present at the offset $i$ for all
 packets. Using $P$ we create the feature vector $\{f_1, f_2, ..., f_n\}$ for
-every message $m$ where $m$ is $n$ bytes long. We define each feature as
-$f_i = p_{i, m_i}$.
+every message $m$ where $n$ is the length of the longest message. We
+define each feature as $f_i = p_{i, m_i}$ within the length of $m$ and $f_i = 0$
+otherwise.
 
 Informally, this means that we create a feature vector consisting of $n$
 features for each message. Each element $f_i$ in the feature vector is the
