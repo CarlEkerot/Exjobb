@@ -46,6 +46,7 @@ class ProtocolAnalyser(object):
         print_fields(fields, global_limit)
         for label in self.cluster_est:
             print (' CLUSTER %d (%d) ' % (label, len(self.clusters[label]))).center(33, '=')
+            print 'TD values:', ', '.join([str(ord(self.msgs[self.clusters[label][0]].data[i])) for i in self.type_distinguishers])
             fields = create_cluster_fields(self.cluster_est, ordered_sizes, label, self.type_distinguishers)
             print_fields(fields)
 
